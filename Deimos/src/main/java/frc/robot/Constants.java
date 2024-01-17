@@ -39,10 +39,10 @@ public final class Constants {
         
         // angles in radians. 
         // to convert from degrees to radians multiply by pi/180 
-        public static final double kFrontLeftSteerOffset = 0;//-0.35 - (Math.PI / 2.0);//-.35;
-        public static final double kFrontRightSteerOffset = 0;//0.4 - (Math.PI / 2.0);//0.40;
-        public static final double kBackLeftSteerOffset = (Math.PI / 2.0);//(0.0 * Math.PI) / 180.0 + (Math.PI / 4.0);//0.45 - (Math.PI / 2.0);//.45;
-        public static final double kBackRightSteerOffset = 0;//-0.5 - (Math.PI / 2.0);//-.5;
+        public static final double kFrontLeftSteerOffset = (10.0 * Math.PI) / 180.0;
+        public static final double kFrontRightSteerOffset = (-85.0 * Math.PI) / 180.0;
+        public static final double kBackLeftSteerOffset = (126.0 * Math.PI) / 180.0;
+        public static final double kBackRightSteerOffset = (-52.0 * Math.PI) / 180.0;
 
 
         private static final double kMk4L1DriveReduction = (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0);

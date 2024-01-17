@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.wpilibj.SPI;
@@ -101,8 +101,8 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 		//mPhotonCamera = new PhotonCamera("photonvision");
 
-		//mFrontLeftModule = Mk4SwerveModuleHelper.createFalcon500Neo(
-			mFrontLeftModule = Mk4SwerveModuleHelper.createNeo(
+		//mFrontLeftModule = Mk4iSwerveModuleHelper.createFalcon500Neo(
+			mFrontLeftModule = Mk4iSwerveModuleHelper.createNeo(
 			//change functions
 			
 				// This parameter is optional, but will allow you to see the current state of
@@ -112,7 +112,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 						.withPosition(0, 0),
 				// This can either be STANDARD or FAST depending on your gear configuration
 				//L1 before
-				Mk4SwerveModuleHelper.GearRatio.L3,
+				Mk4iSwerveModuleHelper.GearRatio.L3,
 				// This is the ID of the drive motor
 				kFrontLeftDriveMotorId,
 				// This is the ID of the steer motor
@@ -123,31 +123,31 @@ public class DriveSubsystem extends AftershockSubsystem {
 				// zero is facing straight forward)
 				kFrontLeftSteerOffset);
 
-		mFrontRightModule = Mk4SwerveModuleHelper.createNeo(
+		mFrontRightModule = Mk4iSwerveModuleHelper.createNeo(
 				tab.getLayout("Front Right Module", BuiltInLayouts.kList)
 						.withSize(2, 4)
 						.withPosition(2, 0),
-				Mk4SwerveModuleHelper.GearRatio.L3,
+				Mk4iSwerveModuleHelper.GearRatio.L3,
 				kFrontRightDriveMotorId,
 				kFrontRightSteerMotorId,
 				kFrontRightSteerEncoderId,
 				kFrontRightSteerOffset);
 
-		mBackLeftModule = Mk4SwerveModuleHelper.createNeo(
+		mBackLeftModule = Mk4iSwerveModuleHelper.createNeo(
 				tab.getLayout("Back Left Module", BuiltInLayouts.kList)
 						.withSize(2, 4)
 						.withPosition(4, 0),
-				Mk4SwerveModuleHelper.GearRatio.L3,
+				Mk4iSwerveModuleHelper.GearRatio.L3,
 				kBackLeftDriveMotorId,
 				kBackLeftSteerMotorId,
 				kBackLeftSteerEncoderId,
 				kBackLeftSteerOffset);
 
-		mBackRightModule = Mk4SwerveModuleHelper.createNeo(
+		mBackRightModule = Mk4iSwerveModuleHelper.createNeo(
 				tab.getLayout("Back Right Module", BuiltInLayouts.kList)
 						.withSize(2, 4)
 						.withPosition(6, 0),
-				Mk4SwerveModuleHelper.GearRatio.L3,
+				Mk4iSwerveModuleHelper.GearRatio.L3,
 				kBackRightDriveMotorId,
 				kBackRightSteerMotorId,
 				kBackRightSteerEncoderId,

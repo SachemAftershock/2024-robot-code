@@ -44,8 +44,8 @@ public class RobotContainer {
     configureButtonBindings();
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.kMaxVelocityMetersPerSecond,
-            () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond,
+            () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
             () -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
   }
