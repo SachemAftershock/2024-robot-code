@@ -1,8 +1,11 @@
 plugins {
     id "java"
+    // Verify this matches the latest release of WPILib's roboRIO image.
     id "edu.wpi.first.GradleRIO" version "2024.1.1"
 }
 
+// This jitpack must be copied from previous year's code after doing an import from last
+// year's project because it gets lost.  See lines lower down too.  
 allprojects {
     repositories {
         maven { 
@@ -56,6 +59,8 @@ dependencies {
     implementation group: 'org.json', name: 'json', version: '20231013'    
     
     // Sachem Aftershock Swerve Library
+    // Verify this matches latest release shown at https://github.com/SachemAftershock/swerve-lib/releases
+    // and at https://jitpack.io/#SachemAftershock/swerve-lib
     implementation 'com.github.SachemAftershock:swerve-lib:2.4.2'
 
     implementation wpi.java.vendor.java()
