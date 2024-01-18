@@ -24,6 +24,7 @@ import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.RotateDriveCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -95,18 +96,18 @@ public class RobotContainer {
       new Pose2d(1.5, 1.5, new Rotation2d()),
       config
     );
-
-    return new LinearDriveCommand(mDriveSubsystem, 2.0, CardinalDirection.eX);
-
-
-    // return new SequentialCommandGroup(
-    //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory),
-    //   //new RotateDriveCommand(mDriveSubsystem, 90),
-    //   //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory2)
-    //   //new RotateDriveCommand(mDriveSubsystem, -30)
+    return new RotateDriveCommand(mDriveSubsystem, 90);
+    //return new LinearDriveCommand(mDriveSubsystem, 2, CardinalDirection.eX); //was 2.0
 
 
-    // );
+    /return new SequentialCommandGroup(
+    FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory),
+       new RotateDriveCommand(mDriveSubsystem, 90),
+       FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory2),
+       new RotateDriveCommand(mDriveSubsystem, -30)
+
+
+     );
   }
 
   private static double deadband(double value, double deadband) {

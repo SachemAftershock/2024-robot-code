@@ -15,6 +15,7 @@ public class LinearDriveCommand extends Command {
     private PID mPid;
     private double mCurrentPose; 
     private CardinalDirection mDirection;
+    private double prevSpeed;
     
     //Field Relative : Y direction is horizontal, X direction is downfield 
 
@@ -29,6 +30,7 @@ public class LinearDriveCommand extends Command {
     @Override
     public void initialize() {
         mCurrentPose = 0.0;
+        prevSpeed = 0.0;
 
         if(mDirection == CardinalDirection.eY) {
             mLinearSetpoint += mDrive.getPose().getY();
@@ -56,9 +58,18 @@ public class LinearDriveCommand extends Command {
             mCurrentPose = mDrive.getPose().getX();
             direction = false;
         }
+		double speed = Math.sqrt( mPid.update(mCurrentPose, mLinearSetpoint) 
+            * DriveConstants.kMaxVelocityMetersPerSecond);
 
-		double speed = mPid.update(mCurrentPose, mLinearSetpoint) 
-            * DriveConstants.kMaxVelocityMetersPerSecond;
+        if (Math.abs(prevSpeed - speed) > 0.2) {
+             speed = prevSpeed + 4.0; // Accelerating in positive direction
+        }
+
+        prevSpeed = speed;
+
+        if(speed > 1.5){
+            speed = 1.5;
+        }
         //delete
         //System.out.println(speed);
         
