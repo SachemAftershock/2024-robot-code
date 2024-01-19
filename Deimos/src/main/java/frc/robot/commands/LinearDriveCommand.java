@@ -82,7 +82,8 @@ public class LinearDriveCommand extends Command {
         //System.out.println(speed);
 
         double speed = m_controller.calculate(mCurrentPose);
-        
+        System.out.println("speed: " + speed + " CurrentPose: " + mCurrentPose + "Setpoint: " + mLinearSetpoint );
+
         if(direction) {
             mDrive.drive(new ChassisSpeeds(0, speed, 0));
         } else {
@@ -93,7 +94,17 @@ public class LinearDriveCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return Math.abs(m_controller.calculate(mCurrentPose)) < DriveConstants.kLinearDriveEpsilon;
+        System.out.println("Linear Drive Command finished");
+
+        double mCurrentPose;
+        if(mDirection == CardinalDirection.eY) {
+            mCurrentPose = mDrive.getPose().getY();
+        } else {
+            mCurrentPose = mDrive.getPose().getX();
+        }
+
+
+        return Math.abs(mLinearSetpoint - mCurrentPose) < DriveConstants.kLinearDriveEpsilon;
     }
     @Override
     public void end(boolean interrupted) {
