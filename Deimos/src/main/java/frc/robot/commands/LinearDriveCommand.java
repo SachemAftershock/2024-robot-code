@@ -5,7 +5,10 @@ import frc.lib.PID;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.subsystems.DriveSubsystem;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 
 public class LinearDriveCommand extends Command {
@@ -16,6 +19,8 @@ public class LinearDriveCommand extends Command {
     private double mCurrentPose; 
     private CardinalDirection mDirection;
     private double prevSpeed;
+    private final TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(DriveConstants.kMaxVelocityMetersPerSecond, DriveConstants.kMaxAccelerationMetersPerSecondSquared);
+    private final ProfiledPIDController m_controller = new ProfiledPIDController(DriveConstants.kDriveLinearGains[0], DriveConstants.kDriveLinearGains[1], DriveConstants.kDriveLinearGains[2], m_constraints, DriveConstants.kDt);
     
     //Field Relative : Y direction is horizontal, X direction is downfield 
 
@@ -23,14 +28,14 @@ public class LinearDriveCommand extends Command {
         mDrive = drive;
         mLinearSetpoint = setpoint;
         mDirection = direction;
-        mPid = new PID();
+        //mPid = new PID();
         addRequirements(mDrive);
     }
 
     @Override
     public void initialize() {
         mCurrentPose = 0.0;
-        prevSpeed = 0.0;
+        //prevSpeed = 0.0;
 
         if(mDirection == CardinalDirection.eY) {
             mLinearSetpoint += mDrive.getPose().getY();
@@ -38,8 +43,9 @@ public class LinearDriveCommand extends Command {
             mLinearSetpoint += mDrive.getPose().getX();
         }
 
-        mPid.start(DriveConstants.kDriveLinearGains); //TODO: tune pid values
+        //mPid.start(DriveConstants.kDriveLinearGains); //TODO: tune pid values
         System.out.println("Linear Drive Command started : Current Pose --> " + mDrive.getPose() + " Setpoint " + mLinearSetpoint);
+        m_controller.setGoal(mLinearSetpoint);
     }
 
     @Override
@@ -58,32 +64,36 @@ public class LinearDriveCommand extends Command {
             mCurrentPose = mDrive.getPose().getX();
             direction = false;
         }
-		double speed = Math.sqrt( mPid.update(mCurrentPose, mLinearSetpoint) 
-            * DriveConstants.kMaxVelocityMetersPerSecond);
+		// double speed = Math.sqrt(Math.abs(mPid.update(mCurrentPose, mLinearSetpoint)) 
+        //     * DriveConstants.kMaxVelocityMetersPerSecond);
 
-        if (Math.abs(prevSpeed - speed) > 0.2) {
-             speed = prevSpeed + 4.0; // Accelerating in positive direction
-        }
+        // if (Math.abs(prevSpeed - speed) > 0.2) {
+        //     if()
+        //      speed = prevSpeed + 4.0; // Accelerating in positive direction
+        // }
 
-        prevSpeed = speed;
+        // prevSpeed = speed;
 
-        if(speed > 1.5){
-            speed = 1.5;
-        }
+        // if(Math.abs(speed) > 0.5){
+        //     speed = 0.5;
+        // }
+        
         //delete
         //System.out.println(speed);
-        
+
+        double speed = m_controller.calculate(mCurrentPose);
         
         if(direction) {
             mDrive.drive(new ChassisSpeeds(0, speed, 0));
         } else {
             mDrive.drive(new ChassisSpeeds(speed, 0, 0));
         }
+
     }
 
     @Override
     public boolean isFinished() {
-        return Math.abs(mPid.getError()) < DriveConstants.kLinearDriveEpsilon;
+        return Math.abs(m_controller.calculate(mCurrentPose)) < DriveConstants.kLinearDriveEpsilon;
     }
     @Override
     public void end(boolean interrupted) {

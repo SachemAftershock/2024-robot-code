@@ -96,18 +96,24 @@ public class RobotContainer {
       new Pose2d(1.5, 1.5, new Rotation2d()),
       config
     );
-    return new RotateDriveCommand(mDriveSubsystem, 90);
-    //return new LinearDriveCommand(mDriveSubsystem, 2, CardinalDirection.eX); //was 2.0
+    //return new RotateDriveCommand(mDriveSubsystem, 90);
+
+    return new LinearDriveCommand(mDriveSubsystem, 3, CardinalDirection.eX); //was 2.0
 
 
-    /return new SequentialCommandGroup(
-    FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory),
-       new RotateDriveCommand(mDriveSubsystem, 90),
-       FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory2),
-       new RotateDriveCommand(mDriveSubsystem, -30)
+    /**return new SequentialCommandGroup(
+      new LinearDriveCommand(mDriveSubsystem, 2, CardinalDirection.eX),
+      new RotateDriveCommand(mDriveSubsystem, 180),
+      new LinearDriveCommand(mDriveSubsystem, 2, CardinalDirection.eX)
+      
+    //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory),
+       //new RotateDriveCommand(mDriveSubsystem, 90),
+       //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory2),
+       //new RotateDriveCommand(mDriveSubsystem, -30)
 
-
-     );
+      
+     );**/
+     
   }
 
   private static double deadband(double value, double deadband) {

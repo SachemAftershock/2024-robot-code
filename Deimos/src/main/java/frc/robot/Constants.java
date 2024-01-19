@@ -25,7 +25,8 @@ public final class Constants {
         public static final boolean kSquareAxis = true; 
 
         public static final double[] kDriveAngularGains = {0.0125, 0.0, 0.0}; //dont use I it sucks - Shreyas
-        public static final double[] kDriveLinearGains = {0.08, 0.0, 0.0};
+        public static final double[] kDriveLinearGains = {1.5, 0.0, 0.0};
+        public static final double kDt = 0.02;
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;
@@ -50,10 +51,10 @@ public final class Constants {
 
         
         public static final double kMaxVelocityMetersPerSecond = 6380.0 / 60.0 *
-            kMk4L1DriveReduction * kMk4WheelDiameter * Math.PI;
+            kMk4L1DriveReduction * kMk4WheelDiameter * Math.PI ;// 6380.0 / 60.0 *kMk4L1DriveReduction * kMk4WheelDiameter * Math.PI
 
         //TODO: Change
-        public static final double kMaxAccelerationMetersPerSecondSquared = kMaxVelocityMetersPerSecond * 0.25;
+        public static final double kMaxAccelerationMetersPerSecondSquared = (kMaxVelocityMetersPerSecond * 0.25)*0.50; //kMaxVelocityMetersPerSecond * 0.25
 
         public static final double kMaxAngularVelocityRadiansPerSecond = kMaxVelocityMetersPerSecond /
         Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0);
