@@ -199,12 +199,15 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void initialize() {
-		//mPoseEstimator.resetPosition(new Pose2d(), new Rotation2d());
+		//do we want to call getPositions() to reset pose to current position?
+		mPoseEstimator.resetPosition(new Rotation2d(), getPositions(),new Pose2d());
 		zeroGyroscope();
 	}
 
 	@Override
 	public void periodic() {
+
+		//System.out.println("X-Pose" + mPoseEstimator.getEstimatedPosition().getX() + " Y Pose : " + mPoseEstimator.getEstimatedPosition().getY());
 
 		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
 		//delete

@@ -98,9 +98,9 @@ public class RobotContainer {
     );
     //return new RotateDriveCommand(mDriveSubsystem, 90);
 
-    return new LinearDriveCommand(mDriveSubsystem, 3, CardinalDirection.eX); //was 2.0
+    return (new LinearDriveCommand(mDriveSubsystem, 1.0, CardinalDirection.eX)).andThen(new LinearDriveCommand(mDriveSubsystem, 1.0, CardinalDirection.eX)); //was 2.0
     
-
+    
     /**return new SequentialCommandGroup(
       new LinearDriveCommand(mDriveSubsystem, 2, CardinalDirection.eX),
       new RotateDriveCommand(mDriveSubsystem, 180),
