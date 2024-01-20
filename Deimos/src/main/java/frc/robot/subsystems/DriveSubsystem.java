@@ -91,6 +91,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 	private ChassisSpeeds mChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
 	private final Limelight mLimelight;
+	private int counter = 0;
 	
 	private DriveSubsystem() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
@@ -200,8 +201,12 @@ public class DriveSubsystem extends AftershockSubsystem {
 	@Override
 	public void initialize() {
 		//do we want to call getPositions() to reset pose to current position?
+		this.drive(new ChassisSpeeds());
 		mPoseEstimator.resetPosition(new Rotation2d(), getPositions(),new Pose2d());
 		zeroGyroscope();
+		//mNavx.setAngleAdjustment(0.0);
+		counter = 0;
+		mNavx.setAngleAdjustment(-4.0);
 	}
 
 	@Override
@@ -227,6 +232,15 @@ public class DriveSubsystem extends AftershockSubsystem {
 		SwerveModuleState[] states = mKinematics.toSwerveModuleStates(mChassisSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, kMaxVelocityMetersPerSecond);
 
+
+		counter++;
+		if(counter > 50) {
+			//System.out.println("Angles FL" + states[0].angle.getRadians() + " FR " + states[1].angle.getRadians() + " BL " + states[2].angle.getRadians() + " BR " + states[3].angle.getRadians());
+			counter = 0;
+		}
+
+		
+
 		mFrontLeftModule.set(states[0].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[0].angle.getRadians());
 		mFrontRightModule.set(states[1].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
@@ -235,6 +249,15 @@ public class DriveSubsystem extends AftershockSubsystem {
 				states[2].angle.getRadians());
 		mBackRightModule.set(states[3].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[3].angle.getRadians());
+
+		// mFrontLeftModule.set(states[0].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
+		// 		0);
+		// mFrontRightModule.set(states[1].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
+		// 		0);
+		// mBackLeftModule.set(states[2].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
+		// 		0);
+		// mBackRightModule.set(states[3].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
+		// 		0);
 
 
 		//System.out.println(getPose());

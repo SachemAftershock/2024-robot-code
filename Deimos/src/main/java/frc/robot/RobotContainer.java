@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.CardinalDirection;
+import frc.robot.commands.DelayCommand;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
@@ -97,8 +98,8 @@ public class RobotContainer {
       config
     );
     //return new RotateDriveCommand(mDriveSubsystem, 90);
-
-    return (new LinearDriveCommand(mDriveSubsystem, 1.0, CardinalDirection.eX)).andThen(new LinearDriveCommand(mDriveSubsystem, 1.0, CardinalDirection.eX)); //was 2.0
+    //mDriveSubsystem.zeroGyroscope();
+    return new DelayCommand(0.15).andThen(new LinearDriveCommand(mDriveSubsystem, 4.0, CardinalDirection.eX)).andThen(new DelayCommand(.2)).andThen(new LinearDriveCommand(mDriveSubsystem, -4.0, CardinalDirection.eX)); //was 2.0
     
     
     /**return new SequentialCommandGroup(

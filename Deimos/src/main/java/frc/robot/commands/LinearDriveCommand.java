@@ -57,6 +57,9 @@ public class LinearDriveCommand extends Command {
         System.out.println("Linear Drive Command started : Current Pose --> " + mDrive.getPose() + " Setpoint " + mLinearSetpoint);
         m_controller.setGoal(mLinearSetpoint);
         counter = 0;
+
+        //mDrive.drive(new ChassisSpeeds(0, 0, 0));
+
     }
 
     @Override
@@ -100,6 +103,7 @@ public class LinearDriveCommand extends Command {
         }
 
         if(direction) {
+            //System.out.println("X-direc" + speed);
             mDrive.drive(new ChassisSpeeds(0, speed, 0));
         } else {
             mDrive.drive(new ChassisSpeeds(speed, 0, 0));
@@ -116,6 +120,7 @@ public class LinearDriveCommand extends Command {
             mCurrentPose = mDrive.getPose().getX();
         }
 
+        //return( Math.abs(m_controller.getPositionError()) < DriveConstants.kLinearDriveEpsilon);
 
         return Math.abs(mLinearSetpoint - mCurrentPose) < DriveConstants.kLinearDriveEpsilon;
     }
