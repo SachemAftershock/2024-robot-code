@@ -99,7 +99,7 @@ public class RobotContainer {
     );
     //return new RotateDriveCommand(mDriveSubsystem, 90);
     //mDriveSubsystem.zeroGyroscope();
-    return new DelayCommand(0.15).andThen(new LinearDriveCommand(mDriveSubsystem, 4.0, CardinalDirection.eX)).andThen(new DelayCommand(.2)).andThen(new LinearDriveCommand(mDriveSubsystem, -4.0, CardinalDirection.eX)); //was 2.0
+    return new DelayCommand(0.15).andThen(new LinearDriveCommand(mDriveSubsystem, 4.0)).andThen(new DelayCommand(.2)).andThen(new LinearDriveCommand(mDriveSubsystem, -4.0)); //was 2.0
     
     
     /**return new SequentialCommandGroup(

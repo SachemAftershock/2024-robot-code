@@ -32,7 +32,8 @@ public final class Constants {
         public static final double kPY = 1.25;
 
         public static final double kAutoRotateEpsilon = 3.0;
-        public static final double kLinearDriveEpsilon = 0.01;//.05
+        public static final double kLinearDriveTranslationEpsilon = 0.01;//.05
+        public static final double kLinearDriveRotationEpsilon = 2.0 * Math.PI / 180.0;
         
         
         public static final double kDrivetrainTrackwidthMeters = 0.5461;
