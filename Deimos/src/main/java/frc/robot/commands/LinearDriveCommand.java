@@ -12,15 +12,15 @@ public class LinearDriveCommand extends Command {
 
     private DriveSubsystem mDrive;
 
-    private double mDeltaX;
-    private double mCurrentPoseX; 
-    private TrapezoidProfile.Constraints m_constraintsX;
-    private ProfiledPIDController m_controllerX;
-
     private double mDeltaY;
     private double mCurrentPoseY; 
     private TrapezoidProfile.Constraints m_constraintsY;
     private ProfiledPIDController m_controllerY;
+
+    private double mDeltaX;
+    private double mCurrentPoseX; 
+    private TrapezoidProfile.Constraints m_constraintsX;
+    private ProfiledPIDController m_controllerX;
 
     private double mDeltaZ;
     private double mCurrentPoseZ; 
@@ -40,15 +40,15 @@ public class LinearDriveCommand extends Command {
     // Field oriented command, X is cross field, Y is Downfield, Z is clockwise Azimuth positive
     public LinearDriveCommand(DriveSubsystem drive, double deltaY, double deltaX, double deltaAzimuth) {
         mDrive = drive;
-        mDeltaX = deltaX;
         mDeltaY = deltaY;
+        mDeltaX = deltaX;
         mDeltaZ = deltaAzimuth;
-
-        m_constraintsX = new TrapezoidProfile.Constraints(DriveConstants.kMaxVelocityMetersPerSecond, DriveConstants.kMaxAccelerationMetersPerSecondSquared);
-        m_controllerX = new ProfiledPIDController(DriveConstants.kDriveLinearGains[0], DriveConstants.kDriveLinearGains[1], DriveConstants.kDriveLinearGains[2], m_constraintsX, DriveConstants.kDt);
 
         m_constraintsY = new TrapezoidProfile.Constraints(DriveConstants.kMaxVelocityMetersPerSecond, DriveConstants.kMaxAccelerationMetersPerSecondSquared);
         m_controllerY = new ProfiledPIDController(DriveConstants.kDriveLinearGains[0], DriveConstants.kDriveLinearGains[1], DriveConstants.kDriveLinearGains[2], m_constraintsY, DriveConstants.kDt);
+
+        m_constraintsX = new TrapezoidProfile.Constraints(DriveConstants.kMaxVelocityMetersPerSecond, DriveConstants.kMaxAccelerationMetersPerSecondSquared);
+        m_controllerX = new ProfiledPIDController(DriveConstants.kDriveLinearGains[0], DriveConstants.kDriveLinearGains[1], DriveConstants.kDriveLinearGains[2], m_constraintsX, DriveConstants.kDt);
 
         m_constraintsZ = new TrapezoidProfile.Constraints(DriveConstants.kMaxAngularVelocityRadiansPerSecond, DriveConstants.kMaxAngularAccelerationRadiansPerSecondSquared);
         m_controllerZ = new ProfiledPIDController(DriveConstants.kDriveAngularGains[0], DriveConstants.kDriveAngularGains[1], DriveConstants.kDriveAngularGains[2], m_constraintsZ, DriveConstants.kDt);
@@ -59,17 +59,17 @@ public class LinearDriveCommand extends Command {
     @Override
     public void initialize() {
         
-        mCurrentPoseX = 0.0;
-        mCurrentPoseX = mDrive.getPose().getTranslation().getX();
-        mDeltaX += mDrive.getPose().getTranslation().getX();
-        m_controllerX.reset(mCurrentPoseX);
-        m_controllerX.setGoal(mDeltaX);
-
         mCurrentPoseY = 0.0;
         mCurrentPoseY = mDrive.getPose().getTranslation().getY();
         mDeltaY += mDrive.getPose().getTranslation().getY();
         m_controllerY.reset(mCurrentPoseY);
         m_controllerY.setGoal(mDeltaY);
+
+        mCurrentPoseX = 0.0;
+        mCurrentPoseX = mDrive.getPose().getTranslation().getX();
+        mDeltaX += mDrive.getPose().getTranslation().getX();
+        m_controllerX.reset(mCurrentPoseX);
+        m_controllerX.setGoal(mDeltaX);
 
         mCurrentPoseZ = 0.0;
         mCurrentPoseZ = mDrive.getPose().getRotation().getRadians();
@@ -77,7 +77,7 @@ public class LinearDriveCommand extends Command {
         m_controllerZ.reset(mCurrentPoseZ);
         m_controllerZ.setGoal(mDeltaZ);
 
-        System.out.println("Linear Drive Command started : Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ + ") to Setpoint ( " + mDeltaX + ", " + mDeltaY + ", " + mDeltaZ*180.0/Math.PI +")");
+        System.out.println("Linear Drive Command started : Current (" + mCurrentPoseY + ", " + mCurrentPoseX + ", " + mCurrentPoseZ + ") to Setpoint ( " + mDeltaY + ", " + mDeltaX + ", " + mDeltaZ*180.0/Math.PI +")");
 
         mIterationCounter = 0;
     }
@@ -85,11 +85,11 @@ public class LinearDriveCommand extends Command {
     @Override
     public void execute() {
       
-        mCurrentPoseX = mDrive.getPose().getTranslation().getX();
-        double speedX = m_controllerX.calculate(mCurrentPoseX);
-
         mCurrentPoseY = mDrive.getPose().getTranslation().getY();
         double speedY = m_controllerY.calculate(mCurrentPoseY);
+
+        mCurrentPoseX = mDrive.getPose().getTranslation().getX();
+        double speedX = m_controllerX.calculate(mCurrentPoseX);
 
         mCurrentPoseZ = mDrive.getPose().getRotation().getRadians();
         double speedZ = m_controllerZ.calculate(mCurrentPoseZ);
@@ -98,23 +98,23 @@ public class LinearDriveCommand extends Command {
 
         if(mIterationCounter > 15) {
             mIterationCounter = 0;
-            System.out.println("speed: (" + speedX + ", " + speedY + ", " + speedZ + "), Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ*180.0/Math.PI + ")");
+            System.out.println("speed: (" + speedY + ", " + speedX + ", " + speedZ + "), Current (" + mCurrentPoseY + ", " + mCurrentPoseX + ", " + mCurrentPoseZ*180.0/Math.PI + ")");
         }
 
-        mDrive.drive(new ChassisSpeeds(speedX, speedY, speedZ));
+        mDrive.drive(new ChassisSpeeds(speedY, speedX, speedZ));
     }
 
     @Override
     public boolean isFinished() {
-        mCurrentPoseX = mDrive.getPose().getTranslation().getX();
         mCurrentPoseY = mDrive.getPose().getTranslation().getY();
+        mCurrentPoseX = mDrive.getPose().getTranslation().getX();
         mCurrentPoseZ = mDrive.getPose().getRotation().getRadians()*180.0/Math.PI;
 
-        boolean acheivedX = Math.abs(mDeltaX - mCurrentPoseX) < DriveConstants.kLinearDriveTranslationEpsilon;
         boolean acheivedY = Math.abs(mDeltaY - mCurrentPoseY) < DriveConstants.kLinearDriveTranslationEpsilon;
+        boolean acheivedX = Math.abs(mDeltaX - mCurrentPoseX) < DriveConstants.kLinearDriveTranslationEpsilon;
         boolean acheivedZ = Math.abs(mDeltaZ - mCurrentPoseZ) < DriveConstants.kLinearDriveRotationEpsilon;
 
-        return acheivedX && acheivedY && acheivedZ;
+        return acheivedY && acheivedX && acheivedZ;
     }
     @Override
     public void end(boolean interrupted) {
