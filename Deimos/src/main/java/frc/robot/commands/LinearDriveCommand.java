@@ -1,11 +1,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.PID;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.subsystems.DriveSubsystem;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -14,25 +11,47 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class LinearDriveCommand extends Command {
 
     private DriveSubsystem mDrive;
-    private double mLinearSetpoint;
-    private PID mPid;
-    private double mCurrentPose; 
-    private CardinalDirection mDirection;
-    private double prevSpeed;
-    private TrapezoidProfile.Constraints m_constraints;
-    private ProfiledPIDController m_controller;
-    
-    private int counter;
-    //Field Relative : Y direction is horizontal, X direction is downfield 
 
-    public LinearDriveCommand(DriveSubsystem drive, double setpoint, CardinalDirection direction) {
+    private double mDeltaX;
+    private double mCurrentPoseX; 
+    private TrapezoidProfile.Constraints m_constraintsX;
+    private ProfiledPIDController m_controllerX;
+
+    private double mDeltaY;
+    private double mCurrentPoseY; 
+    private TrapezoidProfile.Constraints m_constraintsY;
+    private ProfiledPIDController m_controllerY;
+
+    private double mDeltaZ;
+    private double mCurrentPoseZ; 
+    private TrapezoidProfile.Constraints m_constraintsZ;
+    private ProfiledPIDController m_controllerZ;
+
+    private int mIterationCounter;
+
+    public LinearDriveCommand(DriveSubsystem drive, double deltaY, double deltaX) {
+        this(drive,deltaY,deltaX,0);
+    }
+
+    public LinearDriveCommand(DriveSubsystem drive, double deltaY) {
+        this(drive,deltaY,0);
+    }
+
+    // Field oriented command, X is cross field, Y is Downfield, Z is clockwise Azimuth positive
+    public LinearDriveCommand(DriveSubsystem drive, double deltaY, double deltaX, double deltaAzimuth) {
         mDrive = drive;
-        mLinearSetpoint = setpoint;
-        mDirection = direction;
-        //mPid = new PID();
+        mDeltaX = deltaX;
+        mDeltaY = deltaY;
+        mDeltaZ = deltaAzimuth;
 
-        m_constraints = new TrapezoidProfile.Constraints(DriveConstants.kMaxVelocityMetersPerSecond, DriveConstants.kMaxAccelerationMetersPerSecondSquared);
-        m_controller = new ProfiledPIDController(DriveConstants.kDriveLinearGains[0], DriveConstants.kDriveLinearGains[1], DriveConstants.kDriveLinearGains[2], m_constraints, DriveConstants.kDt);
+        m_constraintsX = new TrapezoidProfile.Constraints(DriveConstants.kMaxVelocityMetersPerSecond, DriveConstants.kMaxAccelerationMetersPerSecondSquared);
+        m_controllerX = new ProfiledPIDController(DriveConstants.kDriveLinearGains[0], DriveConstants.kDriveLinearGains[1], DriveConstants.kDriveLinearGains[2], m_constraintsX, DriveConstants.kDt);
+
+        m_constraintsY = new TrapezoidProfile.Constraints(DriveConstants.kMaxVelocityMetersPerSecond, DriveConstants.kMaxAccelerationMetersPerSecondSquared);
+        m_controllerY = new ProfiledPIDController(DriveConstants.kDriveLinearGains[0], DriveConstants.kDriveLinearGains[1], DriveConstants.kDriveLinearGains[2], m_constraintsY, DriveConstants.kDt);
+
+        m_constraintsZ = new TrapezoidProfile.Constraints(DriveConstants.kMaxAngularVelocityRadiansPerSecond, DriveConstants.kMaxAngularAccelerationRadiansPerSecondSquared);
+        m_controllerZ = new ProfiledPIDController(DriveConstants.kDriveAngularGains[0], DriveConstants.kDriveAngularGains[1], DriveConstants.kDriveAngularGains[2], m_constraintsZ, DriveConstants.kDt);
 
         addRequirements(mDrive);
     }
@@ -40,89 +59,62 @@ public class LinearDriveCommand extends Command {
     @Override
     public void initialize() {
         
-        mCurrentPose = 0.0;
-        //prevSpeed = 0.0;
+        mCurrentPoseX = 0.0;
+        mCurrentPoseX = mDrive.getPose().getTranslation().getX();
+        mDeltaX += mDrive.getPose().getTranslation().getX();
+        m_controllerX.reset(mCurrentPoseX);
+        m_controllerX.setGoal(mDeltaX);
 
-        if(mDirection == CardinalDirection.eY) {
-            mCurrentPose = mDrive.getPose().getY();
-            mLinearSetpoint += mDrive.getPose().getY();
-        } else {
-            mCurrentPose = mDrive.getPose().getX();
-            mLinearSetpoint += mDrive.getPose().getX();
-        }
+        mCurrentPoseY = 0.0;
+        mCurrentPoseY = mDrive.getPose().getTranslation().getY();
+        mDeltaY += mDrive.getPose().getTranslation().getY();
+        m_controllerY.reset(mCurrentPoseY);
+        m_controllerY.setGoal(mDeltaY);
 
-        m_controller.reset(mCurrentPose);
+        mCurrentPoseZ = 0.0;
+        mCurrentPoseZ = mDrive.getPose().getRotation().getRadians();
+        mDeltaZ += mDrive.getPose().getRotation().getRadians();
+        m_controllerZ.reset(mCurrentPoseZ);
+        m_controllerZ.setGoal(mDeltaZ);
 
-        //mPid.start(DriveConstants.kDriveLinearGains); //TODO: tune pid values
-        System.out.println("Linear Drive Command started : Current Pose --> " + mDrive.getPose() + " Setpoint " + mLinearSetpoint);
-        m_controller.setGoal(mLinearSetpoint);
-        counter = 0;
+        System.out.println("Linear Drive Command started : Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ + ") to Setpoint ( " + mDeltaX + ", " + mDeltaY + ", " + mDeltaZ*180.0/Math.PI +")");
 
-        //mDrive.drive(new ChassisSpeeds(0, 0, 0));
-
+        mIterationCounter = 0;
     }
 
     @Override
     public void execute() {
+      
+        mCurrentPoseX = mDrive.getPose().getTranslation().getX();
+        double speedX = m_controllerX.calculate(mCurrentPoseX);
 
-        /**
-         * Y direction is true
-         * X direction is false
-         */
-        boolean direction = false;
+        mCurrentPoseY = mDrive.getPose().getTranslation().getY();
+        double speedY = m_controllerY.calculate(mCurrentPoseY);
 
-        if(mDirection == CardinalDirection.eY) {
-            mCurrentPose = mDrive.getPose().getY();
-            direction = true;
-        } else {
-            mCurrentPose = mDrive.getPose().getX();
-            direction = false;
-        }
-		// double speed = Math.sqrt(Math.abs(mPid.update(mCurrentPose, mLinearSetpoint)) 
-        //     * DriveConstants.kMaxVelocityMetersPerSecond);
+        mCurrentPoseZ = mDrive.getPose().getRotation().getRadians();
+        double speedZ = m_controllerZ.calculate(mCurrentPoseZ);
 
-        // if (Math.abs(prevSpeed - speed) > 0.2) {
-        //     if()
-        //      speed = prevSpeed + 4.0; // Accelerating in positive direction
-        // }
+        mIterationCounter++;
 
-        // prevSpeed = speed;
-
-        // if(Math.abs(speed) > 0.5){
-        //     speed = 0.5;
-        // }
-        
-        //delete
-        //System.out.println(speed);
-
-        double speed = m_controller.calculate(mCurrentPose);
-        counter++;
-        if(counter > 15) {
-            counter = 0;
-            System.out.println("speed: " + speed + " CurrentPose: " + mCurrentPose + "Setpoint: " + mLinearSetpoint );
+        if(mIterationCounter > 15) {
+            mIterationCounter = 0;
+            System.out.println("speed: (" + speedX + ", " + speedY + ", " + speedZ + "), Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ*180.0/Math.PI + ")");
         }
 
-        if(direction) {
-            //System.out.println("X-direc" + speed);
-            mDrive.drive(new ChassisSpeeds(0, speed, 0));
-        } else {
-            mDrive.drive(new ChassisSpeeds(speed, 0, 0));
-        }
-
+        mDrive.drive(new ChassisSpeeds(speedX, speedY, speedZ));
     }
 
     @Override
     public boolean isFinished() {
-        double mCurrentPose;
-        if(mDirection == CardinalDirection.eY) {
-            mCurrentPose = mDrive.getPose().getY();
-        } else {
-            mCurrentPose = mDrive.getPose().getX();
-        }
+        mCurrentPoseX = mDrive.getPose().getTranslation().getX();
+        mCurrentPoseY = mDrive.getPose().getTranslation().getY();
+        mCurrentPoseZ = mDrive.getPose().getRotation().getRadians()*180.0/Math.PI;
 
-        //return( Math.abs(m_controller.getPositionError()) < DriveConstants.kLinearDriveEpsilon);
+        boolean acheivedX = Math.abs(mDeltaX - mCurrentPoseX) < DriveConstants.kLinearDriveTranslationEpsilon;
+        boolean acheivedY = Math.abs(mDeltaY - mCurrentPoseY) < DriveConstants.kLinearDriveTranslationEpsilon;
+        boolean acheivedZ = Math.abs(mDeltaZ - mCurrentPoseZ) < DriveConstants.kLinearDriveRotationEpsilon;
 
-        return Math.abs(mLinearSetpoint - mCurrentPose) < DriveConstants.kLinearDriveEpsilon;
+        return acheivedX && acheivedY && acheivedZ;
     }
     @Override
     public void end(boolean interrupted) {
