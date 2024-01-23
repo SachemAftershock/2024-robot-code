@@ -70,36 +70,39 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    TrajectoryConfig config = new TrajectoryConfig(
-      DriveConstants.kMaxVelocityMetersPerSecond * 0.3, 
-      DriveConstants.kMaxAccelerationMetersPerSecondSquared
-    );
+    // TrajectoryConfig config = new TrajectoryConfig(
+    //   DriveConstants.kMaxVelocityMetersPerSecond * 0.3, 
+    //   DriveConstants.kMaxAccelerationMetersPerSecondSquared
+    // );
 
-    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-      new Pose2d(), 
-      List.of(
-        new Translation2d(2.0, -0.5)
-        //new Translation2d(0, 1.2)//,
-        //new Translation2d(1, 1.5)
-        //new Translation2d(2.2,0)
-      ),
-      new Pose2d(1.0, -0.4, new Rotation2d()), 
-      config
-    );
+    // Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+    //   new Pose2d(), 
+    //   List.of(
+    //     new Translation2d(2.0, -0.5)
+    //     //new Translation2d(0, 1.2)//,
+    //     //new Translation2d(1, 1.5)
+    //     //new Translation2d(2.2,0)
+    //   ),
+    //   new Pose2d(1.0, -0.4, new Rotation2d()), 
+    //   config
+    // );
 
-    Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
-      new Pose2d(), 
-      List.of( 
-        new Translation2d(0.5, 1.5),
-        new Translation2d(1.0, 1.5),
-        new Translation2d(1.5, 1.5)
-      ),
-      new Pose2d(1.5, 1.5, new Rotation2d()),
-      config
-    );
+    // Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
+    //   new Pose2d(), 
+    //   List.of( 
+    //     new Translation2d(0.5, 1.5),
+    //     new Translation2d(1.0, 1.5),
+    //     new Translation2d(1.5, 1.5)
+    //   ),
+    //   new Pose2d(1.5, 1.5, new Rotation2d()),
+    //   config
+    // );
     //return new RotateDriveCommand(mDriveSubsystem, 90);
     //mDriveSubsystem.zeroGyroscope();
-    return new DelayCommand(0.15).andThen(new LinearDriveCommand(mDriveSubsystem, 4.0)).andThen(new DelayCommand(.2)).andThen(new LinearDriveCommand(mDriveSubsystem, -4.0)); //was 2.0
+    return new DelayCommand(1.0).andThen
+    (new LinearDriveCommand(mDriveSubsystem, 0.0, 4.0, 0.0)).andThen
+    (new DelayCommand(1.0)).andThen
+    (new LinearDriveCommand(mDriveSubsystem, 0.0, -4.0, 0.0)); //was 2.0
     
     
     /**return new SequentialCommandGroup(
