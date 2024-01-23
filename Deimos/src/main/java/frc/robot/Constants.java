@@ -25,14 +25,14 @@ public final class Constants {
         public static final boolean kSquareAxis = true; 
 
         public static final double[] kDriveAngularGains = {0.0125, 0.0, 0.0}; //dont use I it sucks - Shreyas
-        public static final double[] kDriveLinearGains = {1.8, 0.01, 0.0};
-        public static final double kDt = 0.02;
+        public static final double[] kDriveLinearGains = {0.7, 0.01, 0.0};
+        public static final double kDt = 0.02;//0.02;
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;
 
         public static final double kAutoRotateEpsilon = 3.0;
-        public static final double kLinearDriveTranslationEpsilon = 0.01;//.05
+        public static final double kLinearDriveTranslationEpsilon = 0.04;//.05
         public static final double kLinearDriveRotationEpsilon = 2.0 * Math.PI / 180.0;
         
         
