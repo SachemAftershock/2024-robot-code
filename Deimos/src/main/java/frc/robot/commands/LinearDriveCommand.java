@@ -93,20 +93,29 @@ public class LinearDriveCommand extends Command {
         mCurrentPoseY = mDrive.getPose().getY();
         double speedY = m_controllerY.calculate(mCurrentPoseY);
 
-        // mCurrentPoseZ = mDrive.getGyroscopeRotation().getRadians();
-        // double speedZ = m_controllerZ.calculate(mCurrentPoseZ);
-        double speedZ = 0.0;
+        mCurrentPoseZ = mDrive.getGyroscopeRotation().getRadians();
+        double speedZ = m_controllerZ.calculate(mCurrentPoseZ);
+        //double speedZ = 0.0;
 
         mIterationCounter++;
 
-        if(mIterationCounter > 15) {
-            mIterationCounter = 0;
-            System.out.printf("speed: (%.6f, %.6f, %.6f), current (%.6f, %.6f, %.6f)\n",
-                speedX, speedY, speedZ, mCurrentPoseX, mCurrentPoseY, mCurrentPoseZ*180.0/Math.PI
-            );
-        }
+        // if(mIterationCounter > 15) {
+        //     mIterationCounter = 0;
+        //     System.out.printf("speed: (%.6f, %.6f, %.6f), current (%.6f, %.6f, %.6f)\n",
+        //         speedX, speedY, speedZ, mCurrentPoseX, mCurrentPoseY, mCurrentPoseZ*180.0/Math.PI
+        //     );
+        // }
 
-        mDrive.drive(new ChassisSpeeds(speedX, speedY, speedZ));
+        //mDrive.drive(new ChassisSpeeds(speedX, speedY, speedZ));
+
+        mDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
+            speedX,
+            speedY,
+            speedZ,
+            mDrive.getGyroscopeRotation()
+            )
+        );
+
     }
 
     @Override
@@ -117,13 +126,13 @@ public class LinearDriveCommand extends Command {
 
         boolean acheivedX = Math.abs(mDeltaX - mCurrentPoseX) < DriveConstants.kLinearDriveTranslationEpsilon;
         boolean acheivedY = Math.abs(mDeltaY - mCurrentPoseY) < DriveConstants.kLinearDriveTranslationEpsilon;
-        boolean acheivedZ = Math.abs(mDeltaZ - mCurrentPoseZ) < DriveConstants.kLinearDriveRotationEpsilon;
+        //boolean acheivedZ = Math.abs(mDeltaZ - mCurrentPoseZ) < DriveConstants.kLinearDriveRotationEpsilon;
 
-        if(acheivedX && acheivedY && acheivedZ) {
+        if(acheivedX && acheivedY /*&& acheivedZ*/) {
             System.out.println("Linear Drive Command Setpoint reached");
         }
 
-        return acheivedX && acheivedY && acheivedZ;
+        return acheivedX && acheivedY; //&& acheivedZ;
     }
     @Override
     public void end(boolean interrupted) {
