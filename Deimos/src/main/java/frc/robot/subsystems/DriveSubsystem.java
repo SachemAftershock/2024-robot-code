@@ -239,7 +239,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 			counter = 0;
 		}
 
-		System.out.println(" FL " + states[0].speedMetersPerSecond + " FR " + states[1].speedMetersPerSecond + " BL " + states[2].speedMetersPerSecond + " BR " + states[3].speedMetersPerSecond);
+		System.out.println(" FL " + states[0].speedMetersPerSecond/states[0].speedMetersPerSecond + " FR " + states[1].speedMetersPerSecond/states[0].speedMetersPerSecond + " BL " + states[2].speedMetersPerSecond/states[0].speedMetersPerSecond + " BR " + states[3].speedMetersPerSecond/states[0].speedMetersPerSecond );
 
 		mFrontLeftModule.set(states[0].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[0].angle.getRadians());

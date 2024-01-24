@@ -47,8 +47,10 @@ public class RobotContainer {
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
             () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
-            () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
-            () -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
+            () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+
+            () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
+
     ));
   }
 
@@ -100,9 +102,11 @@ public class RobotContainer {
     //return new RotateDriveCommand(mDriveSubsystem, 90);
     //mDriveSubsystem.zeroGyroscope();
     return new DelayCommand(1.0).andThen
-    (new LinearDriveCommand(mDriveSubsystem, 0.0, 4.0, 0.0)).andThen
-    (new DelayCommand(1.0)).andThen
-    (new LinearDriveCommand(mDriveSubsystem, 0.0, -4.0, 0.0)); //was 2.0
+    (new LinearDriveCommand(mDriveSubsystem, 2.5, 0.0, 0.0)).andThen
+    //(new DelayCommand(1.0)).andThen
+    (new LinearDriveCommand(mDriveSubsystem, 0.0, 2.5, 0.0)).andThen
+    (new LinearDriveCommand(mDriveSubsystem, -2.5, 0.0, 0.0)).andThen
+    (new LinearDriveCommand(mDriveSubsystem, 0.0, -2.5, 0.0)); //was 2.0
     
     
     /**return new SequentialCommandGroup(
