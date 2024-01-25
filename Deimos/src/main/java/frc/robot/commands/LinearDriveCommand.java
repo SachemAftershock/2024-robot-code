@@ -126,13 +126,13 @@ public class LinearDriveCommand extends Command {
 
         boolean acheivedX = Math.abs(mDeltaX - mCurrentPoseX) < DriveConstants.kLinearDriveTranslationEpsilon;
         boolean acheivedY = Math.abs(mDeltaY - mCurrentPoseY) < DriveConstants.kLinearDriveTranslationEpsilon;
-        //boolean acheivedZ = Math.abs(mDeltaZ - mCurrentPoseZ) < DriveConstants.kLinearDriveRotationEpsilon;
+        boolean acheivedZ = Math.abs(mDeltaZ - mCurrentPoseZ) < DriveConstants.kLinearDriveRotationEpsilon;
 
-        if(acheivedX && acheivedY /*&& acheivedZ*/) {
+        if(acheivedX && acheivedY  && acheivedZ) {
             System.out.println("Linear Drive Command Setpoint reached");
         }
 
-        return acheivedX && acheivedY; //&& acheivedZ;
+        return acheivedX && acheivedY && acheivedZ;
     }
     @Override
     public void end(boolean interrupted) {
