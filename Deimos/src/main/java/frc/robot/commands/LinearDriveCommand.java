@@ -3,9 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
-
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -28,8 +25,6 @@ public class LinearDriveCommand extends Command {
     private double mCurrentPoseZ; 
     private TrapezoidProfile.Constraints m_constraintsZ;
     private ProfiledPIDController m_controllerZ;
-
-    private AHRS mNavx;
 
     private int mIterationCounter;
 
