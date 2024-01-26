@@ -24,16 +24,16 @@ public final class Constants {
         public static final double kDriveControllerDeadband = 0.05;
         public static final boolean kSquareAxis = true; 
 
-        public static final double[] kDriveAngularGains = {0.1, 0.0, 0.0}; //dont use I it sucks - Shreyas
+        public static final double[] kDriveAngularGains = {0.2, 0.0, 0.0}; //dont use I it sucks - Shreyas
         public static final double[] kDriveLinearGains = {1.8, 0.03, 0.0}; //{0.8, 0.02, 0.0}
         public static final double kDt = 0.02;//0.02;
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;
 
-        public static final double kAutoRotateEpsilon = 10.0;
+        public static final double kAutoRotateEpsilon = 1.0;
         public static final double kLinearDriveTranslationEpsilon = 0.04;//.05
-        public static final double kLinearDriveRotationEpsilon = 2.0 * Math.PI / 180.0;
+        public static final double kLinearDriveRotationEpsilon = 2.0;
         
         
         public static final double kDrivetrainTrackwidthMeters = 0.5461;
@@ -55,10 +55,11 @@ public final class Constants {
 
         //TODO: Change
         public static final double kMaxAccelerationMetersPerSecondSquared = kMaxVelocityMetersPerSecond * 1.0; //kMaxVelocityMetersPerSecond * 1.0
-        public static final double kMaxRotationalVelocityMetersPerSecond = 1.0;
+        public static final double kMaxRotationalVelocityMetersPerSecond = 3.0;
 
         public static final double kMaxAngularVelocityRadiansPerSecond = kMaxRotationalVelocityMetersPerSecond /
-        Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0); //kMaxVelocityMetersPerSecond /Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0)
+         Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0); //kMaxVelocityMetersPerSecond /Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0)
+        
         public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI;
     }
 
