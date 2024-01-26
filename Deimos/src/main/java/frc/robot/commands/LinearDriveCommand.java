@@ -3,6 +3,9 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
+
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -11,7 +14,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class LinearDriveCommand extends Command {
 
     private DriveSubsystem mDrive;
-
     private double mDeltaY;
     private double mCurrentPoseY; 
     private TrapezoidProfile.Constraints m_constraintsY;
@@ -27,6 +29,8 @@ public class LinearDriveCommand extends Command {
     private TrapezoidProfile.Constraints m_constraintsZ;
     private ProfiledPIDController m_controllerZ;
 
+    private AHRS mNavx;
+
     private int mIterationCounter;
 
     public LinearDriveCommand(DriveSubsystem drive, double deltaX, double deltaY) {
@@ -38,6 +42,7 @@ public class LinearDriveCommand extends Command {
     }
 
     // Field oriented command, X is cross field, Y is Downfield, Z is clockwise Azimuth positive
+    //deltaAzimuth is degrees
     public LinearDriveCommand(DriveSubsystem drive, double deltaX, double deltaY, double deltaAzimuth) {
         mDrive = drive;
         mDeltaX = deltaX;
@@ -52,7 +57,8 @@ public class LinearDriveCommand extends Command {
         m_constraintsY = new TrapezoidProfile.Constraints(DriveConstants.kMaxVelocityMetersPerSecond, DriveConstants.kMaxAccelerationMetersPerSecondSquared);
         m_controllerY = new ProfiledPIDController(DriveConstants.kDriveLinearGains[0], DriveConstants.kDriveLinearGains[1], DriveConstants.kDriveLinearGains[2], m_constraintsY, DriveConstants.kDt);
 
-        m_constraintsZ = new TrapezoidProfile.Constraints(DriveConstants.kMaxAngularVelocityRadiansPerSecond, DriveConstants.kMaxAngularAccelerationRadiansPerSecondSquared);
+        m_constraintsZ = new TrapezoidProfile.Constraints(100.0 * Math.PI, 100.0 * Math.PI);
+        //new TrapezoidProfile.Constraints(DriveConstants.kMaxAngularVelocityRadiansPerSecond, DriveConstants.kMaxAngularAccelerationRadiansPerSecondSquared);
         m_controllerZ = new ProfiledPIDController(DriveConstants.kDriveAngularGains[0], DriveConstants.kDriveAngularGains[1], DriveConstants.kDriveAngularGains[2], m_constraintsZ, DriveConstants.kDt);
 
         addRequirements(mDrive);
@@ -74,12 +80,12 @@ public class LinearDriveCommand extends Command {
         m_controllerY.setGoal(mDeltaY);
         
         mCurrentPoseZ = 0.0;
-        mCurrentPoseZ = mDrive.getGyroscopeRotation().getRadians();
+        mCurrentPoseZ = mDrive.getGyroscopeRotation().getDegrees();
         mDeltaZ += mCurrentPoseZ;
         m_controllerZ.reset(mCurrentPoseZ);
         m_controllerZ.setGoal(mDeltaZ);
 
-        System.out.println("Linear Drive Command started : Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ + ") to Setpoint ( " + mDeltaX + ", " + mDeltaY + ", " + mDeltaZ*180.0/Math.PI +")");
+        System.out.println("Linear Drive Command started : Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ + ") to Setpoint ( " + mDeltaX + ", " + mDeltaY + ", " + mDeltaZ + ")");
 
         mIterationCounter = 0;
     }
@@ -93,7 +99,7 @@ public class LinearDriveCommand extends Command {
         mCurrentPoseY = mDrive.getPose().getY();
         double speedY = m_controllerY.calculate(mCurrentPoseY);
 
-        mCurrentPoseZ = mDrive.getGyroscopeRotation().getRadians();
+        mCurrentPoseZ =  mDrive.getGyroscopeRotation().getDegrees();; //  mCurrentPoseZ = mDrive.getGyroscopeRotation().getRadians();
         double speedZ = m_controllerZ.calculate(mCurrentPoseZ);
         //double speedZ = 0.0;
 
@@ -102,7 +108,7 @@ public class LinearDriveCommand extends Command {
         // if(mIterationCounter > 15) {
         //     mIterationCounter = 0;
         //     System.out.printf("speed: (%.6f, %.6f, %.6f), current (%.6f, %.6f, %.6f)\n",
-        //         speedX, speedY, speedZ, mCurrentPoseX, mCurrentPoseY, mCurrentPoseZ*180.0/Math.PI
+        //         speedX, speedY, speedZ, mCurrentPoseX, mCurrentPoseY, mCurrentPoseZ
         //     );
         // }
 
@@ -115,6 +121,11 @@ public class LinearDriveCommand extends Command {
             mDrive.getGyroscopeRotation()
             )
         );
+        System.out.print("Angle: " + mDrive.getGyroscopeRotation().getDegrees() + " ");
+        System.out.print("Delta: " + Math.abs(mDeltaZ));
+        System.out.print("SetPoint " + mDeltaZ + " ");
+        System.out.println();
+
 
     }
 
@@ -122,11 +133,12 @@ public class LinearDriveCommand extends Command {
     public boolean isFinished() {
         mCurrentPoseX = mDrive.getPose().getX();
         mCurrentPoseY = mDrive.getPose().getY();
-        mCurrentPoseZ = mDrive.getGyroscopeRotation().getRadians();
+        mCurrentPoseZ = mDrive.getGyroscopeRotation().getDegrees();
 
         boolean acheivedX = Math.abs(mDeltaX - mCurrentPoseX) < DriveConstants.kLinearDriveTranslationEpsilon;
         boolean acheivedY = Math.abs(mDeltaY - mCurrentPoseY) < DriveConstants.kLinearDriveTranslationEpsilon;
         boolean acheivedZ = Math.abs(mDeltaZ - mCurrentPoseZ) < DriveConstants.kLinearDriveRotationEpsilon;
+
 
         if(acheivedX && acheivedY  && acheivedZ) {
             System.out.println("Linear Drive Command Setpoint reached");
