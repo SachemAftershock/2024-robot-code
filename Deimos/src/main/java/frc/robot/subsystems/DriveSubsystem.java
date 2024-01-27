@@ -179,6 +179,10 @@ public class DriveSubsystem extends AftershockSubsystem {
 		mNavx.zeroYaw();
 	}
 
+	public double getNavxAngle() {
+		return mNavx.getAngle();
+	}
+
 	public Rotation2d getGyroscopeRotation() {
 		if (mNavx.isMagnetometerCalibrated()) {
 			// We will only get valid fused headings if the magnetometer is calibrated
