@@ -117,11 +117,19 @@ public class RobotContainer {
     
 
     return new DelayCommand(1.0).andThen
-    (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 90.0)).andThen
-      ((new LinearDriveCommand(mDriveSubsystem, -1.0, 1.0, 90.0)).alongWith
+    (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 360.0)).andThen
+      ((new LinearDriveCommand(mDriveSubsystem, -1.0, 1.0, 360.0)).alongWith
       (new RetractIntakeCommand(mIntakeSubsystem))).andThen
-    (new LinearDriveCommand(mDriveSubsystem, -1.0, -1.0, 90.0)).andThen
-    (new LinearDriveCommand(mDriveSubsystem, 1.0, -1.0, 90.0));
+    (new LinearDriveCommand(mDriveSubsystem, -1.0, -1.0, 360.0)).andThen
+    (new LinearDriveCommand(mDriveSubsystem, 1.0, -1.0, 360.0));
+
+    // return new  DelayCommand(1.0).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 0.0)).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, 1.0, -2.0, 90.0)).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, 1.0, 2.0, -90.0)).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, 1.0, -1.0, 180)).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, 1.0, 0.0, 45.0)).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, 1.0, 0.0, 45.0));
 
 
 
