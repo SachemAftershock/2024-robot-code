@@ -36,7 +36,7 @@ public class LinearDriveCommand extends Command {
         this(drive,deltaX,0);
     }
 
-    // Field oriented command, X is cross field, Y is Downfield, Z is clockwise Azimuth positive
+    // Field oriented command, X is down field, Y is crossfield, Z is clockwise Azimuth positive
     //deltaAzimuth is degrees
     public LinearDriveCommand(DriveSubsystem drive, double deltaX, double deltaY, double deltaAzimuth) {
         mDrive = drive;
@@ -75,7 +75,7 @@ public class LinearDriveCommand extends Command {
         m_controllerY.setGoal(mDeltaY);
         
         mCurrentPoseZ = 0.0;
-        mCurrentPoseZ = mDrive.getGyroscopeRotation().getDegrees();
+        mCurrentPoseZ = mDrive.getNavxAngle();
         mDeltaZ += mCurrentPoseZ;
         m_controllerZ.reset(mCurrentPoseZ);
         m_controllerZ.setGoal(mDeltaZ);
@@ -94,9 +94,10 @@ public class LinearDriveCommand extends Command {
         mCurrentPoseY = mDrive.getPose().getY();
         double speedY = m_controllerY.calculate(mCurrentPoseY);
 
-        mCurrentPoseZ =  mDrive.getGyroscopeRotation().getDegrees();; //  mCurrentPoseZ = mDrive.getGyroscopeRotation().getRadians();
+        mCurrentPoseZ = mDrive.getNavxAngle(); //  mCurrentPoseZ = mDrive.getGyroscopeRotation().getRadians();
         double speedZ = m_controllerZ.calculate(mCurrentPoseZ);
-        //double speedZ = 0.0;
+
+        System.out.println("Linear Drive Command execute : Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ + ") to Setpoint ( " + mDeltaX + ", " + mDeltaY + ", " + mDeltaZ + ")");
 
         mIterationCounter++;
 
@@ -107,20 +108,15 @@ public class LinearDriveCommand extends Command {
         //     );
         // }
 
-        //mDrive.drive(new ChassisSpeeds(speedX, speedY, speedZ));
+        //mDrive.drive(new ChassisSpeeds(speedX, speedY, speedZ*0.1));
 
         mDrive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
             speedX,
             speedY,
-            speedZ,
+            -speedZ*0.4,
             mDrive.getGyroscopeRotation()
             )
         );
-        System.out.print("Angle: " + mDrive.getGyroscopeRotation().getDegrees() + " ");
-        System.out.print("Delta: " + Math.abs(mDeltaZ));
-        System.out.print("SetPoint " + mDeltaZ + " ");
-        System.out.println();
-
 
     }
 
@@ -128,7 +124,7 @@ public class LinearDriveCommand extends Command {
     public boolean isFinished() {
         mCurrentPoseX = mDrive.getPose().getX();
         mCurrentPoseY = mDrive.getPose().getY();
-        mCurrentPoseZ = mDrive.getGyroscopeRotation().getDegrees();
+        mCurrentPoseZ = mDrive.getNavxAngle();
 
         boolean acheivedX = Math.abs(mDeltaX - mCurrentPoseX) < DriveConstants.kLinearDriveTranslationEpsilon;
         boolean acheivedY = Math.abs(mDeltaY - mCurrentPoseY) < DriveConstants.kLinearDriveTranslationEpsilon;
