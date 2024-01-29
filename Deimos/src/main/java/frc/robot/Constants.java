@@ -14,7 +14,18 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static class IntakeConstants{
+        public static final double kExampleVariable = 0.05;
+    }
 
+    public static class ClimberConstants{
+        public static final double kExampleVariable = 0.05;
+    }
+
+    public static class ShooterConstants{
+        public static final double kExampleVariable = 0.05; 
+    }
+    
     public static class DriveConstants {
 
         public static enum CardinalDirection {
