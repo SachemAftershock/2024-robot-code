@@ -22,7 +22,7 @@ public class ShooterAngleCommandGroup extends SequentialCommandGroup {
         addCommands(
             new ChangeDesiredIntakeState(IntakeState.eSafeShooterMovement, mIntakeSubsystem),
             new ChangeDesiredShooterState(desiredShooterState, mShooterSubsystem),
-            new ChangeDesiredIntakeState(previousIntakeState, mIntakeSubsystem)
+            new ChangeDesiredIntakeState(m, mIntakeSubsystem)//chang eto get current intake state in current shooter enum
         );
     }
 }

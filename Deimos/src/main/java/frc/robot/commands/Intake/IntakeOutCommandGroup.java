@@ -11,7 +11,7 @@ public class IntakeOutCommandGroup extends SequentialCommandGroup {
         // Add commands to be run sequentially
         this.mIntakeSubsystem = mIntakeSubsystem;
         addCommands(
-            new ChangeDesiredIntakeState(mRobotContainer.getShooterState().getIntakeState(), mIntakeSubsystem),
+            new ChangeDesiredIntakeState(mRobotContainer.getShooterState().getIntakeState(), mIntakeSubsystem),//change to intakestate.eout
             new IntakeRollerCommand(rollerVelocity, mIntakeSubsystem)
         );
     }
