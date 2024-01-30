@@ -1,23 +1,28 @@
-package frc.robot.commands.Intake;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.AftershockSubsystem;
 import frc.robot.RobotContainer;
+import frc.robot.enums.ControlState;
 import frc.robot.enums.IntakeState;
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class ChangeDesiredIntakeState extends Command {
-    private IntakeSubsystem mIntakeSubsystem;
+public class SetManualControlModeCommand extends Command {
     private RobotContainer mRobotContainer = RobotContainer.getInstance();
     private boolean isIntakeIn;
     private IntakeState mDesiredState;
     private IntakeState mCurrentState;
-    public ChangeDesiredIntakeState(IntakeState desiredState, IntakeSubsystem mIntakeSubsystem) {
-        this.mDesiredState = desiredState;
-        this.mIntakeSubsystem = mIntakeSubsystem;
-        addRequirements(mIntakeSubsystem);
+    public SetManualControlModeCommand(boolean isManualModeDesired) {
+        if(isManualModeDesired){
+            mRobotContainer.setControlState(ControlState.eManualControl);
+            mRobotContainer.configureButtonBindings();
+        } else if (!isManualModeDesired){
+            mRobotContainer.setControlState(ControlState.eAutomaticControl);
+            mRobotContainer.configureButtonBindings();
+        }
+        
+        
     } 
 
     @Override
@@ -26,8 +31,7 @@ public class ChangeDesiredIntakeState extends Command {
 
     @Override
     public void execute() {
-        mRobotContainer.setDesiredIntakeState(mDesiredState);
-        CommandScheduler.getInstance().schedule(new IntakePIDCommand(mIntakeSubsystem));
+        mRobotContainer.setDesiredIntakeState(mDesiredState);;
     }
 
     @Override

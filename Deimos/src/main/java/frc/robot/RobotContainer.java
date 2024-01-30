@@ -29,9 +29,14 @@ import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
 import frc.robot.commands.RotateDriveCommand;
+import frc.robot.commands.SetManualControlModeCommand;
 import frc.robot.commands.SuperstructureCheckCommand;
+import frc.robot.commands.ZeroRobotCommandGroup;
 import frc.robot.commands.Intake.IntakePIDCommand;
+import frc.robot.commands.Shooter.ManualShooterAngleCommand;
+import frc.robot.commands.Shooter.ShooterAngleCommandGroup;
 import frc.robot.commands.Shooter.ShooterPIDCommand;
+import frc.robot.commands.Shooter.ShooterRollerCommand;
 import frc.robot.enums.*;
 import frc.robot.subsystems.*;
 
@@ -52,7 +57,7 @@ public class RobotContainer {
   private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
   private final CommandJoystick mControllerPrimary = new CommandJoystick(0);
   private final CommandJoystick mControllerSecondary = new CommandJoystick(1);
-
+  private final AftershockXboxController mControllerTertiary = new AftershockXboxController(2);
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -71,6 +76,16 @@ public class RobotContainer {
 
   public void initialize() {
     mDriveSubsystem.initialize();
+    mIntakeSubsystem.initialize();
+    mShooterSubsystem.initialize();
+    mClimberSubsystem.initialize();
+    setClimberState(ClimberState.eDown);
+    setDesiredClimberState(ClimberState.eDown);
+    setIntakeState(IntakeState.eSpeaker);
+    setDesiredIntakeState(IntakeState.eSpeaker);
+    setShooterState(ShooterState.eSpeaker);
+    setDesiredShooterState(ShooterState.eSpeaker);
+    setControlState(ControlState.eManualControl);
   }
 
   private double rumbleValue = .5;
@@ -93,12 +108,20 @@ public class RobotContainer {
 
   private ClimberState mCurrentClimberState;
 
-  public void setSuperState(ClimberState mCurrentClimberState) {
+  public void setClimberState(ClimberState mCurrentClimberState) {
     this.mCurrentClimberState = mCurrentClimberState;
   }
 
   public ClimberState getClimberState() {
     return mCurrentClimberState;
+  }
+  private ClimberState mDesiredClimberState;
+
+  public ClimberState getDesiredClimberState() {
+    return mDesiredClimberState;
+  }
+  public void setDesiredClimberState(ClimberState mDesiredClimberState) {
+    this.mDesiredClimberState = mDesiredClimberState;
   }
 
   private SuperState mCurrentSuperState;
@@ -150,10 +173,41 @@ public class RobotContainer {
   public ShooterState getDesiredShooterState() {
     return mDesiredShooterState;
   }
+  private double shooterJogSpeed = .2;
+  private double intakeJogSpeed = .2;
 
-  private void configureButtonBindings() {
+  public void configureButtonBindings() {
     // TODO add button bindings
-    mControllerPrimary.button1.onTrue(new SuperstructureCheckCommand(null));
+    
+    mControllerPrimary.button1.onTrue(new SetManualControlModeCommand(true));
+    mControllerPrimary.button2.onTrue(new SetManualControlModeCommand(false));
+    
+    if(getControlState().equals(ControlState.eAutomaticControl)){
+      mControllerPrimary.button3.onTrue(new ZeroRobotCommandGroup(mShooterSubsystem, mIntakeSubsystem));
+      mControllerPrimary.button4.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, mIntakeSubsystem, ShooterState.eSpeaker));
+
+    }else if(getControlState().equals(ControlState.eManualControl)){
+      Trigger ShooterJogDownTriggerPress = new Trigger(()->mControllerTertiary.getAButtonPressed());
+      Trigger ShooterJogDownTriggerRelease = new Trigger(()->mControllerTertiary.getAButtonReleased());
+
+      ShooterJogDownTriggerPress.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, shooterJogSpeed));
+      ShooterJogDownTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
+      
+      Trigger ShooterJogUpTriggerPress = new Trigger(()->mControllerTertiary.getAButtonPressed());
+      Trigger ShooterJogUpTriggerRelease = new Trigger(()->mControllerTertiary.getAButtonReleased());
+
+      ShooterJogUpTriggerPress.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, -shooterJogSpeed));
+      ShooterJogUpTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
+      
+      Trigger ShooterWheelsTriggerPress = new Trigger(()->mControllerTertiary.getAButtonPressed());
+      Trigger ShooterWheelsTriggerRelease = new Trigger(()->mControllerTertiary.getAButtonReleased());
+
+      ShooterJogUpTriggerPress.onTrue(new ShooterRollerCommand(.5,.5,mShooterSubsystem));//TODO: add velocity constants
+      ShooterJogUpTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
+
+
+
+    }
   }
 
   public Command getAutonomousCommand() {

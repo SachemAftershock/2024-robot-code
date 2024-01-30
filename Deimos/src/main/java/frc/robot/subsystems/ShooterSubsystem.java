@@ -87,7 +87,9 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	public void initialize() {
 
 	}
-
+	public void manualJogShooter(double speed){
+		mAngleShootMotor.set(speed);
+	}
 	public void spinShooterMotors(double leftSpeed, double rightSpeed){
 		// startRollerMotor method or something here
 		//leftSpeed = mLeftShooterPIDController.calculate(mLeftShootMotor.getEncoder().getVelocity(), leftSpeed);
