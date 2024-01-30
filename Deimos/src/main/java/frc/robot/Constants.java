@@ -16,6 +16,7 @@ package frc.robot;
 public final class Constants {
     public static class IntakeConstants{
         public static final double kExampleVariable = 0.05;
+        public static final double kArmPIDPositionErrorEpsilon = 0.1;
     }
 
     public static class ClimberConstants{

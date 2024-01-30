@@ -42,6 +42,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
   	private ProfiledPIDController encoderPID;
 	private IntakeState mDesiredIntakeState;
 	private RobotContainer mRobotContainer = RobotContainer.getInstance();
+
 	private IntakeSubsystem() {
 		mIntakeArmMotor = new CANSparkMax(mIntakeArmMotorID, MotorType.kBrushless);
 		mIntakeRollerMotor = new CANSparkMax(mIntakeRollerMotorID, MotorType.kBrushless);
@@ -61,11 +62,12 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		this.mDesiredIntakeState = mDesiredIntakeState;
 		
 	}
+
 	public boolean runIntakePID(){
 		double mDesiredEncoderValue = mDesiredIntakeState.getPosition();
 		double speed = mIntakeArmPidController.calculate(mIntakeArmEncoder.getPosition(), mDesiredEncoderValue);
 		mIntakeArmMotor.set(speed);
-		if(mIntakeArmPidController.getPositionError()<.1){//TODO: make espilon
+		if (mIntakeArmPidController.getPositionError() < kArmPIDPositionErrorEpsilon) {  //TODO: make espilon
 			speed = 0;
 			mIntakeArmMotor.set(speed);
 			return true;

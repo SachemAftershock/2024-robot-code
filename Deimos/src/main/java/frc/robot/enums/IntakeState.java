@@ -14,7 +14,8 @@ public enum IntakeState {
     IntakeState(double mIntakeEncoderPosition) {
         this.mIntakeEncoderPosition = mIntakeEncoderPosition;
     }
-    public double getPosition(){
+    public double getPosition() {
         return mIntakeEncoderPosition;
     }
+    // TODO finish this:  new mPairedShooterState = 
 }

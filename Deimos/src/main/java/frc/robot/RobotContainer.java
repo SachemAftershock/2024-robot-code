@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import frc.lib.AftershockXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -30,14 +29,19 @@ import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
 import frc.robot.commands.RotateDriveCommand;
+import frc.robot.commands.SuperstructureCheckCommand;
 import frc.robot.commands.Intake.IntakePIDCommand;
 import frc.robot.commands.Shooter.ShooterPIDCommand;
 import frc.robot.enums.*;
 import frc.robot.subsystems.*;
+
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
@@ -46,19 +50,20 @@ public class RobotContainer {
   private IntakeSubsystem mIntakeSubsystem = IntakeSubsystem.getInstance();
   private ShooterSubsystem mShooterSubsystem = ShooterSubsystem.getInstance();
   private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
-  private final AftershockXboxController mControllerPrimary = new AftershockXboxController(0);
-  private final Joystick mControllerSecondary = new Joystick(1);
+  private final CommandJoystick mControllerPrimary = new CommandJoystick(0);
+  private final CommandJoystick mControllerSecondary = new CommandJoystick(1);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
-            mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
-            () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
-            () -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
-    ));
+        mDriveSubsystem,
+        () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+        () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+        () -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3));
     mIntakeSubsystem.setDefaultCommand(new IntakePIDCommand(mIntakeSubsystem));
     mShooterSubsystem.setDefaultCommand(new ShooterPIDCommand(mShooterSubsystem));
 
@@ -67,105 +72,132 @@ public class RobotContainer {
   public void initialize() {
     mDriveSubsystem.initialize();
   }
+
   private double rumbleValue = .5;
-  public void Rumble(int times){
-    for(int i = 0; i<times; i++){
+
+  public void Rumble(int times) {
+    for (int i = 0; i < times; i++) {
       mControllerPrimary.setRumble(null, rumbleValue);
     }
   }
+
   private ControlState mCurrentControlState;
-  public void setControlState(ControlState mControlState){
-      this.mCurrentControlState = mControlState;
+
+  public void setControlState(ControlState mControlState) {
+    this.mCurrentControlState = mControlState;
   }
-  public ControlState getControlState(){
-      return mCurrentControlState;
+
+  public ControlState getControlState() {
+    return mCurrentControlState;
   }
-  
+
   private ClimberState mCurrentClimberState;
-  public void setSuperState(ClimberState mCurrentClimberState){
-      this.mCurrentClimberState = mCurrentClimberState;
+
+  public void setSuperState(ClimberState mCurrentClimberState) {
+    this.mCurrentClimberState = mCurrentClimberState;
   }
-  public ClimberState getClimberState(){
-      return mCurrentClimberState;
+
+  public ClimberState getClimberState() {
+    return mCurrentClimberState;
   }
-  
+
   private SuperState mCurrentSuperState;
-  public void setSuperState(SuperState mCurrentSuperState){
-      this.mCurrentSuperState = mCurrentSuperState;
+
+  public void setSuperState(SuperState mCurrentSuperState) {
+    this.mCurrentSuperState = mCurrentSuperState;
   }
-  public SuperState getSuperState(){
-      return mCurrentSuperState;
+
+  public SuperState getSuperState() {
+    return mCurrentSuperState;
   }
 
   private IntakeState mCurrentIntakeState;
-  public void setIntakeState(IntakeState mCurrentIntakeState){
-      this.mCurrentIntakeState = mCurrentIntakeState;
+
+  public void setIntakeState(IntakeState mCurrentIntakeState) {
+    this.mCurrentIntakeState = mCurrentIntakeState;
   }
-  public IntakeState getIntakeState(){
-      return mCurrentIntakeState;
+
+  public IntakeState getIntakeState() {
+    return mCurrentIntakeState;
   }
+
   private IntakeState mDesiredIntakeState;
-  public void setDesiredIntakeState(IntakeState mDesiredIntakeState){
-      this.mDesiredIntakeState = mDesiredIntakeState;
+
+  public void setDesiredIntakeState(IntakeState mDesiredIntakeState) {
+    this.mDesiredIntakeState = mDesiredIntakeState;
   }
-  public IntakeState getDesiredIntakeState(){
-      return mDesiredIntakeState;
+
+  public IntakeState getDesiredIntakeState() {
+    return mDesiredIntakeState;
   }
 
   private ShooterState mCurrentShooterState;
-  public void setShooterState(ShooterState mCurrentShooterState){
-      this.mCurrentShooterState = mCurrentShooterState;
+
+  public void setShooterState(ShooterState mCurrentShooterState) {
+    this.mCurrentShooterState = mCurrentShooterState;
   }
-  public ShooterState getShooterState(){
-      return mCurrentShooterState;
+
+  public ShooterState getShooterState() {
+    return mCurrentShooterState;
   }
+
   private ShooterState mDesiredShooterState;
-  public void setDesiredShooterState(ShooterState mDesiredShooterState){
-      this.mDesiredShooterState = mDesiredShooterState;
+
+  public void setDesiredShooterState(ShooterState mDesiredShooterState) {
+    this.mDesiredShooterState = mDesiredShooterState;
   }
-  public ShooterState getDesiredShooterState(){
-      return mDesiredShooterState;
+
+  public ShooterState getDesiredShooterState() {
+    return mDesiredShooterState;
   }
-  private void configureButtonBindings() {}
+
+  private void configureButtonBindings() {
+    // TODO add button bindings
+    mControllerPrimary.button1.onTrue(new SuperstructureCheckCommand(null));
+  }
+
   public Command getAutonomousCommand() {
     TrajectoryConfig config = new TrajectoryConfig(
-      DriveConstants.kMaxVelocityMetersPerSecond * 0.3,
-      DriveConstants.kMaxAccelerationMetersPerSecondSquared
-    );
+        DriveConstants.kMaxVelocityMetersPerSecond * 0.3,
+        DriveConstants.kMaxAccelerationMetersPerSecondSquared);
     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-      new Pose2d(),
-      List.of(
-        new Translation2d(2.0, -0.5)
-        //new Translation2d(0, 1.2)//,
-        //new Translation2d(1, 1.5)
-        //new Translation2d(2.2,0)
-      ),
-      new Pose2d(1.0, -0.4, new Rotation2d()),
-      config
-    );
+        new Pose2d(),
+        List.of(
+            new Translation2d(2.0, -0.5)
+        // new Translation2d(0, 1.2)//,
+        // new Translation2d(1, 1.5)
+        // new Translation2d(2.2,0)
+        ),
+        new Pose2d(1.0, -0.4, new Rotation2d()),
+        config);
     Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
-      new Pose2d(),
-      List.of(
-        new Translation2d(0.5, 1.5),
-        new Translation2d(1.0, 1.5),
-        new Translation2d(1.5, 1.5)
-      ),
-      new Pose2d(1.5, 1.5, new Rotation2d()),
-      config
-    );
-    //return new RotateDriveCommand(mDriveSubsystem, 90);
-    //mDriveSubsystem.zeroGyroscope();
-    return new DelayCommand(0.15).andThen(new LinearDriveCommand(mDriveSubsystem, 4.0, CardinalDirection.eX)).andThen(new DelayCommand(.2)).andThen(new LinearDriveCommand(mDriveSubsystem, -4.0, CardinalDirection.eX)); //was 2.0
-    /**return new SequentialCommandGroup(
-      new LinearDriveCommand(mDriveSubsystem, 2, CardinalDirection.eX),
-      new RotateDriveCommand(mDriveSubsystem, 180),
-      new LinearDriveCommand(mDriveSubsystem, 2, CardinalDirection.eX)
-    //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory),
-       //new RotateDriveCommand(mDriveSubsystem, 90),
-       //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem, trajectory2),
-       //new RotateDriveCommand(mDriveSubsystem, -30)
-     );**/
+        new Pose2d(),
+        List.of(
+            new Translation2d(0.5, 1.5),
+            new Translation2d(1.0, 1.5),
+            new Translation2d(1.5, 1.5)),
+        new Pose2d(1.5, 1.5, new Rotation2d()),
+        config);
+    // return new RotateDriveCommand(mDriveSubsystem, 90);
+    // mDriveSubsystem.zeroGyroscope();
+    return new DelayCommand(0.15).andThen(new LinearDriveCommand(mDriveSubsystem, 4.0, CardinalDirection.eX))
+        .andThen(new DelayCommand(.2)).andThen(new LinearDriveCommand(mDriveSubsystem, -4.0, CardinalDirection.eX)); // was
+                                                                                                                     // 2.0
+    /**
+     * return new SequentialCommandGroup(
+     * new LinearDriveCommand(mDriveSubsystem, 2, CardinalDirection.eX),
+     * new RotateDriveCommand(mDriveSubsystem, 180),
+     * new LinearDriveCommand(mDriveSubsystem, 2, CardinalDirection.eX)
+     * //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem,
+     * trajectory),
+     * //new RotateDriveCommand(mDriveSubsystem, 90),
+     * //FollowTrajectoryCommandFactory.generateCommand(mDriveSubsystem,
+     * trajectory2),
+     * //new RotateDriveCommand(mDriveSubsystem, -30)
+     * );
+     **/
   }
+
   private static double deadband(double value, double deadband) {
     if (Math.abs(value) > deadband) {
       if (value > 0.0) {
@@ -177,21 +209,22 @@ public class RobotContainer {
       return 0.0;
     }
   }
+
   private static double modifyAxis(double value) {
     // Deadband
     value = deadband(value, DriveConstants.kDriveControllerDeadband);
     // Square the axis
-    if(DriveConstants.kSquareAxis) {
+    if (DriveConstants.kSquareAxis) {
       value = Math.copySign(value * value, value);
     }
     return value;
   }
+
   public static RobotContainer mInstance;
+
   public static RobotContainer getInstance() {
-    if (mInstance == null) mInstance = new RobotContainer();
+    if (mInstance == null)
+      mInstance = new RobotContainer();
     return mInstance;
   }
 }
-
-
-  
