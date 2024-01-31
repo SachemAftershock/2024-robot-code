@@ -9,13 +9,15 @@ public enum IntakeState {
     eAmp(1),
     eSafeZone(1),
     eSafeShooterMovement(1);//Not totally out but far out enought to be safe to move the shooter without fear of getting caught on intake
+    
     private double mIntakeEncoderPosition;
     private ShooterState mPairedShooterState;
+
     IntakeState(double mIntakeEncoderPosition) {
         this.mIntakeEncoderPosition = mIntakeEncoderPosition;
     }
+
     public double getPosition() {
         return mIntakeEncoderPosition;
     }
-    // TODO finish this:  new mPairedShooterState = 
 }

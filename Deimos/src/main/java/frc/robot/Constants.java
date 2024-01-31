@@ -16,7 +16,6 @@ package frc.robot;
 public final class Constants {
     public static class IntakeConstants{
         public static final double kExampleVariable = 0.05;
-        public static final double kArmPIDPositionErrorEpsilon = 0.1;
     }
 
     public static class ClimberConstants{
@@ -25,6 +24,13 @@ public final class Constants {
 
     public static class ShooterConstants{
         public static final double kExampleVariable = 0.05; 
+
+        // IDs
+        public static final int mAngleEncoderID1 = 0; 
+	    public static final int mAngleEncoderID2 = 1;
+        public static final int mLeftShootMotorID = 0;
+        public static final int mRightShootMotorID = 1;
+	    public static final int mAngleShootMotorID = 2;
     }
     
     public static class DriveConstants {
@@ -35,6 +41,10 @@ public final class Constants {
 
         public static final double kDriveControllerDeadband = 0.05;
         public static final boolean kSquareAxis = true; 
+
+        
+        
+
 
         public static final double[] kDriveAngularGains = {0.0125, 0.0, 0.0}; //dont use I it sucks - Shreyas
         public static final double[] kDriveLinearGains = {1.8, 0.01, 0.0};

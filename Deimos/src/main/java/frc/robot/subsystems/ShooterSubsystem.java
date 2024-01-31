@@ -5,6 +5,8 @@ package frc.robot.subsystems;
 
 import frc.lib.AftershockSubsystem;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.enums.ControlState;
 import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterState;
 
@@ -15,6 +17,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -32,18 +35,14 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	private CANSparkMax mAngleShootMotor;
 	private double mShooterEncoderSetPoint = 0.5; //Derive empirically
 	private CANSparkMax mLeftShootMotor;
-	private Encoder mAngleEncoder;//TODO: Implement actual encoders anywhere where there will be encoders
-	private int mAngleEncoderID1 = 0; //TODO: move to constants
-	private int mAngleEncoderID2 = 1;
+	private RelativeEncoder mAngleEncoder; 
 	private RelativeEncoder mLeftShootEncoder;
 	private RelativeEncoder mRightShootEncoder;
 	private CANSparkMax mRightShootMotor;
 	private double mLeftShootMotorSpeed = 0.05; //Derive empirically 
 	private double mRightShootMotorSpeed = 0.05; //Derive empirically 
 	private DigitalInput mShooterLimitSwitch;
-	private int mLeftShootMotorID = 0;
-	private int mRightShootMotorID = 1; //TODO:Move to constants
-	private int mAngleShootMotorID = 2;
+		
 
 	private RobotContainer mRobotContainer = RobotContainer.getInstance();
 	//PID for shooting
@@ -67,12 +66,12 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	double leftSpeed, rightSpeed;
 	
 	private ShooterSubsystem() {
-		mLeftShootMotor = new CANSparkMax(mLeftShootMotorID, MotorType.kBrushless);
-		mRightShootMotor = new CANSparkMax(mRightShootMotorID, MotorType.kBrushless);
+		mLeftShootMotor = new CANSparkMax(ShooterConstants.mLeftShootMotorID, MotorType.kBrushless);
+		mRightShootMotor = new CANSparkMax(ShooterConstants.mRightShootMotorID, MotorType.kBrushless);
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
 		mRightShootEncoder = mRightShootMotor.getEncoder();
-		mAngleEncoder = mAngleShootMotor.getAlternateEncoder(5);//TODO - define encoder as seperate object
-		mLeftShootEncoder.setPosition(0);  //TODO: make it a reset encoder count to 0
+		mAngleEncoder = mAngleShootMotor.getAlternateEncoder(5);
+		mLeftShootEncoder.setPosition(0);  
 		mRightShootEncoder.setPosition(0);
 		mShooterLimitSwitch = new DigitalInput(0);
 		mLeftShooterPIDConstraints = new Constraints(mConstraintsMaxVelocity, mShooterConstraintsMaxAcceleration);
@@ -87,38 +86,42 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	public void initialize() {
 
 	}
+	double jogAngle = ShooterState.eSpeaker.getAngle();
 	public void manualJogShooter(double speed){
-		mAngleShootMotor.set(speed);
+		jogAngle+=speed/5;
 	}
+	
 	public void spinShooterMotors(double leftSpeed, double rightSpeed){
 		// startRollerMotor method or something here
-		//leftSpeed = mLeftShooterPIDController.calculate(mLeftShootMotor.getEncoder().getVelocity(), leftSpeed);
-		//rightSpeed = mRightShooterPIDController.calculate(mRightShootMotor.getEncoder().getVelocity(), rightSpeed);
+		leftSpeed = mLeftShooterPIDController.calculate(mLeftShootMotor.getEncoder().getVelocity(), leftSpeed);
+		rightSpeed = mRightShooterPIDController.calculate(mRightShootMotor.getEncoder().getVelocity(), rightSpeed);
 		mLeftShootMotor.set(leftSpeed);
 		mRightShootMotor.set(rightSpeed); //TODO: USE PID so that speed is consistent despite battery charge/weakness
 	}
 	
-	//ShooterState mDesiredShooterState;
-	// public void setDesiredState(ShooterState mDesiredShooterState){
-	// 	this.mDesiredShooterState = mDesiredShooterState;
-		
-	// }
+	//Should be called continuously, returns true when error is less than a certain epsilon
 	public boolean runShooterPID(){
-		double mDesiredEncoderValue = mRobotContainer.getDesiredShooterState().getAngle();
-		double speed = mShooterAnglePIDController.calculate(mAngleEncoder.getPosition(), mDesiredEncoderValue);
-		mAngleShootMotor.set(speed);
-		if(mAnglePidController.getPositionError()<.1){//TODO: make epsilon
-			speed = 0; //TODO:Delete, dont change speed just set flag
-			mAngleShootMotor.set(speed);
-			return true;
-		}
-		return false;
+		double mDesiredEncoderValue;
+	if(mRobotContainer.getControlState()!=ControlState.eManualControl){
+		mDesiredEncoderValue = mRobotContainer.getDesiredShooterState().getAngle();
+	}else{
+		mDesiredEncoderValue = jogAngle;
 	}
+	double speed = mShooterAnglePIDController.calculate(mAngleEncoder.getPosition(), mDesiredEncoderValue);
+	mAngleShootMotor.set(speed);
+	final double mArmAngleEpsilon = 0.001;
+	if(Math.abs(mAnglePidController.getPositionError()) < mArmAngleEpsilon){
+
+	mShooterAnglePIDController.setP(4); //Test when we have access to robot arm and which values best counteract gravity
+		return true;
+	}
+	return false;
+}
 													
 	@Override
 	public void outputTelemetry(){
-		//ShuffleboardTab twb = new Shuffleboard.getTab("Subsystemshooter")
-		//.add("E",false);
+		ShuffleboardTab twb = Shuffleboard.getTab("SubsystemShooter");
+		twb.add("E",false).getEntry();
 		//TODO:Dump current encoder speeds
 	}
 

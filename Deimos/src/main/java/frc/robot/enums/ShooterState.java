@@ -20,4 +20,3 @@ public enum ShooterState {
             return angle;
     }
 }
-//TODO:Finish/fix this

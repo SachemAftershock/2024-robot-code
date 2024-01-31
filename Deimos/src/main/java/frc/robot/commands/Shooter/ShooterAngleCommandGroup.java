@@ -2,6 +2,7 @@ package frc.robot.commands.Shooter;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Intake.ChangeDesiredIntakeState;
+import frc.robot.commands.Intake.IntakePIDCommand;
 import frc.robot.commands.Intake.IntakeRollerCommand;
 import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterState;
@@ -21,7 +22,9 @@ public class ShooterAngleCommandGroup extends SequentialCommandGroup {
         previousIntakeState = mRobotContainer.getIntakeState();
         addCommands(
             new ChangeDesiredIntakeState(IntakeState.eSafeShooterMovement, mIntakeSubsystem),
+            new IntakePIDCommand(mIntakeSubsystem),
             new ChangeDesiredShooterState(desiredShooterState, mShooterSubsystem),
+            new ShooterPIDCommand(mShooterSubsystem),
             new ChangeDesiredIntakeState(mRobotContainer.getShooterState().getIntakeState(), mIntakeSubsystem)
         );
     }

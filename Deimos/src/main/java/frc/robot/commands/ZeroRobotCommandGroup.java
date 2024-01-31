@@ -1,10 +1,13 @@
 package frc.robot.commands;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
 import frc.robot.commands.Intake.ChangeDesiredIntakeState;
+import frc.robot.commands.Intake.IntakePIDCommand;
 import frc.robot.commands.Intake.IntakeRollerCommand;
 import frc.robot.commands.Shooter.ChangeDesiredShooterState;
+import frc.robot.commands.Shooter.ShooterPIDCommand;
 import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterState;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -22,14 +25,18 @@ public class ZeroRobotCommandGroup extends SequentialCommandGroup {
         this.mIntakeSubsystem = mIntakeSubsystem;
         previousIntakeState = mRobotContainer.getIntakeState();
         addCommands(
+            new InstantCommand(() -> {
+                CommandScheduler.getInstance().cancelAll();
+            }),
             new ChangeDesiredIntakeState(IntakeState.eSafeShooterMovement, mIntakeSubsystem),
-            new runIntakePID(),
+            new IntakePIDCommand(mIntakeSubsystem),
             new InstantCommand(() -> {
                 mShooterSubsystem.spinShooterMotors(0, 0);
             }),
             new ChangeDesiredShooterState(ShooterState.eSpeaker, mShooterSubsystem),
-            new runShooterPID(),
-            new ChangeDesiredIntakeState(mCurrentShooterState., mIntakeSubsystem)//chang eto get current intake state in current shooter enum
+            new ShooterPIDCommand(mShooterSubsystem),
+            new ChangeDesiredIntakeState(mRobotContainer.getShooterState().getIntakeState(), mIntakeSubsystem),
+            new IntakePIDCommand(mIntakeSubsystem)
         );
     }
 }

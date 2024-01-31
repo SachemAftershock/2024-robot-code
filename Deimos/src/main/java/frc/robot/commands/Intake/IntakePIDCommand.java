@@ -14,13 +14,13 @@ public class IntakePIDCommand extends Command {
     private IntakeState mDesiredState;
     public IntakePIDCommand(IntakeSubsystem mIntakeSubsystem) {
         mRobotContainer.setIntakeState(IntakeState.eSpeaker);
-        this.mDesiredState = mRobotContainer.getIntakeState();
         this.mIntakeSubsystem = mIntakeSubsystem;
         addRequirements(mIntakeSubsystem);
     } 
 
     @Override
     public void initialize() {
+        this.mDesiredState = mRobotContainer.getIntakeState();
 
     }
 

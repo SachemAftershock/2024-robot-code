@@ -61,6 +61,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		this.mDesiredIntakeState = mDesiredIntakeState;
 		
 	}
+
+	//Should be called continuously to keep intake in desiredposition, command returns finished when the PID error is less than a certain epsilon
 	public boolean runIntakePID(){
 		double mDesiredEncoderValue = mDesiredIntakeState.getPosition();
 		double speed = mIntakeArmPidController.calculate(mIntakeArmEncoder.getPosition(), mDesiredEncoderValue);
@@ -78,11 +80,10 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		return false;
 	}
 
-	
+	//Sets the motor idle mode to break or coast, this function may not be as useful as it seems, and only applies extra fiction when current is flowing through the motor, either by movement intentionally or by gravity
 	public void lockIntake(){
 		mIntakeArmMotor.setIdleMode(IdleMode.kBrake);
 	}
-	
 	public void coastIntake(){
 		mIntakeArmMotor.setIdleMode(IdleMode.kCoast);
 	}
@@ -92,20 +93,12 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	}
 	
 
-
-
-//why do we have a periodic method if we are looping these checks as a command	@Override
-	public void periodic() {
-
-	}
-
-	
 	@Override
 	public boolean checkSystem() {
 		return true;
 	}
 
-		// what is telemetry 	@Override
+		// what is telemetry 	@Override //idek
 	public void outputTelemetry() {
 
 	}

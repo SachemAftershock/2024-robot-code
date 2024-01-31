@@ -30,7 +30,6 @@ import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
 import frc.robot.commands.RotateDriveCommand;
 import frc.robot.commands.SetManualControlModeCommand;
-import frc.robot.commands.SuperstructureCheckCommand;
 import frc.robot.commands.ZeroRobotCommandGroup;
 import frc.robot.commands.Intake.IntakePIDCommand;
 import frc.robot.commands.Shooter.ManualShooterAngleCommand;
@@ -86,16 +85,20 @@ public class RobotContainer {
     setShooterState(ShooterState.eSpeaker);
     setDesiredShooterState(ShooterState.eSpeaker);
     setControlState(ControlState.eManualControl);
+    mIntakeSubsystem.coastIntake();
+    setSuperState(null);
   }
 
   private double rumbleValue = .5;
-
+  //rumbles controller
   public void Rumble(int times) {
     for (int i = 0; i < times; i++) {
       mControllerPrimary.setRumble(null, rumbleValue);
     }
   }
 
+
+  //Below shown is mutator and accessor methods for robot states and enums, all globally accessible through this robotcontainerclass
   private ControlState mCurrentControlState;
 
   public void setControlState(ControlState mControlState) {
@@ -182,11 +185,15 @@ public class RobotContainer {
     mControllerPrimary.button1.onTrue(new SetManualControlModeCommand(true));
     mControllerPrimary.button2.onTrue(new SetManualControlModeCommand(false));
     
+    //When in "automatic control", commands which involve PID movement of mechanisms are availible
     if(getControlState().equals(ControlState.eAutomaticControl)){
       mControllerPrimary.button3.onTrue(new ZeroRobotCommandGroup(mShooterSubsystem, mIntakeSubsystem));
       mControllerPrimary.button4.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, mIntakeSubsystem, ShooterState.eSpeaker));
 
-    }else if(getControlState().equals(ControlState.eManualControl)){
+    }
+    
+    //when in "manual control", commands which involve direct driver control of mechanisms are used
+    else if(getControlState().equals(ControlState.eManualControl)){
       Trigger ShooterJogDownTriggerPress = new Trigger(()->mControllerTertiary.getAButtonPressed());
       Trigger ShooterJogDownTriggerRelease = new Trigger(()->mControllerTertiary.getAButtonReleased());
 
@@ -274,6 +281,8 @@ public class RobotContainer {
     return value;
   }
 
+
+  //below is the instance variable for commands and subsystems to access robotcontainer methods
   public static RobotContainer mInstance;
 
   public static RobotContainer getInstance() {

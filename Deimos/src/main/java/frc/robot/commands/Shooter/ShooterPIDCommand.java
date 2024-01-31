@@ -15,14 +15,13 @@ public class ShooterPIDCommand extends Command {
     private boolean isIntakeIn;
     private ShooterState mDesiredState;
     public ShooterPIDCommand(ShooterSubsystem mShooterSubsystem) {
-        mRobotContainer.setIntakeState(IntakeState.eSpeaker);
-        this.mDesiredState = mRobotContainer.getDesiredShooterState();
         this.mShooterSubsystem = mShooterSubsystem;
         addRequirements(mShooterSubsystem);
     } 
 
     @Override
     public void initialize() {
+        this.mDesiredState = mRobotContainer.getDesiredShooterState();
 
     }
 
