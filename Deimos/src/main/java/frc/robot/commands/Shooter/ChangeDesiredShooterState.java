@@ -39,6 +39,7 @@ public class ChangeDesiredShooterState extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        CommandScheduler.getInstance().schedule();
     }
 }
 

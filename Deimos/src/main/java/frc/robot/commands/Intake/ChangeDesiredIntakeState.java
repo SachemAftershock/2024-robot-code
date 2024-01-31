@@ -14,7 +14,7 @@ public class ChangeDesiredIntakeState extends Command {
     private boolean isIntakeIn;
     private IntakeState mDesiredState;
     private IntakeState mCurrentState;
-    public ChangeDesiredIntakeState(IntakeState desiredState, IntakeSubsystem mIntakeSubsystem) {
+    public ChangeDesiredIntakeState(IntakeSubsystem mIntakeSubsystem, IntakeState desiredState) {
         this.mDesiredState = desiredState;
         this.mIntakeSubsystem = mIntakeSubsystem;
         addRequirements(mIntakeSubsystem);
@@ -27,7 +27,6 @@ public class ChangeDesiredIntakeState extends Command {
     @Override
     public void execute() {
         mRobotContainer.setDesiredIntakeState(mDesiredState);
-        CommandScheduler.getInstance().schedule(new IntakePIDCommand(mIntakeSubsystem));
     }
 
     @Override
