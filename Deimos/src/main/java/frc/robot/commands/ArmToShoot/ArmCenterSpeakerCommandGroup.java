@@ -1,5 +1,20 @@
 package frc.robot.commands.ArmToShoot;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.RobotContainer;
+import frc.robot.enums.IntakeState;
+import frc.robot.subsystems.IntakeSubsystem;
 
-public class ArmLeftSpeakerCommandGroup {
-    
+public class ArmCenterSpeakerCommandGroup extends SequentialCommandGroup {
+    private RobotContainer mRobotContainer = RobotContainer.getInstance();
+    private IntakeSubsystem mIntakeSubsystem;
+    private double outRollerVelocity = 5;
+    public ArmCenterSpeakerCommandGroup(IntakeSubsystem mIntakeSubsystem) {
+        // Add commands to be run sequentially
+        this.mIntakeSubsystem = mIntakeSubsystem;
+        addCommands(
+            new ChangeDe(mIntakeSubsystem, IntakeState.eOut),
+            new IntakeRollerCommand(outRollerVelocity, mIntakeSubsystem)
+        );
+    }
 }

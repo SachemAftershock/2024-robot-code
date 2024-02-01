@@ -3,16 +3,20 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
-import frc.robot.commands.Intake.ChangeDesiredIntakeState;
+import frc.robot.commands.Intake.ChangeDesiredIntakeStateCommandGroup;
 import frc.robot.commands.Intake.IntakePIDCommand;
 import frc.robot.commands.Intake.IntakeRollerCommand;
 import frc.robot.commands.Shooter.ChangeDesiredShooterState;
+import frc.robot.commands.Shooter.ShooterAngleCommandGroup;
 import frc.robot.commands.Shooter.ShooterPIDCommand;
+import frc.robot.commands.Shooter.ShooterRollerCommand;
 import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterState;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-//Purpose: to bring the robot to its stow position safely, and reset states to default
+/**
+ * Purpose: to bring the robot to its stow position safely, and reset states to default
+ */
 public class ZeroRobotCommandGroup extends SequentialCommandGroup {
     private RobotContainer mRobotContainer = RobotContainer.getInstance();
     private ShooterSubsystem mShooterSubsystem;
@@ -28,15 +32,9 @@ public class ZeroRobotCommandGroup extends SequentialCommandGroup {
             new InstantCommand(() -> {
                 CommandScheduler.getInstance().cancelAll();
             }),
-            new ChangeDesiredIntakeState(IntakeState.eSafeShooterMovement, mIntakeSubsystem),
-            new IntakePIDCommand(mIntakeSubsystem),
-            new InstantCommand(() -> {
-                mShooterSubsystem.spinShooterMotors(0, 0);
-            }),
-            new ChangeDesiredShooterState(ShooterState.eSpeaker, mShooterSubsystem),
-            new ShooterPIDCommand(mShooterSubsystem),
-            new ChangeDesiredIntakeState(mRobotContainer.getShooterState().getIntakeState(), mIntakeSubsystem),
-            new IntakePIDCommand(mIntakeSubsystem)
+            new ShooterRollerCommand(0,0,mShooterSubsystem),
+            new ChangeDesiredIntakeStateCommandGroup(mIntakeSubsystem,IntakeState.eIn),
+            new ShooterAngleCommandGroup(mShooterSubsystem, ShooterState.eSpeaker)
         );
     }
 }

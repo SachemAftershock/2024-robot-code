@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 
 
 import frc.lib.AftershockSubsystem;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.RobotContainer;
 import frc.robot.enums.IntakeState;
 
@@ -23,37 +24,47 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	private static IntakeSubsystem mInstance;
 	
 	private double mIntakeArmEncoderSetPoint = 0.5;
+
 	private CANSparkMax mIntakeArmMotor;
 	private RelativeEncoder mIntakeArmEncoder;
 	private CANSparkMax mIntakeRollerMotor;
+
+	private DigitalInput mExternalBeamBreaker;
+	private DigitalInput mInternalBeamBreaker;
+
 	private double mIntakeArmMotorSpeed = 0.05;
 	private double mIntakeRollerMotorSpeed = 0.05;
 	private DigitalInput mIntakeLimitSwitch;
 	private boolean isIntakeIn;
-	private int mIntakeArmMotorID = 0;
-	private int mIntakeRollerMotorID = 1;
 
 	private ProfiledPIDController mIntakeArmPidController;
 	private Constraints mIntakeArmPIDConstraints;
-	private double mConstraintsMaxVelocity = 0;
-	private double mConstraintsMaxAcceleration = 0;
-	private double[] mIntakeArmGains= {0.4,0,0};
+
 	private final Encoder m_encoder = new Encoder(1, 0, false, Encoder.EncodingType.k4X);
   	private ProfiledPIDController encoderPID;
+
 	private IntakeState mDesiredIntakeState;
+
 	private RobotContainer mRobotContainer = RobotContainer.getInstance();
+
 	private IntakeSubsystem() {
-		mIntakeArmMotor = new CANSparkMax(mIntakeArmMotorID, MotorType.kBrushless);
-		mIntakeRollerMotor = new CANSparkMax(mIntakeRollerMotorID, MotorType.kBrushless);
-		mIntakeArmEncoder = mIntakeArmMotor.getEncoder();
-		mIntakeArmEncoder.setPosition(0);
-		mIntakeLimitSwitch = new DigitalInput(0);
-		mIntakeArmPIDConstraints = new Constraints(mConstraintsMaxVelocity, mConstraintsMaxAcceleration);
-		mIntakeArmPidController = new ProfiledPIDController(mIntakeArmGains[0], mIntakeArmGains[1], mIntakeArmGains[0], mIntakeArmPIDConstraints);
+		
 	}
 
 	@Override
 	public void initialize() {
+		mIntakeArmMotor = new CANSparkMax(mIntakeArmMotorID, MotorType.kBrushless);
+		mIntakeRollerMotor = new CANSparkMax(mIntakeRollerMotorID, MotorType.kBrushless);
+		
+		mExternalBeamBreaker = new DigitalInput(mExternalBeamBreakerID); //EXTERNAL B1
+		mInternalBeamBreaker = new DigitalInput(mInternalBeamBreakerID); //INTERNAL B2
+
+		mIntakeArmEncoder = mIntakeArmMotor.getEncoder();
+		mIntakeArmEncoder.setPosition(0);
+
+		mIntakeLimitSwitch = new DigitalInput(0);
+		mIntakeArmPIDConstraints = new Constraints(mConstraintsMaxVelocity, mConstraintsMaxAcceleration);
+		mIntakeArmPidController = new ProfiledPIDController(mIntakeArmGains[0], mIntakeArmGains[1], mIntakeArmGains[0], mIntakeArmPIDConstraints);
 
 	}
 
@@ -89,10 +100,28 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	}
 	
 	public void setRollerMotorSpeed(double speed){
-		mIntakeRollerMotor.set(speed);
+		mIntakeRollerMotor.set(speed); 
+	}
+
+	public void injestDonut() {
+		double speed = mInjestDonutSpeed;
+
+		if (!mExternalBeamBreaker.get()) {
+			if (!mInternalBeamBreaker.get()) {
+				speed = 0;
+			}
+			speed *= 0.5;
+		}
+
+		setRollerMotorSpeed(speed);
+	}
+
+	public void ejectDonut() {
+		if (!mExternalBeamBreaker.get() && !mInternalBeamBreaker.get()) {
+			setRollerMotorSpeed(-mInjestDonutSpeed);
+		}
 	}
 	
-
 	@Override
 	public boolean checkSystem() {
 		return true;

@@ -15,7 +15,7 @@ public class ManualShooterAngleCommand extends Command {
     private ShooterState mDesiredState;
     private double speed;
     public ManualShooterAngleCommand(ShooterSubsystem mShooterSubsystem, double speed) {
-        mRobotContainer.setIntakeState(IntakeState.eSpeaker);
+        mRobotContainer.setIntakeState(IntakeState.eIn);
         this.mShooterSubsystem = mShooterSubsystem;
         addRequirements(mShooterSubsystem);
         this.speed = speed;
@@ -29,6 +29,7 @@ public class ManualShooterAngleCommand extends Command {
     @Override
     public void execute() {
         mShooterSubsystem.manualJogShooter(speed);
+        mShooterSubsystem.mShooterAnglePIDController.set(speed);
     }
 
     @Override

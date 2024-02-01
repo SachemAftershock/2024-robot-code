@@ -25,7 +25,7 @@ public class CommandJoystick extends Joystick {
         super(port);
     }
 
-    /**
+    /** ;\
      * index finger trigger
      */
     public JoystickButton button1 = new JoystickButton(this, 1);
@@ -85,4 +85,5 @@ public class CommandJoystick extends Joystick {
      */
     public JoystickButton button12 = new JoystickButton(this, 12);
 
+    // slider is the CommandJoystick().getThrottle() method
 }

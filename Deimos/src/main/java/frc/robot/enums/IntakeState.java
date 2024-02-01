@@ -5,13 +5,10 @@ package frc.robot.enums;
 
 public enum IntakeState {
     eOut(5),
-    eSpeaker(1),// making the assumption that speaker is in stow
-    eAmp(1),
-    eSafeZone(1),
-    eSafeShooterMovement(1);//Not totally out but far out enought to be safe to move the shooter without fear of getting caught on intake
+    eIn(1);
+    //Not totally out but far out enought to be safe to move the shooter without fear of getting caught on intake
     
     private double mIntakeEncoderPosition;
-    private ShooterState mPairedShooterState;
 
     IntakeState(double mIntakeEncoderPosition) {
         this.mIntakeEncoderPosition = mIntakeEncoderPosition;

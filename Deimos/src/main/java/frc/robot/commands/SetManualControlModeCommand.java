@@ -17,7 +17,7 @@ public class SetManualControlModeCommand extends Command {
         if(isManualModeDesired){
             mRobotContainer.setControlState(ControlState.eManualControl);
         } else if (!isManualModeDesired){
-            mRobotContainer.setControlState(ControlState.eAutomaticControl);      
+            mRobotContainer.setControlState(ControlState.eSemiAutoControl);      
         }
         
         

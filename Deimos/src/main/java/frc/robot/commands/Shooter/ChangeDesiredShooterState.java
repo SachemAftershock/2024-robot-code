@@ -28,7 +28,6 @@ public class ChangeDesiredShooterState extends Command {
     @Override
     public void execute() {
         mRobotContainer.setDesiredShooterState(mDesiredState);
-        CommandScheduler.getInstance().schedule(new ShooterPIDCommand(mShooterSubsystem));
 
     }
 

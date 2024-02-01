@@ -13,7 +13,6 @@ public class IntakePIDCommand extends Command {
     private boolean isIntakeIn;
     private IntakeState mDesiredState;
     public IntakePIDCommand(IntakeSubsystem mIntakeSubsystem) {
-        mRobotContainer.setIntakeState(IntakeState.eSpeaker);
         this.mIntakeSubsystem = mIntakeSubsystem;
         addRequirements(mIntakeSubsystem);
     } 

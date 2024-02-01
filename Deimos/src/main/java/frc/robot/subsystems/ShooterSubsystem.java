@@ -33,16 +33,14 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	private static ShooterSubsystem mInstance;
 	
 	private CANSparkMax mAngleShootMotor;
-	private double mShooterEncoderSetPoint = 0.5; //Derive empirically
 	private CANSparkMax mLeftShootMotor;
 	private RelativeEncoder mAngleEncoder; 
 	private RelativeEncoder mLeftShootEncoder;
 	private RelativeEncoder mRightShootEncoder;
-	private CANSparkMax mRightShootMotor;
-	private double mLeftShootMotorSpeed = 0.05; //Derive empirically 
-	private double mRightShootMotorSpeed = 0.05; //Derive empirically 
+	private CANSparkMax mRightShootMotor; 
 	private DigitalInput mShooterLimitSwitch;
-		
+	private DigitalInput mBeamBreakerEnter; 
+	private DigitalInput mBeamBreakerLeave;
 
 	private RobotContainer mRobotContainer = RobotContainer.getInstance();
 	//PID for shooting
@@ -52,33 +50,32 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	private Constraints mLeftShooterPIDConstraints;
 	private ProfiledPIDController mShooterAnglePIDController;
 	private Constraints mShooterAnglePIDConstraints;
-	private double mConstraintsMaxVelocity = .5;
-	private double mShooterConstraintsMaxAcceleration = .5;
-	private double[] mShooterGains= {0.4,0,0};
+	private double mShooterConstraintsMaxAcceleration = ShooterConstants.mShooterConstraintsMaxAcceleration;
+	private double[] mShooterGains = ShooterConstants.mShooterGains;
 
 
 	//PID for angle stuff
 	private ProfiledPIDController mAnglePidController;
 	private Constraints mAnglePIDConstraints;
-	private double mAngleMaxVelocity = 0.5;
-	private double mAngleConstraintsMaxAcceleration = 0.5;
-	private double[] mAngleGains= {0.4,0,0};
+	private double[] mAngleGains= ShooterConstants.mAngleGains;
 	double leftSpeed, rightSpeed;
 	
 	private ShooterSubsystem() {
+		mBeamBreakerEnter = new DigitalInput(ShooterConstants.mBeamBreakerEnterID);
+		mBeamBreakerLeave = new DigitalInput(ShooterConstants.mBeamBreakerLeaveID);
 		mLeftShootMotor = new CANSparkMax(ShooterConstants.mLeftShootMotorID, MotorType.kBrushless);
 		mRightShootMotor = new CANSparkMax(ShooterConstants.mRightShootMotorID, MotorType.kBrushless);
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
 		mRightShootEncoder = mRightShootMotor.getEncoder();
 		mAngleEncoder = mAngleShootMotor.getAlternateEncoder(5);
-		mLeftShootEncoder.setPosition(0);  
+		mLeftShootEncoder.setPosition(0);
 		mRightShootEncoder.setPosition(0);
 		mShooterLimitSwitch = new DigitalInput(0);
-		mLeftShooterPIDConstraints = new Constraints(mConstraintsMaxVelocity, mShooterConstraintsMaxAcceleration);
+		mLeftShooterPIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity, mShooterConstraintsMaxAcceleration);
 		mLeftShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2], mLeftShooterPIDConstraints);
-		mRightShooterPIDConstraints = new Constraints(mConstraintsMaxVelocity, mShooterConstraintsMaxAcceleration);
+		mRightShooterPIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity, mShooterConstraintsMaxAcceleration);
 		mRightShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2], mRightShooterPIDConstraints);
-		mShooterAnglePIDConstraints = new Constraints(mConstraintsMaxVelocity, mAngleConstraintsMaxAcceleration);
+		mShooterAnglePIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity, ShooterConstants.mAngleConstraintsMaxAcceleration);
 		mShooterAnglePIDController = new ProfiledPIDController(mAngleGains[0], mAngleGains[1], mAngleGains[2], mAnglePIDConstraints);
 	}
 
@@ -87,12 +84,17 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	}
 	double jogAngle = ShooterState.eSpeaker.getAngle();
+	
 	public void manualJogShooter(double speed){
-		jogAngle+=speed/5;
+		mAnglePidController.set(speed);
 	}
 	
+
+
 	public void spinShooterMotors(double leftSpeed, double rightSpeed){
 		// startRollerMotor method or something here
+		
+
 		leftSpeed = mLeftShooterPIDController.calculate(mLeftShootMotor.getEncoder().getVelocity(), leftSpeed);
 		rightSpeed = mRightShooterPIDController.calculate(mRightShootMotor.getEncoder().getVelocity(), rightSpeed);
 		mLeftShootMotor.set(leftSpeed);
@@ -117,7 +119,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	}
 	return false;
 }
-													
+
 	@Override
 	public void outputTelemetry(){
 		ShuffleboardTab twb = Shuffleboard.getTab("SubsystemShooter");
@@ -130,6 +132,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 			mInstance = new ShooterSubsystem();
 		}
 		return mInstance;
+		
 	}
 }
 

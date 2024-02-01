@@ -14,8 +14,21 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static class IntakeConstants{
-        public static final double kExampleVariable = 0.05;
+    public static class IntakeConstants {
+        //public static final double kExampleVariable = 0.05;
+        public static final int mConstraintsMaxVelocity = 0;
+        public static final int mConstraintsMaxAcceleration = 0;
+
+        public static final int mIntakeArmMotorID = 0;
+        public static final int mIntakeRollerMotorID = 1;
+
+        public static final int mExternalBeamBreakerID = 0; // TODO change these ids pretty pls thx <3
+        public static final int mInternalBeamBreakerID = 0;// TODO change these ids pretty pls thx <3
+
+        public static final double mInjestDonutSpeed = 0.4;
+
+        public static double[] mIntakeArmGains = {0.4,0,0};
+
     }
 
     public static class ClimberConstants{
@@ -24,6 +37,19 @@ public final class Constants {
 
     public static class ShooterConstants{
         public static final double kExampleVariable = 0.05; 
+        // PID
+        public static final double[] mAngleGains= {0.4,0,0};
+        public static final double mAngleMaxVelocity = 0.5;
+        public static final double mAngleConstraintsMaxAcceleration = 0.5;
+
+        public static final double[] mShooterGains = {0.4,0,0};
+        public static final double mConstraintsMaxVelocity = .5;
+        public static final double mShooterConstraintsMaxAcceleration = .5;
+        
+        public static final double mLeftShootMotorSpeed = 0.05; //Derive empirically 
+	    public static final double mRightShootMotorSpeed = 0.05; //Derive empirically
+        public static final double mShooterEncoderSetPoint = 0.5; //Derive empirically
+
 
         // IDs
         public static final int mAngleEncoderID1 = 0; 
@@ -31,6 +57,9 @@ public final class Constants {
         public static final int mLeftShootMotorID = 0;
         public static final int mRightShootMotorID = 1;
 	    public static final int mAngleShootMotorID = 2;
+         public static final int mBeamBreakerEnterID = 0;
+         public static final int mBeamBreakerLeaveID = 1;
+
     }
     
     public static class DriveConstants {

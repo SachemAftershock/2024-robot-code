@@ -15,17 +15,12 @@ public class ShooterAngleCommandGroup extends SequentialCommandGroup {
     private IntakeSubsystem mIntakeSubsystem;
     private double rollerVelocity = 5;
     private IntakeState previousIntakeState;
-    public ShooterAngleCommandGroup(ShooterSubsystem mShooterSubsystem, IntakeSubsystem mIntakeSubsystem, ShooterState desiredShooterState) {
+    public ShooterAngleCommandGroup(ShooterSubsystem mShooterSubsystem, ShooterState desiredShooterState) {
         // Add commands to be run sequentially
         this.mShooterSubsystem = mShooterSubsystem;
-        this.mIntakeSubsystem = mIntakeSubsystem;
-        previousIntakeState = mRobotContainer.getIntakeState();
         addCommands(
-            new ChangeDesiredIntakeState(IntakeState.eSafeShooterMovement, mIntakeSubsystem),
-            new IntakePIDCommand(mIntakeSubsystem),
             new ChangeDesiredShooterState(desiredShooterState, mShooterSubsystem),
-            new ShooterPIDCommand(mShooterSubsystem),
-            new ChangeDesiredIntakeState(mRobotContainer.getShooterState().getIntakeState(), mIntakeSubsystem)
+            new ShooterPIDCommand(mShooterSubsystem)
         );
     }
 }

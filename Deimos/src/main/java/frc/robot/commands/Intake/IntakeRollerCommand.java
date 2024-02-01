@@ -13,8 +13,8 @@ public class IntakeRollerCommand extends Command {
     private boolean isIntakeIn;
     private IntakeState mDesiredState;
     private double velocity;
+    
     public IntakeRollerCommand(double velocity, IntakeSubsystem mIntakeSubsystem) {
-        mRobotContainer.setIntakeState(IntakeState.eSpeaker);
         this.mDesiredState = mRobotContainer.getIntakeState();
         this.mIntakeSubsystem = mIntakeSubsystem;
         addRequirements(mIntakeSubsystem);

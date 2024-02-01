@@ -25,10 +25,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.DelayCommand;
-import frc.robot.commands.FollowTrajectoryCommandFactory;
-import frc.robot.commands.LinearDriveCommand;
-import frc.robot.commands.ManualDriveCommand;
-import frc.robot.commands.RotateDriveCommand;
+import frc.robot.commands.Drive.FollowTrajectoryCommandFactory;
+import frc.robot.commands.Drive.LinearDriveCommand;
+import frc.robot.commands.Drive.ManualDriveCommand;
+import frc.robot.commands.Drive.RotateDriveCommand;
 import frc.robot.commands.SetManualControlModeCommand;
 import frc.robot.commands.ZeroRobotCommandGroup;
 import frc.robot.commands.Intake.IntakePIDCommand;
@@ -54,8 +54,10 @@ public class RobotContainer {
   private IntakeSubsystem mIntakeSubsystem = IntakeSubsystem.getInstance();
   private ShooterSubsystem mShooterSubsystem = ShooterSubsystem.getInstance();
   private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
+  // Driver 1 - drives
   private final CommandJoystick mControllerPrimary = new CommandJoystick(0);
   private final CommandJoystick mControllerSecondary = new CommandJoystick(1);
+  // Driver 2 - manages subsystems
   private final AftershockXboxController mControllerTertiary = new AftershockXboxController(2);
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -80,8 +82,8 @@ public class RobotContainer {
     mClimberSubsystem.initialize();
     setClimberState(ClimberState.eDown);
     setDesiredClimberState(ClimberState.eDown);
-    setIntakeState(IntakeState.eSpeaker);
-    setDesiredIntakeState(IntakeState.eSpeaker);
+    setIntakeState(IntakeState.eIn);
+    setDesiredIntakeState(IntakeState.eIn);
     setShooterState(ShooterState.eSpeaker);
     setDesiredShooterState(ShooterState.eSpeaker);
     setControlState(ControlState.eManualControl);
@@ -182,18 +184,18 @@ public class RobotContainer {
   public void configureButtonBindings() {
     // TODO add button bindings
     
-    mControllerPrimary.button1.onTrue(new SetManualControlModeCommand(true));
+    mControllerPrimary.button1.onTrue(new SetManualControlModeCommand(true)); 
     mControllerPrimary.button2.onTrue(new SetManualControlModeCommand(false));
     
     //When in "automatic control", commands which involve PID movement of mechanisms are availible
-    if(getControlState().equals(ControlState.eAutomaticControl)){
+    if (getControlState().equals(ControlState.eSemiAutoControl)) {
       mControllerPrimary.button3.onTrue(new ZeroRobotCommandGroup(mShooterSubsystem, mIntakeSubsystem));
-      mControllerPrimary.button4.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, mIntakeSubsystem, ShooterState.eSpeaker));
+      mControllerPrimary.button4.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, /*mIntakeSubsystem,*/ ShooterState.eSpeaker));
 
     }
     
     //when in "manual control", commands which involve direct driver control of mechanisms are used
-    else if(getControlState().equals(ControlState.eManualControl)){
+    else if (getControlState().equals(ControlState.eManualControl)) {
       Trigger ShooterJogDownTriggerPress = new Trigger(()->mControllerTertiary.getAButtonPressed());
       Trigger ShooterJogDownTriggerRelease = new Trigger(()->mControllerTertiary.getAButtonReleased());
 
@@ -234,11 +236,12 @@ public class RobotContainer {
     Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
         new Pose2d(),
         List.of(
-            new Translation2d(0.5, 1.5),
-            new Translation2d(1.0, 1.5),
-            new Translation2d(1.5, 1.5)),
-        new Pose2d(1.5, 1.5, new Rotation2d()),
-        config);
+          new Translation2d(0.5, 1.5),
+          new Translation2d(1.0, 1.5),
+          new Translation2d(1.5, 1.5)),
+          new Pose2d(1.5, 1.5, new Rotation2d()),
+          config
+      );
     // return new RotateDriveCommand(mDriveSubsystem, 90);
     // mDriveSubsystem.zeroGyroscope();
     return new DelayCommand(0.15).andThen(new LinearDriveCommand(mDriveSubsystem, 4.0, CardinalDirection.eX))
