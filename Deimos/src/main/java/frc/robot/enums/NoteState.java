@@ -1,6 +1,6 @@
 package frc.robot.enums;
 
-public enum DonutState {
+public enum NoteState {
     eEnteringIntake, //set when b1 is first triggered, slow
     eInIntake, //set when b2 is triggered, stop
     eInShooter, //set when b3 is triggered and b1 is not triggered, stop if in amp

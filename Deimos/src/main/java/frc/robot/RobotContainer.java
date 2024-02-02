@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.ShooterConstants.mLeftShootMotorSpeed;
+import static frc.robot.Constants.ShooterConstants.mRightShootMotorSpeed;
+
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,9 +15,12 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import frc.lib.AftershockXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,7 +28,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.DriveConstants.*;
+import frc.robot.Constants.ShooterConstants.*;
 import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.DelayCommand;
 import frc.robot.commands.Drive.FollowTrajectoryCommandFactory;
@@ -38,6 +45,7 @@ import frc.robot.commands.Shooter.ShooterPIDCommand;
 import frc.robot.commands.Shooter.ShooterRollerCommand;
 import frc.robot.enums.*;
 import frc.robot.subsystems.*;
+import frc.robot.Constants.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -54,11 +62,26 @@ public class RobotContainer {
   private IntakeSubsystem mIntakeSubsystem = IntakeSubsystem.getInstance();
   private ShooterSubsystem mShooterSubsystem = ShooterSubsystem.getInstance();
   private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
+
   // Driver 1 - drives
   private final CommandJoystick mControllerPrimary = new CommandJoystick(0);
   private final CommandJoystick mControllerSecondary = new CommandJoystick(1);
   // Driver 2 - manages subsystems
   private final AftershockXboxController mControllerTertiary = new AftershockXboxController(2);
+
+  /*
+  Shuffleboard configure bindings
+
+  For shuffleboard, to make a key show a value on some tab we:
+    1. make a tab with getTab
+    2. add some key/value pair with .add (or .addBoolean etc. for a supplier), and call getEntry on that (returns GenericEntry)
+    3. update GenericEntry when you need to.
+
+    Example: read second example in https://docs.wpilib.org/en/stable/docs/software/dashboards/shuffleboard/layouts-with-code/sending-data.html
+  */
+    private ShuffleboardTab mErrorTab = Shuffleboard.getTab("Error");
+    private GenericEntry bindingsExist = mErrorTab.add("Current state is bound correctly", true).getEntry();
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -92,15 +115,16 @@ public class RobotContainer {
   }
 
   private double rumbleValue = .5;
-  //rumbles controller
+
+  // rumbles controller
   public void Rumble(int times) {
     for (int i = 0; i < times; i++) {
       mControllerPrimary.setRumble(null, rumbleValue);
     }
   }
 
-
-  //Below shown is mutator and accessor methods for robot states and enums, all globally accessible through this robotcontainerclass
+  // Below shown is mutator and accessor methods for robot states and enums, all
+  // globally accessible through this robotcontainerclass
   private ControlState mCurrentControlState;
 
   public void setControlState(ControlState mControlState) {
@@ -120,11 +144,13 @@ public class RobotContainer {
   public ClimberState getClimberState() {
     return mCurrentClimberState;
   }
+
   private ClimberState mDesiredClimberState;
 
   public ClimberState getDesiredClimberState() {
     return mDesiredClimberState;
   }
+
   public void setDesiredClimberState(ClimberState mDesiredClimberState) {
     this.mDesiredClimberState = mDesiredClimberState;
   }
@@ -178,44 +204,53 @@ public class RobotContainer {
   public ShooterState getDesiredShooterState() {
     return mDesiredShooterState;
   }
-  private double shooterJogSpeed = .2;
-  private double intakeJogSpeed = .2;
+
+  private double shooterJogSpeed = 0.2;
+  private double intakeJogSpeed = 0.2;
 
   public void configureButtonBindings() {
     // TODO add button bindings
-    
-    mControllerPrimary.button1.onTrue(new SetManualControlModeCommand(true)); 
+
+    mControllerPrimary.button1.onTrue(new SetManualControlModeCommand(true));
     mControllerPrimary.button2.onTrue(new SetManualControlModeCommand(false));
-    
-    //When in "automatic control", commands which involve PID movement of mechanisms are availible
+
+    // When in "automatic control", commands which involve PID movement of
+    // mechanisms are availible
     if (getControlState().equals(ControlState.eSemiAutoControl)) {
       mControllerPrimary.button3.onTrue(new ZeroRobotCommandGroup(mShooterSubsystem, mIntakeSubsystem));
-      mControllerPrimary.button4.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, /*mIntakeSubsystem,*/ ShooterState.eSpeaker));
+      mControllerPrimary.button4
+          .onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, /* mIntakeSubsystem, */ ShooterState.eSpeaker));
 
-    }
-    
-    //when in "manual control", commands which involve direct driver control of mechanisms are used
-    else if (getControlState().equals(ControlState.eManualControl)) {
-      Trigger ShooterJogDownTriggerPress = new Trigger(()->mControllerTertiary.getAButtonPressed());
-      Trigger ShooterJogDownTriggerRelease = new Trigger(()->mControllerTertiary.getAButtonReleased());
+      mControllerPrimary.button5.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, ShooterState.eAmp));
+      mControllerPrimary.button6.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, ShooterState.eSafeZone));
+
+    } else if (getControlState().equals(ControlState.eManualControl)) {
+      // when in "manual control", commands which involve direct driver control of
+      // mechanisms are used
+      Trigger ShooterJogDownTriggerPress = new Trigger(() -> mControllerTertiary.getAButtonPressed());
+      Trigger ShooterJogDownTriggerRelease = new Trigger(() -> mControllerTertiary.getAButtonReleased());
 
       ShooterJogDownTriggerPress.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, shooterJogSpeed));
       ShooterJogDownTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
-      
-      Trigger ShooterJogUpTriggerPress = new Trigger(()->mControllerTertiary.getAButtonPressed());
-      Trigger ShooterJogUpTriggerRelease = new Trigger(()->mControllerTertiary.getAButtonReleased());
+
+      Trigger ShooterJogUpTriggerPress = new Trigger(() -> mControllerTertiary.getBButtonPressed());
+      Trigger ShooterJogUpTriggerRelease = new Trigger(() -> mControllerTertiary.getBButtonReleased());
 
       ShooterJogUpTriggerPress.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, -shooterJogSpeed));
       ShooterJogUpTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
-      
-      Trigger ShooterWheelsTriggerPress = new Trigger(()->mControllerTertiary.getAButtonPressed());
-      Trigger ShooterWheelsTriggerRelease = new Trigger(()->mControllerTertiary.getAButtonReleased());
 
-      ShooterJogUpTriggerPress.onTrue(new ShooterRollerCommand(.5,.5,mShooterSubsystem));//TODO: add velocity constants
+      Trigger ShooterWheelsTriggerPress = new Trigger(() -> mControllerTertiary.getXButtonPressed());
+      Trigger ShooterWheelsTriggerRelease = new Trigger(() -> mControllerTertiary.getXButtonReleased());
+
+      ShooterJogUpTriggerPress
+          .onTrue(new ShooterRollerCommand(mLeftShootMotorSpeed, mRightShootMotorSpeed, mShooterSubsystem));// TODO: add
+                                                                                                            // velocity
+                                                                                                            // constants
       ShooterJogUpTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
 
-
-
+    } else {
+      // TODO: Add else statement that makes an error signal to the dashboard
+      bindingsExist.setBoolean(false);
     }
   }
 
@@ -236,12 +271,11 @@ public class RobotContainer {
     Trajectory trajectory2 = TrajectoryGenerator.generateTrajectory(
         new Pose2d(),
         List.of(
-          new Translation2d(0.5, 1.5),
-          new Translation2d(1.0, 1.5),
-          new Translation2d(1.5, 1.5)),
-          new Pose2d(1.5, 1.5, new Rotation2d()),
-          config
-      );
+            new Translation2d(0.5, 1.5),
+            new Translation2d(1.0, 1.5),
+            new Translation2d(1.5, 1.5)),
+        new Pose2d(1.5, 1.5, new Rotation2d()),
+        config);
     // return new RotateDriveCommand(mDriveSubsystem, 90);
     // mDriveSubsystem.zeroGyroscope();
     return new DelayCommand(0.15).andThen(new LinearDriveCommand(mDriveSubsystem, 4.0, CardinalDirection.eX))
@@ -284,8 +318,8 @@ public class RobotContainer {
     return value;
   }
 
-
-  //below is the instance variable for commands and subsystems to access robotcontainer methods
+  // below is the instance variable for commands and subsystems to access
+  // robotcontainer methods
   public static RobotContainer mInstance;
 
   public static RobotContainer getInstance() {

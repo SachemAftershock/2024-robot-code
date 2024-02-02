@@ -37,7 +37,8 @@ public class ClimberSubsystem extends AftershockSubsystem {
 	private double mConstraintsMaxAcceleration = 0;
 	private double[] mClimberArmGains= {0.4,0,0};
 	private final Encoder m_encoder = new Encoder(1, 0, false, Encoder.EncodingType.k4X);
-  private ProfiledPIDController encoderPID;
+  	private ProfiledPIDController encoderPID;
+
 	private ClimberSubsystem() {
 		mClimberArmMotor = new CANSparkMax(mClimberArmMotorID, MotorType.kBrushless);
 		mClimberRollerMotor = new CANSparkMax(mClimberRollerMotorID, MotorType.kBrushless);
@@ -56,7 +57,7 @@ public class ClimberSubsystem extends AftershockSubsystem {
 
 	public void move(double distance){
 		double speed = mClimberArmPidController.calculate(mClimberArmEncoder.getPosition(), distance);
-
+		mClimberRollerMotor.set(speed);
 	}
 
 

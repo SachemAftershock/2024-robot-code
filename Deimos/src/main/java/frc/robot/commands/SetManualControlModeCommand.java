@@ -7,7 +7,9 @@ import frc.robot.RobotContainer;
 import frc.robot.enums.ControlState;
 import frc.robot.enums.IntakeState;
 import frc.robot.subsystems.IntakeSubsystem;
-//comand which sets the manual or automatic control state and also recalls the configbuttonbindings method to reset the controller mappings, because the same mappings are used for different commands over the 2 modes
+//command which sets the manual or automatic control state
+//and also recalls the configbuttonbindings method to reset the controller mappings,
+//because the same mappings are used for different commands over the 2 modes
 public class SetManualControlModeCommand extends Command {
     private RobotContainer mRobotContainer = RobotContainer.getInstance();
     private boolean isIntakeIn;
@@ -16,7 +18,7 @@ public class SetManualControlModeCommand extends Command {
     public SetManualControlModeCommand(boolean isManualModeDesired) {
         if(isManualModeDesired){
             mRobotContainer.setControlState(ControlState.eManualControl);
-        } else if (!isManualModeDesired){
+        } else{
             mRobotContainer.setControlState(ControlState.eSemiAutoControl);      
         }
         
@@ -25,11 +27,11 @@ public class SetManualControlModeCommand extends Command {
 
     @Override
     public void initialize() {
+        mRobotContainer.configureButtonBindings();
     }
 
     @Override
     public void execute() {
-        mRobotContainer.configureButtonBindings();
     }
 
     @Override

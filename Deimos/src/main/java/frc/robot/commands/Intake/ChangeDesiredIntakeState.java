@@ -14,6 +14,7 @@ public class ChangeDesiredIntakeState extends Command {
     private boolean isIntakeIn;
     private IntakeState mDesiredState;
     private IntakeState mCurrentState;
+    
     public ChangeDesiredIntakeState(IntakeSubsystem mIntakeSubsystem, IntakeState desiredState) {
         this.mDesiredState = desiredState;
         this.mIntakeSubsystem = mIntakeSubsystem;

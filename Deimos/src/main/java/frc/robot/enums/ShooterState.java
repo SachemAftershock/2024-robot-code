@@ -1,22 +1,16 @@
 package frc.robot.enums;
 
-import frc.robot.RobotContainer;
-
 public enum ShooterState {
-    eSpeaker(0, IntakeState.eIn),
-    eSafeZone(0, IntakeState.eIn),
-    eAmp(0, IntakeState.eIn);
-    //TODO: remove paired intake state
+    eSpeaker(0),
+    eSafeZone(0),
+    eAmp(0);
+    // 
     private double angle;
-    private IntakeState pairedIntakeState;
     
-    ShooterState(double angle, IntakeState pairedIntakeState) {
+    ShooterState(double angle) {
         this.angle = angle;
     }
-    public IntakeState getIntakeState(){
-        return pairedIntakeState;
-    }
     public double getAngle() {
-            return angle;
+        return angle;
     }
 }

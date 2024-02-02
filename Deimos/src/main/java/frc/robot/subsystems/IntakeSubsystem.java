@@ -103,7 +103,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		mIntakeRollerMotor.set(speed); 
 	}
 
-	public void injestDonut() {
+	public void ingestNote() {
 		double speed = mInjestDonutSpeed;
 
 		if (!mExternalBeamBreaker.get()) {
@@ -116,9 +116,9 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		setRollerMotorSpeed(speed);
 	}
 
-	public void ejectDonut() {
-		if (!mExternalBeamBreaker.get() && !mInternalBeamBreaker.get()) {
-			setRollerMotorSpeed(-mInjestDonutSpeed);
+	public void ejectNote() {
+		if (!mExternalBeamBreaker.get() || !mInternalBeamBreaker.get()) {
+			setRollerMotorSpeed(mEjectDonutSpeed);
 		}
 	}
 	
@@ -127,7 +127,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		return true;
 	}
 
-		// what is telemetry 	@Override //idek
+		// what is telemetry 	@Override //idek breh
 	public void outputTelemetry() {
 
 	}

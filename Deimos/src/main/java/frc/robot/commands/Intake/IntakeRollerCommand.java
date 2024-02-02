@@ -19,7 +19,7 @@ public class IntakeRollerCommand extends Command {
         this.mIntakeSubsystem = mIntakeSubsystem;
         addRequirements(mIntakeSubsystem);
         this.velocity = velocity;
-    } 
+    }
 
 
     @Override

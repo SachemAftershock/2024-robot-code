@@ -1,5 +1,7 @@
 package frc.robot.commands.Shooter;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.AftershockSubsystem;
@@ -13,6 +15,7 @@ public class ManualShooterAngleCommand extends Command {
     private ShooterSubsystem mShooterSubsystem;
     private RobotContainer mRobotContainer = RobotContainer.getInstance();
     private ShooterState mDesiredState;
+    private ProfiledPIDController mShooterAnglePIDController = mShooterSubsystem.getShooterAnglePIDController();
     private double speed;
     public ManualShooterAngleCommand(ShooterSubsystem mShooterSubsystem, double speed) {
         mRobotContainer.setIntakeState(IntakeState.eIn);
@@ -29,7 +32,7 @@ public class ManualShooterAngleCommand extends Command {
     @Override
     public void execute() {
         mShooterSubsystem.manualJogShooter(speed);
-        mShooterSubsystem.mShooterAnglePIDController.set(speed);
+        mShooterAnglePIDController.calculate(speed);
     }
 
     @Override

@@ -2,7 +2,6 @@
 
 package frc.robot.subsystems;
 
-
 import frc.lib.AftershockSubsystem;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ShooterConstants;
@@ -31,19 +30,19 @@ import static frc.robot.Constants.ShooterConstants.*;
 public class ShooterSubsystem extends AftershockSubsystem {
 
 	private static ShooterSubsystem mInstance;
-	
+
 	private CANSparkMax mAngleShootMotor;
 	private CANSparkMax mLeftShootMotor;
-	private RelativeEncoder mAngleEncoder; 
+	private RelativeEncoder mAngleEncoder;
 	private RelativeEncoder mLeftShootEncoder;
 	private RelativeEncoder mRightShootEncoder;
-	private CANSparkMax mRightShootMotor; 
+	private CANSparkMax mRightShootMotor;
 	private DigitalInput mShooterLimitSwitch;
-	private DigitalInput mBeamBreakerEnter; 
+	private DigitalInput mBeamBreakerEnter;
 	private DigitalInput mBeamBreakerLeave;
 
 	private RobotContainer mRobotContainer = RobotContainer.getInstance();
-	//PID for shooting
+	// PID for shooting
 	private ProfiledPIDController mRightShooterPIDController;
 	private Constraints mRightShooterPIDConstraints;
 	private ProfiledPIDController mLeftShooterPIDController;
@@ -53,13 +52,12 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	private double mShooterConstraintsMaxAcceleration = ShooterConstants.mShooterConstraintsMaxAcceleration;
 	private double[] mShooterGains = ShooterConstants.mShooterGains;
 
-
-	//PID for angle stuff
+	// PID for angle stuff
 	private ProfiledPIDController mAnglePidController;
 	private Constraints mAnglePIDConstraints;
-	private double[] mAngleGains= ShooterConstants.mAngleGains;
+	private double[] mAngleGains = ShooterConstants.mAngleGains;
 	double leftSpeed, rightSpeed;
-	
+
 	private ShooterSubsystem() {
 		mBeamBreakerEnter = new DigitalInput(ShooterConstants.mBeamBreakerEnterID);
 		mBeamBreakerLeave = new DigitalInput(ShooterConstants.mBeamBreakerLeaveID);
@@ -71,60 +69,75 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		mLeftShootEncoder.setPosition(0);
 		mRightShootEncoder.setPosition(0);
 		mShooterLimitSwitch = new DigitalInput(0);
-		mLeftShooterPIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity, mShooterConstraintsMaxAcceleration);
-		mLeftShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2], mLeftShooterPIDConstraints);
-		mRightShooterPIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity, mShooterConstraintsMaxAcceleration);
-		mRightShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2], mRightShooterPIDConstraints);
-		mShooterAnglePIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity, ShooterConstants.mAngleConstraintsMaxAcceleration);
-		mShooterAnglePIDController = new ProfiledPIDController(mAngleGains[0], mAngleGains[1], mAngleGains[2], mAnglePIDConstraints);
+		mLeftShooterPIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity,
+				mShooterConstraintsMaxAcceleration);
+		mLeftShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2],
+				mLeftShooterPIDConstraints);
+		mRightShooterPIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity,
+				mShooterConstraintsMaxAcceleration);
+		mRightShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2],
+				mRightShooterPIDConstraints);
+		mShooterAnglePIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity,
+				ShooterConstants.mAngleConstraintsMaxAcceleration);
+		mShooterAnglePIDController = new ProfiledPIDController(mAngleGains[0], mAngleGains[1], mAngleGains[2],
+				mAnglePIDConstraints);
 	}
 
 	@Override
 	public void initialize() {
 
 	}
+
 	double jogAngle = ShooterState.eSpeaker.getAngle();
-	
-	public void manualJogShooter(double speed){
-		mAnglePidController.set(speed);
+
+	public void manualJogShooter(double speed) {
+		mAnglePidController.calculate(speed);
 	}
-	
 
-
-	public void spinShooterMotors(double leftSpeed, double rightSpeed){
+	public void spinShooterMotors(double leftSpeed, double rightSpeed) {
 		// startRollerMotor method or something here
-		
 
 		leftSpeed = mLeftShooterPIDController.calculate(mLeftShootMotor.getEncoder().getVelocity(), leftSpeed);
 		rightSpeed = mRightShooterPIDController.calculate(mRightShootMotor.getEncoder().getVelocity(), rightSpeed);
 		mLeftShootMotor.set(leftSpeed);
-		mRightShootMotor.set(rightSpeed); //TODO: USE PID so that speed is consistent despite battery charge/weakness
+		mRightShootMotor.set(rightSpeed); // TODO: USE PID so that speed is consistent despite battery charge/weakness
 	}
-	
-	//Should be called continuously, returns true when error is less than a certain epsilon
-	public boolean runShooterPID(){
-		double mDesiredEncoderValue;
-	if(mRobotContainer.getControlState()!=ControlState.eManualControl){
-		mDesiredEncoderValue = mRobotContainer.getDesiredShooterState().getAngle();
-	}else{
-		mDesiredEncoderValue = jogAngle;
-	}
-	double speed = mShooterAnglePIDController.calculate(mAngleEncoder.getPosition(), mDesiredEncoderValue);
-	mAngleShootMotor.set(speed);
-	final double mArmAngleEpsilon = 0.001;
-	if(Math.abs(mAnglePidController.getPositionError()) < mArmAngleEpsilon){
 
-	mShooterAnglePIDController.setP(4); //Test when we have access to robot arm and which values best counteract gravity
-		return true;
+	// Should be called continuously, returns true when error is less than a certain
+	// epsilon
+	public boolean runShooterPID() {
+		double mDesiredEncoderValue;
+		if (mRobotContainer.getControlState() != ControlState.eManualControl) {
+			mDesiredEncoderValue = mRobotContainer.getDesiredShooterState().getAngle();
+		} else {
+			mDesiredEncoderValue = jogAngle;
+		}
+		double speed = mShooterAnglePIDController.calculate(mAngleEncoder.getPosition(), mDesiredEncoderValue);
+		mAngleShootMotor.set(speed);
+		final double mArmAngleEpsilon = 0.001;
+		if (Math.abs(mAnglePidController.getPositionError()) < mArmAngleEpsilon) {
+
+			mShooterAnglePIDController.setP(4); // Test when we have access to robot arm and which values best
+												// counteract gravity
+			return true;
+		}
+		return false;
 	}
-	return false;
-}
+
+	public ProfiledPIDController getShooterAnglePIDController() {
+		return mShooterAnglePIDController;
+	}
 
 	@Override
-	public void outputTelemetry(){
-		ShuffleboardTab twb = Shuffleboard.getTab("SubsystemShooter");
-		twb.add("E",false).getEntry();
-		//TODO:Dump current encoder speeds
+	public void outputTelemetry() {
+		ShuffleboardTab tab = Shuffleboard.getTab("SubsystemShooter");
+		tab.add("Angle Encoder: ", mAngleEncoder.getVelocity()).getEntry();
+		tab.add("Left Shooter Encoder: ", mLeftShootEncoder.getVelocity()).getEntry();
+		tab.add("Right Shooter Encoder: ", mRightShootEncoder.getVelocity()).getEntry();
+		// TODO:Dump current encoder speeds
+	// 	private RelativeEncoder mAngleEncoder;
+	// private RelativeEncoder mLeftShootEncoder;
+	// private RelativeEncoder mRightShootEncoder;
 	}
 
 	public synchronized static ShooterSubsystem getInstance() {
@@ -132,7 +145,6 @@ public class ShooterSubsystem extends AftershockSubsystem {
 			mInstance = new ShooterSubsystem();
 		}
 		return mInstance;
-		
+
 	}
 }
-

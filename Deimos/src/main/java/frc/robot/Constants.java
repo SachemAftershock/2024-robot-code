@@ -22,13 +22,13 @@ public final class Constants {
         public static final int mIntakeArmMotorID = 0;
         public static final int mIntakeRollerMotorID = 1;
 
-        public static final int mExternalBeamBreakerID = 0; // TODO change these ids pretty pls thx <3
-        public static final int mInternalBeamBreakerID = 0;// TODO change these ids pretty pls thx <3
+        public static final int mExternalBeamBreakerID = 0; // FIXME change these ids pretty pls thx <3
+        public static final int mInternalBeamBreakerID = 0;// FIXME change these ids pretty pls thx <3
 
         public static final double mInjestDonutSpeed = 0.4;
+        public static final double mEjectDonutSpeed = 0.5;
 
         public static double[] mIntakeArmGains = {0.4,0,0};
-
     }
 
     public static class ClimberConstants{
@@ -49,7 +49,6 @@ public final class Constants {
         public static final double mLeftShootMotorSpeed = 0.05; //Derive empirically 
 	    public static final double mRightShootMotorSpeed = 0.05; //Derive empirically
         public static final double mShooterEncoderSetPoint = 0.5; //Derive empirically
-
 
         // IDs
         public static final int mAngleEncoderID1 = 0; 
@@ -103,8 +102,8 @@ public final class Constants {
         
         public static final double kMaxVelocityMetersPerSecond = (6380.0 / 60.0 * kMk4L1DriveReduction * kMk4WheelDiameter * Math.PI) * 0.5;// 6380.0 / 60.0 *kMk4L1DriveReduction * kMk4WheelDiameter * Math.PI
 
-        //TODO: Change
-        public static final double kMaxAccelerationMetersPerSecondSquared = (kMaxVelocityMetersPerSecond * 0.5); //kMaxVelocityMetersPerSecond * 0.25
+        //TODO: Change to an empirically measured value (currently this is just a random multiplication)
+        public static final double kMaxAccelerationMetersPerSecondSquared = (kMaxVelocityMetersPerSecond * 0.5); // previously 0.25
 
         public static final double kMaxAngularVelocityRadiansPerSecond = kMaxVelocityMetersPerSecond /
         Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0);
