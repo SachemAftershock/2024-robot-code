@@ -33,6 +33,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	private CANSparkMax mAngleShootMotor;
 	private CANSparkMax mLeftShootMotor;
+	private CANSparkMax mShooterArmMotor;
 	private RelativeEncoder mAngleEncoder;
 	private RelativeEncoder mLeftShootEncoder;
 	private RelativeEncoder mRightShootEncoder;
@@ -63,12 +64,13 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		mBeamBreakerLeave = new DigitalInput(kBeamBreakerLeaveID);
 		mLeftShootMotor = new CANSparkMax(kLeftShootMotorID, MotorType.kBrushless);
 		mRightShootMotor = new CANSparkMax(kRightShootMotorID, MotorType.kBrushless);
+		mShooterArmMotor = new CANSparkMax(kShooterArmMotorID, MotorType.kBrushless);
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
 		mRightShootEncoder = mRightShootMotor.getEncoder();
 		mAngleEncoder = mAngleShootMotor.getAlternateEncoder(5);
 		mLeftShootEncoder.setPosition(0);
 		mRightShootEncoder.setPosition(0);
-		mShooterLimitSwitch = new DigitalInput(0);
+		mShooterLimitSwitch = new DigitalInput(kShooterLimitSwitchID);
 		mLeftShooterPIDConstraints = new Constraints(kConstraintsMaxVelocity,
 				mShooterConstraintsMaxAcceleration);
 		mLeftShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2],
@@ -102,6 +104,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		mLeftShootMotor.set(leftSpeed);
 		mRightShootMotor.set(rightSpeed); // TODO: USE PID so that speed is consistent despite battery charge/weakness
 	}
+
+	public void setShooterArmMotorSpeed(double speed) {
+		mShooterArmMotor.set(speed);
+	}
+
 
 	// Should be called continuously, returns true when error is less than a certain
 	// epsilon

@@ -6,7 +6,7 @@ import frc.robot.RobotContainer;
 import frc.robot.commands.Intake.ChangeDesiredIntakeStateCommandGroup;
 import frc.robot.commands.Intake.IntakePIDCommand;
 import frc.robot.commands.Intake.IntakeRollerCommand;
-import frc.robot.commands.Shooter.ChangeDesiredShooterState;
+import frc.robot.commands.Shooter.ChangeDesiredShooterStateCommand;
 import frc.robot.commands.Shooter.ShooterAngleCommandGroup;
 import frc.robot.commands.Shooter.ShooterPIDCommand;
 import frc.robot.commands.Shooter.ShooterRollerCommand;

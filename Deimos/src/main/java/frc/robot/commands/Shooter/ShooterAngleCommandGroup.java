@@ -21,7 +21,7 @@ public class ShooterAngleCommandGroup extends SequentialCommandGroup {
         // Add commands to be run sequentially
         this.mShooterSubsystem = mShooterSubsystem;
         addCommands(
-                new ChangeDesiredShooterState(desiredShooterState, mShooterSubsystem),
+                new ChangeDesiredShooterStateCommand(desiredShooterState, mShooterSubsystem),
                 new ShooterPIDCommand(mShooterSubsystem));
     }
 }

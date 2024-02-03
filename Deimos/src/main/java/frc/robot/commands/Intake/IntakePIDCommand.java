@@ -25,9 +25,7 @@ public class IntakePIDCommand extends Command {
 
     @Override
     public void execute() {
-        if(mIntakeSubsystem.runIntakePID()){
-            mRobotContainer.setIntakeState(mDesiredState);
-        }
+        mIntakeSubsystem.runIntakePID();
     }
 
     @Override

@@ -40,6 +40,8 @@ public final class Constants {
     }
 
     public static class ClimberConstants {
+        public static final int kClimberLimitSwitchID = 0;
+
     }
 
     public static class ShooterConstants {
@@ -55,7 +57,7 @@ public final class Constants {
 
         public static final double kLeftShootMotorSpeed = 0.05; // Derive empirically
         public static final double kRightShootMotorSpeed = 0.05; // Derive empirically
-        public static final double kShooterEncoderSetPoint = 0.5; // Derive empirically
+         public static final double kShooterEncoderSetPoint = 0.5; // Derive empirically
 
         // IDs
         public static final int kAngleEncoderID1 = 0;
@@ -65,6 +67,9 @@ public final class Constants {
         public static final int kAngleShootMotorID = 2;
         public static final int kBeamBreakerEnterID = 0;
         public static final int kBeamBreakerLeaveID = 1;
+        public static final int kShooterLimitSwitchID = 0;
+        public static final int kShooterArmMotorID = 1;
+
 
         // hardcoded speeds
 
@@ -86,7 +91,8 @@ public final class Constants {
         public static final int kPrimaryControllerID = 0;
         public static final int kSecondaryControllerID = 1;
         public static final int kTertiaryControllerID = 2;
-
+        public static final double kXboxTriggerDeadband = 0.05;
+        public static final double kXboxJoystickDeadband = 0.10;
         // Anti tilt
         public static final double kOffBalanceAngleThresholdDegrees = 10;
         public static final double kOnBalanceAngleThresholdDegrees = 5;

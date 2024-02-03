@@ -4,8 +4,10 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.ShooterConstants.mLeftShootMotorSpeed;
-import static frc.robot.Constants.ShooterConstants.mRightShootMotorSpeed;
+import static frc.robot.Constants.ShooterConstants.kLeftShootMotorSpeed;
+import static frc.robot.Constants.DriveConstants.kXboxJoystickDeadband;
+import static frc.robot.Constants.DriveConstants.kXboxTriggerDeadband;
+import static frc.robot.Constants.ShooterConstants.*;
 
 import java.util.List;
 
@@ -110,7 +112,6 @@ public class RobotContainer {
     setShooterState(ShooterState.eSpeaker);
     setDesiredShooterState(ShooterState.eSpeaker);
     setControlState(ControlState.eManualControl);
-    mIntakeSubsystem.coastIntake();
     setSuperState(null);
   }
 
@@ -205,6 +206,10 @@ public class RobotContainer {
     return mDesiredShooterState;
   }
 
+  public AftershockXboxController getControllerTertiary() {
+    return mControllerTertiary;
+  }
+
   private double shooterJogSpeed = 0.2;
   private double intakeJogSpeed = 0.2;
 
@@ -227,32 +232,96 @@ public class RobotContainer {
     } else if (getControlState().equals(ControlState.eManualControl)) {
       // when in "manual control", commands which involve direct driver control of
       // mechanisms are used
-      Trigger ShooterJogDownTriggerPress = new Trigger(() -> mControllerTertiary.getAButtonPressed());
-      Trigger ShooterJogDownTriggerRelease = new Trigger(() -> mControllerTertiary.getAButtonReleased());
+      // Trigger ShooterJogDownTriggerPress = new Trigger(() -> mControllerTertiary.getAButtonPressed());
+      // Trigger ShooterJogDownTriggerRelease = new Trigger(() -> mControllerTertiary.getAButtonReleased());
 
-      ShooterJogDownTriggerPress.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, shooterJogSpeed));
-      ShooterJogDownTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
+      // ShooterJogDownTriggerPress.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, shooterJogSpeed));
+      // ShooterJogDownTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
 
-      Trigger ShooterJogUpTriggerPress = new Trigger(() -> mControllerTertiary.getBButtonPressed());
-      Trigger ShooterJogUpTriggerRelease = new Trigger(() -> mControllerTertiary.getBButtonReleased());
+      // Trigger ShooterJogUpTriggerPress = new Trigger(() -> mControllerTertiary.getBButtonPressed());
+      // Trigger ShooterJogUpTriggerRelease = new Trigger(() -> mControllerTertiary.getBButtonReleased());
 
-      ShooterJogUpTriggerPress.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, -shooterJogSpeed));
-      ShooterJogUpTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
+      // ShooterJogUpTriggerPress.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, -shooterJogSpeed));
+      // ShooterJogUpTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
 
-      Trigger ShooterWheelsTriggerPress = new Trigger(() -> mControllerTertiary.getXButtonPressed());
-      Trigger ShooterWheelsTriggerRelease = new Trigger(() -> mControllerTertiary.getXButtonReleased());
+      // Trigger ShooterWheelsTriggerPress = new Trigger(() -> mControllerTertiary.getXButtonPressed());
+      // Trigger ShooterWheelsTriggerRelease = new Trigger(() -> mControllerTertiary.getXButtonReleased());
 
-      Trigger EjectNote = new Trigger(()-> mControllerTertiary.getXButtonPressed()); //TODO: CHANGE FROM X
-      EjectNote.onTrue(new InstantCommand(mIntakeSubsystem.ejectNote()).andThen(mIntakeSubsystem.setRollerMotorSpeed(0.0)));
+      // Trigger EjectNote = new Trigger(()-> mControllerTertiary.getXButtonPressed()); //TODO: CHANGE FROM X
+      // EjectNote.onTrue(new InstantCommand(mIntakeSubsystem.ejectNote().andThen(mIntakeSubsystem.setRollerMotorSpeed(0.0))));
 
-      Trigger InjestNote = new Trigger(()-> mControllerTertiary.getXButtonPressed()); //TODO: CHANGE FROM X
-      EjectNote.onTrue(new InstantCommand(mIntakeSubsystem.ingestNote()).andThen(mIntakeSubsystem.setRollerMotorSpeed(0.0)));
+      // Trigger IngestNote = new Trigger(()-> mControllerTertiary.getXButtonPressed()); //TODO: CHANGE FROM X
+      // EjectNote.onTrue(new InstantCommand(mIntakeSubsystem.ingestNote().andThen(mIntakeSubsystem.setRollerMotorSpeed(0.0))));
 
-      ShooterJogUpTriggerPress
-          .onTrue(new ShooterRollerCommand(mLeftShootMotorSpeed, mRightShootMotorSpeed, mShooterSubsystem));// TODO: add
-                                                                                                            // velocity
-                                                                                                            // constants
-      ShooterJogUpTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
+      // ShooterJogUpTriggerPress
+      //     .onTrue(new ShooterRollerCommand(kLeftShootMotorSpeed, kRightShootMotorSpeed, mShooterSubsystem));// TODO: add  constants
+      // ShooterJogUpTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
+     
+      //  Trigger ShooterLeftWheelsTriggerPress = new Trigger(() -> mControllerTertiary.getLeftTriggerPressed());
+      //  Trigger ShooterLeftWheelsTriggerRelease = new Trigger(() -> mControllerTertiary.getLeftTriggerReleased());
+
+      //  Trigger ShooterRightWheelsTriggerPress = new Trigger(() -> mControllerTertiary.getRightTriggerPressed());
+      //  Trigger ShooterRightWheelsTriggerRelease = new Trigger(() -> mControllerTertiary.getRightTriggerReleased());
+
+      // ShooterLeftWheelsTriggerPress.onTrue(new InstantCommand(() -> {
+      //   if(Math.abs(mControllerTertiary.getLeftTriggerAxis()) >= 0.05){
+      //     mShooterSubsystem.spinShooterMotors(mControllerTertiary.getLeftTriggerAxis(), 0);
+      //   }
+      // }));
+      if (mControllerTertiary.getLeftTriggerAxis() >= kXboxTriggerDeadband && mControllerTertiary.getRightTriggerAxis() >= kXboxTriggerDeadband){
+        mShooterSubsystem.spinShooterMotors(mControllerTertiary.getLeftTriggerAxis(), mControllerTertiary.getRightTriggerAxis());
+      } else if (mControllerTertiary.getLeftTriggerAxis() >= kXboxTriggerDeadband){
+        mShooterSubsystem.spinShooterMotors(mControllerTertiary.getLeftTriggerAxis(), 0);
+      } else if (mControllerTertiary.getRightTriggerAxis() >= kXboxTriggerDeadband){
+        mShooterSubsystem.spinShooterMotors(0, mControllerTertiary.getRightTriggerAxis()); 
+      } else {
+        mShooterSubsystem.spinShooterMotors(0, 0);
+      }
+      if( Math.abs(mControllerTertiary.getLeftY()) <= kXboxJoystickDeadband){
+        mShooterSubsystem.setShooterArmMotorSpeed(-mControllerTertiary.getLeftY());
+      }
+
+      // ShooterLeftWheelsTriggerRelease.onTrue(new InstantCommand(() -> {
+      //   mShooterSubsystem.spinShooterMotors(0, 0);
+      // }));
+
+      // ShooterRightWheelsTriggerPress.onTrue(new InstantCommand(() -> {
+      //   if(Math.abs(mControllerTertiary.getRightTriggerAxis()) >= 0.05){
+          
+      //   }
+      //   mShooterSubsystem.spinShooterMotors(0, mControllerTertiary.getRightTriggerAxis());
+      // }));
+
+      // ShooterRightWheelsTriggerRelease.onTrue(new InstantCommand(() -> {
+      //   mShooterSubsystem.spinShooterMotors(0, 0);
+      // }));
+
+      /*
+        Intake
+      */
+      // FIX ME move intake arm with tertiarycontroller right stick
+
+      Trigger IntakeRollerIngestTriggerPress = new Trigger(() -> mControllerTertiary.getLeftBumper());
+      Trigger IntakeRollerIngestTriggerRelease = new Trigger(() -> mControllerTertiary.getLeftBumper());
+
+      Trigger IntakeRollerEjectTriggerPress = new Trigger(() -> mControllerTertiary.getRightBumper());
+      Trigger IntakeRollerEjectTriggerRelease = new Trigger(() -> mControllerTertiary.getRightBumper());
+
+      IntakeRollerIngestTriggerPress.onTrue(new InstantCommand(() -> { 
+        mIntakeSubsystem.setRollerMotorSpeed(0.4);
+      }));
+
+      IntakeRollerIngestTriggerRelease.onTrue(new InstantCommand(() -> { 
+        mIntakeSubsystem.setRollerMotorSpeed(0); 
+      }));
+
+      IntakeRollerEjectTriggerPress.onTrue(new InstantCommand(() -> { 
+        mIntakeSubsystem.setRollerMotorSpeed(-0.4);
+      }));
+
+      IntakeRollerEjectTriggerRelease.onTrue(new InstantCommand(() -> { 
+        mIntakeSubsystem.setRollerMotorSpeed(0); 
+      }));
 
     } else {
       // TODO: Add else statement that makes an error signal to the dashboard

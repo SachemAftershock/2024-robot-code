@@ -43,7 +43,7 @@ public class ClimberSubsystem extends AftershockSubsystem {
 		mClimberRollerMotor = new CANSparkMax(mClimberRollerMotorID, MotorType.kBrushless);
 		mClimberArmEncoder = mClimberArmMotor.getEncoder();
 		mClimberArmEncoder.setPosition(0);
-		mClimberLimitSwitch = new DigitalInput(0);
+		mClimberLimitSwitch = new DigitalInput(kClimberLimitSwitchID);
 		isClimberIn = true;
 		mClimberArmPIDConstraints = new Constraints(mConstraintsMaxVelocity, mConstraintsMaxAcceleration);
 		mClimberArmPidController = new ProfiledPIDController(mClimberArmGains[0], mClimberArmGains[1],

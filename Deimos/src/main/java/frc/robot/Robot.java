@@ -7,8 +7,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.lib.AftershockXboxController;
 import frc.robot.subsystems.DriveSubsystem;
-
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -19,7 +21,11 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private DriveSubsystem mDrive = DriveSubsystem.getInstance();
   private RobotContainer m_robotContainer;
+  private IntakeSubsystem mIntakeSubsystem;
+  private ShooterSubsystem mShooterSubsystem;
 
+  private AftershockXboxController mController;
+  
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -28,9 +34,12 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    
+    m_robotContainer = RobotContainer.getInstance();
+    mIntakeSubsystem = IntakeSubsystem.getInstance();
+    mShooterSubsystem = ShooterSubsystem.getInstance();
+    mController = m_robotContainer.getControllerTertiary();
     m_robotContainer.initialize();
-
   }
 
   /**
@@ -87,10 +96,12 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    
-    
+    double intakeArmSpeed = mController.getRightY() * 0.4;
+    mIntakeSubsystem.setIntakeArmMotorSpeed(intakeArmSpeed);
+    double shooterArmSpeed= mController.getLeftY() * 0.4;
+    mShooterSubsystem.setShooterArmMotorSpeed(shooterArmSpeed);
   }
-
+    
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.

@@ -11,11 +11,11 @@ import frc.robot.enums.ShooterState;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class ChangeDesiredShooterState extends Command {
+public class ChangeDesiredShooterStateCommand extends Command {
     private ShooterSubsystem mShooterSubsystem;
     private RobotContainer mRobotContainer = RobotContainer.getInstance();
     private ShooterState mDesiredState;
-    public ChangeDesiredShooterState(ShooterState mDesiredState, ShooterSubsystem mShooterSubsystem) {
+    public ChangeDesiredShooterStateCommand(ShooterState mDesiredState, ShooterSubsystem mShooterSubsystem) {
         this.mDesiredState = mDesiredState;
         this.mShooterSubsystem = mShooterSubsystem;
         addRequirements(mShooterSubsystem);
