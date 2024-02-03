@@ -4,8 +4,8 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.ShooterConstants.mLeftShootMotorSpeed;
-import static frc.robot.Constants.ShooterConstants.mRightShootMotorSpeed;
+import static frc.robot.Constants.DriveConstants.*;
+import static frc.robot.Constants.ShooterConstants.*;
 
 import java.util.List;
 
@@ -28,8 +28,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.DriveConstants.*;
-import frc.robot.Constants.ShooterConstants.*;
 import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.DelayCommand;
 import frc.robot.commands.Drive.FollowTrajectoryCommandFactory;
@@ -64,10 +62,10 @@ public class RobotContainer {
   private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
 
   // Driver 1 - drives
-  private final CommandJoystick mControllerPrimary = new CommandJoystick(0);
-  private final CommandJoystick mControllerSecondary = new CommandJoystick(1);
+  private final CommandJoystick mControllerPrimary = new CommandJoystick(kPrimaryControllerID);
+  private final CommandJoystick mControllerSecondary = new CommandJoystick(kSecondaryControllerID);
   // Driver 2 - manages subsystems
-  private final AftershockXboxController mControllerTertiary = new AftershockXboxController(2);
+  private final AftershockXboxController mControllerTertiary = new AftershockXboxController(kTertiaryControllerID);
 
   /*
   Shuffleboard configure bindings
@@ -114,14 +112,14 @@ public class RobotContainer {
     setSuperState(null);
   }
 
-  private double rumbleValue = .5;
+  
 
   // rumbles controller
-  public void Rumble(int times) {
-    for (int i = 0; i < times; i++) {
-      mControllerPrimary.setRumble(null, rumbleValue);
-    }
-  }
+  // public void Rumble(int times) {
+  //   for (int i = 0; i < times; i++) {
+  //     mControllerPrimary.setRumble(null, rumbleValue);
+  //   }
+  // }
 
   // Below shown is mutator and accessor methods for robot states and enums, all
   // globally accessible through this robotcontainerclass
@@ -238,22 +236,71 @@ public class RobotContainer {
 
       ShooterJogUpTriggerPress.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, -shooterJogSpeed));
       ShooterJogUpTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
+     
+      //ShooterJogUpTriggerPress
 
-      Trigger ShooterWheelsTriggerPress = new Trigger(() -> mControllerTertiary.getXButtonPressed());
-      Trigger ShooterWheelsTriggerRelease = new Trigger(() -> mControllerTertiary.getXButtonReleased());
-
-      ShooterJogUpTriggerPress
-          .onTrue(new ShooterRollerCommand(mLeftShootMotorSpeed, mRightShootMotorSpeed, mShooterSubsystem));// TODO: add
-                                                                                                            // velocity
-                                                                                                            // constants
+      ShooterJogUpTriggerPress.onTrue(new ShooterRollerCommand(kLeftShootMotorSpeed, kRightShootMotorSpeed, mShooterSubsystem));// TODO: add constants
       ShooterJogUpTriggerRelease.onTrue(new ManualShooterAngleCommand(mShooterSubsystem, 0));
 
+      Trigger ShooterLeftWheelsTriggerPress = new Trigger(() -> mControllerTertiary.getLeftTriggerPressed());
+      Trigger ShooterLeftWheelsTriggerRelease = new Trigger(() -> mControllerTertiary.getLeftTriggerReleased());
+
+      Trigger ShooterRightWheelsTriggerPress = new Trigger(() -> mControllerTertiary.getRightTriggerPressed());
+      Trigger ShooterRightWheelsTriggerRelease = new Trigger(() -> mControllerTertiary.getRightTriggerReleased());
+
+      ShooterLeftWheelsTriggerPress.onTrue(new InstantCommand(() -> {
+        mShooterSubsystem.spinShooterMotors(mControllerTertiary.getLeftTriggerAxis(), 0);
+      }));
+
+      ShooterLeftWheelsTriggerRelease.onTrue(new InstantCommand(() -> {
+        mShooterSubsystem.spinShooterMotors(0, 0);
+      }));
+
+      ShooterRightWheelsTriggerPress.onTrue(new InstantCommand(() -> {
+        mShooterSubsystem.spinShooterMotors(0, mControllerTertiary.getRightTriggerAxis());
+      }));
+
+      ShooterRightWheelsTriggerRelease.onTrue(new InstantCommand(() -> {
+        mShooterSubsystem.spinShooterMotors(0, 0);
+      }));
+
+      /*
+        Intake
+      */
+      // FIXME move intake arm with tertiarycontroller right stick
+      
+      Trigger IntakeRollerIngestTriggerPress = new Trigger(() -> mControllerTertiary.getLeftBumper());
+      Trigger IntakeRollerIngestTriggerRelease = new Trigger(() -> mControllerTertiary.getLeftBumper());
+
+      Trigger IntakeRollerEjectTriggerPress = new Trigger(() -> mControllerTertiary.getRightBumper());
+      Trigger IntakeRollerEjectTriggerRelease = new Trigger(() -> mControllerTertiary.getRightBumper());
+      
+      IntakeRollerIngestTriggerPress.onTrue(new InstantCommand(() -> { 
+        mIntakeSubsystem.setRollerMotorSpeed(0.4);
+      }));
+      
+      IntakeRollerIngestTriggerRelease.onTrue(new InstantCommand(() -> { 
+        mIntakeSubsystem.setRollerMotorSpeed(0); 
+      }));
+      
+      IntakeRollerEjectTriggerPress.onTrue(new InstantCommand(() -> { 
+        mIntakeSubsystem.setRollerMotorSpeed(-0.4);
+      }));
+      
+      IntakeRollerEjectTriggerRelease.onTrue(new InstantCommand(() -> { 
+        mIntakeSubsystem.setRollerMotorSpeed(0); 
+      }));
+
+      
+      
+      
+      
     } else {
       // TODO: Add else statement that makes an error signal to the dashboard
       bindingsExist.setBoolean(false);
     }
   }
-
+  
   public Command getAutonomousCommand() {
     TrajectoryConfig config = new TrajectoryConfig(
         DriveConstants.kMaxVelocityMetersPerSecond * 0.3,
@@ -279,8 +326,7 @@ public class RobotContainer {
     // return new RotateDriveCommand(mDriveSubsystem, 90);
     // mDriveSubsystem.zeroGyroscope();
     return new DelayCommand(0.15).andThen(new LinearDriveCommand(mDriveSubsystem, 4.0, CardinalDirection.eX))
-        .andThen(new DelayCommand(.2)).andThen(new LinearDriveCommand(mDriveSubsystem, -4.0, CardinalDirection.eX)); // was
-                                                                                                                     // 2.0
+        .andThen(new DelayCommand(.2)).andThen(new LinearDriveCommand(mDriveSubsystem, -4.0, CardinalDirection.eX)); // was 2.0
     /**
      * return new SequentialCommandGroup(
      * new LinearDriveCommand(mDriveSubsystem, 2, CardinalDirection.eX),
@@ -307,6 +353,8 @@ public class RobotContainer {
       return 0.0;
     }
   }
+
+  
 
   private static double modifyAxis(double value) {
     // Deadband

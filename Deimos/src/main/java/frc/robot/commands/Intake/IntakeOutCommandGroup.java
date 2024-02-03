@@ -1,4 +1,7 @@
 package frc.robot.commands.Intake;
+
+import static frc.robot.Constants.ShooterConstants.kArmAmpRollerVelocity;
+
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
@@ -9,14 +12,13 @@ public class IntakeOutCommandGroup extends ParallelCommandGroup {
     private RobotContainer mRobotContainer = RobotContainer.getInstance();
     private IntakeSubsystem mIntakeSubsystem;
 
-    //private double outRollerVelocity = 5;
+    private double mArmAmpRollerVelocity = kArmAmpRollerVelocity;
 
     public IntakeOutCommandGroup(IntakeSubsystem mIntakeSubsystem) {
         // Add commands to be run sequentially
         this.mIntakeSubsystem = mIntakeSubsystem;
         addCommands(
-            new ChangeDesiredIntakeStateCommandGroup(mIntakeSubsystem, IntakeState.eOut),
-            new EjectNoteCommand(mIntakeSubsystem)
-        );
+                new ChangeDesiredIntakeStateCommandGroup(mIntakeSubsystem, IntakeState.eOut),
+                new IntakeRollerCommand(mArmAmpRollerVelocity, mIntakeSubsystem));
     }
 }

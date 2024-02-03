@@ -9,14 +9,14 @@ public class IntakeInCommandGroup extends SequentialCommandGroup {
     private RobotContainer mRobotContainer = RobotContainer.getInstance();
     private IntakeSubsystem mIntakeSubsystem;
 
-    //private double rollerVelocity = 0;
+    private double rollerVelocity = 0;
 
     public IntakeInCommandGroup(IntakeSubsystem mIntakeSubsystem) {
         // Add commands to be run sequentially
         this.mIntakeSubsystem = mIntakeSubsystem;
         addCommands(
             new ChangeDesiredIntakeStateCommandGroup(mIntakeSubsystem, IntakeState.eIn),
-            new IngestNoteCommand(mIntakeSubsystem)
+            new IntakeRollerCommand(rollerVelocity, mIntakeSubsystem)
         );
     }
 }

@@ -1,10 +1,10 @@
-//TODO: Set up angleencoder right
+//TODO: Set up angle encoder right
 
 package frc.robot.subsystems;
 
 import frc.lib.AftershockSubsystem;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.ShooterConstants;
+import static frc.robot.Constants.ShooterConstants.*;
 import frc.robot.enums.ControlState;
 import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterState;
@@ -49,36 +49,36 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	private Constraints mLeftShooterPIDConstraints;
 	private ProfiledPIDController mShooterAnglePIDController;
 	private Constraints mShooterAnglePIDConstraints;
-	private double mShooterConstraintsMaxAcceleration = ShooterConstants.mShooterConstraintsMaxAcceleration;
-	private double[] mShooterGains = ShooterConstants.mShooterGains;
+	private double mShooterConstraintsMaxAcceleration = kShooterConstraintsMaxAcceleration;
+	private double[] mShooterGains = kShooterGains;
 
 	// PID for angle stuff
 	private ProfiledPIDController mAnglePidController;
 	private Constraints mAnglePIDConstraints;
-	private double[] mAngleGains = ShooterConstants.mAngleGains;
+	private double[] mAngleGains = kAngleGains;
 	double leftSpeed, rightSpeed;
 
 	private ShooterSubsystem() {
-		mBeamBreakerEnter = new DigitalInput(ShooterConstants.mBeamBreakerEnterID);
-		mBeamBreakerLeave = new DigitalInput(ShooterConstants.mBeamBreakerLeaveID);
-		mLeftShootMotor = new CANSparkMax(ShooterConstants.mLeftShootMotorID, MotorType.kBrushless);
-		mRightShootMotor = new CANSparkMax(ShooterConstants.mRightShootMotorID, MotorType.kBrushless);
+		mBeamBreakerEnter = new DigitalInput(kBeamBreakerEnterID);
+		mBeamBreakerLeave = new DigitalInput(kBeamBreakerLeaveID);
+		mLeftShootMotor = new CANSparkMax(kLeftShootMotorID, MotorType.kBrushless);
+		mRightShootMotor = new CANSparkMax(kRightShootMotorID, MotorType.kBrushless);
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
 		mRightShootEncoder = mRightShootMotor.getEncoder();
 		mAngleEncoder = mAngleShootMotor.getAlternateEncoder(5);
 		mLeftShootEncoder.setPosition(0);
 		mRightShootEncoder.setPosition(0);
 		mShooterLimitSwitch = new DigitalInput(0);
-		mLeftShooterPIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity,
+		mLeftShooterPIDConstraints = new Constraints(kConstraintsMaxVelocity,
 				mShooterConstraintsMaxAcceleration);
 		mLeftShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2],
 				mLeftShooterPIDConstraints);
-		mRightShooterPIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity,
+		mRightShooterPIDConstraints = new Constraints(kConstraintsMaxVelocity,
 				mShooterConstraintsMaxAcceleration);
 		mRightShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2],
 				mRightShooterPIDConstraints);
-		mShooterAnglePIDConstraints = new Constraints(ShooterConstants.mConstraintsMaxVelocity,
-				ShooterConstants.mAngleConstraintsMaxAcceleration);
+		mShooterAnglePIDConstraints = new Constraints(kConstraintsMaxVelocity,
+				kAngleMaxAcceleration);
 		mShooterAnglePIDController = new ProfiledPIDController(mAngleGains[0], mAngleGains[1], mAngleGains[2],
 				mAnglePIDConstraints);
 	}
@@ -117,8 +117,9 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		final double mArmAngleEpsilon = 0.001;
 		if (Math.abs(mAnglePidController.getPositionError()) < mArmAngleEpsilon) {
 
-			mShooterAnglePIDController.setP(4); // Test when we have access to robot arm and which values best
-												// counteract gravity
+			mShooterAnglePIDController.setP(kShooterAngleSetPWhenBelowEpsilon); // Test when we have access to robot arm
+																				// and which values best
+			// counteract gravity
 			return true;
 		}
 		return false;
@@ -135,9 +136,9 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		tab.add("Left Shooter Encoder: ", mLeftShootEncoder.getVelocity()).getEntry();
 		tab.add("Right Shooter Encoder: ", mRightShootEncoder.getVelocity()).getEntry();
 		// TODO:Dump current encoder speeds
-	// 	private RelativeEncoder mAngleEncoder;
-	// private RelativeEncoder mLeftShootEncoder;
-	// private RelativeEncoder mRightShootEncoder;
+		// private RelativeEncoder mAngleEncoder;
+		// private RelativeEncoder mLeftShootEncoder;
+		// private RelativeEncoder mRightShootEncoder;
 	}
 
 	public synchronized static ShooterSubsystem getInstance() {

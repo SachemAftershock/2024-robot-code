@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Ports.DrivePorts.*;
 
-
 public class DriveSubsystem extends AftershockSubsystem {
 	private static DriveSubsystem mInstance;
 
@@ -81,7 +80,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 	private final AHRS mNavx; // NavX connected over MXP
 
 	private final SwerveDrivePoseEstimator mPoseEstimator;
-	//private final PhotonCamera mPhotonCamera;
+	// private final PhotonCamera mPhotonCamera;
 
 	private final SwerveModule mFrontLeftModule;
 	private final SwerveModule mFrontRightModule;
@@ -92,34 +91,32 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	private final Limelight mLimelight;
 	private int counter = 0;
-	
+
 	private DriveSubsystem() {
 		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-
-		
 		mNavx = new AHRS(SPI.Port.kMXP, (byte) 200);
 
-		//mPhotonCamera = new PhotonCamera("photonvision");
+		// mPhotonCamera = new PhotonCamera("photonvision");
 
-		//mFrontLeftModule = Mk4iSwerveModuleHelper.createFalcon500Neo(
-			mFrontLeftModule = Mk4iSwerveModuleHelper.createNeo(
-			//change functions
-			
+		// mFrontLeftModule = Mk4iSwerveModuleHelper.createFalcon500Neo(
+		mFrontLeftModule = Mk4iSwerveModuleHelper.createNeo(
+				// change functions
+
 				// This parameter is optional, but will allow you to see the current state of
 				// the module on the dashboard.
 				tab.getLayout("Front Left Module", BuiltInLayouts.kList)
 						.withSize(2, 4)
 						.withPosition(0, 0),
 				// This can either be STANDARD or FAST depending on your gear configuration
-				//L1 before
+				// L1 before
 				Mk4iSwerveModuleHelper.GearRatio.L3,
 				// This is the ID of the drive motor
-				kFrontLeftDriveMotorId,
+				kFrontLeftDriveMotorID,
 				// This is the ID of the steer motor
-				kFrontLeftSteerMotorId,
+				kFrontLeftSteerMotorID,
 				// This is the ID of the steer encoder
-				kFrontLeftSteerEncoderId,
+				kFrontLeftSteerEncoderID,
 				// This is how much the steer encoder is offset from true zero (In our case,
 				// zero is facing straight forward)
 				kFrontLeftSteerOffset);
@@ -129,9 +126,9 @@ public class DriveSubsystem extends AftershockSubsystem {
 						.withSize(2, 4)
 						.withPosition(2, 0),
 				Mk4iSwerveModuleHelper.GearRatio.L3,
-				kFrontRightDriveMotorId,
-				kFrontRightSteerMotorId,
-				kFrontRightSteerEncoderId,
+				kFrontRightDriveMotorID,
+				kFrontRightSteerMotorID,
+				kFrontRightSteerEncoderID,
 				kFrontRightSteerOffset);
 
 		mBackLeftModule = Mk4iSwerveModuleHelper.createNeo(
@@ -139,9 +136,9 @@ public class DriveSubsystem extends AftershockSubsystem {
 						.withSize(2, 4)
 						.withPosition(4, 0),
 				Mk4iSwerveModuleHelper.GearRatio.L3,
-				kBackLeftDriveMotorId,
-				kBackLeftSteerMotorId,
-				kBackLeftSteerEncoderId,
+				kBackLeftDriveMotorID,
+				kBackLeftSteerMotorID,
+				kBackLeftSteerEncoderID,
 				kBackLeftSteerOffset);
 
 		mBackRightModule = Mk4iSwerveModuleHelper.createNeo(
@@ -149,9 +146,9 @@ public class DriveSubsystem extends AftershockSubsystem {
 						.withSize(2, 4)
 						.withPosition(6, 0),
 				Mk4iSwerveModuleHelper.GearRatio.L3,
-				kBackRightDriveMotorId,
-				kBackRightSteerMotorId,
-				kBackRightSteerEncoderId,
+				kBackRightDriveMotorID,
+				kBackRightSteerMotorID,
+				kBackRightSteerEncoderID,
 				kBackRightSteerOffset);
 
 		mFrontLeftModule.setCanStatusFramePeriodReductions();
@@ -160,11 +157,10 @@ public class DriveSubsystem extends AftershockSubsystem {
 		mBackRightModule.setCanStatusFramePeriodReductions();
 
 		mPoseEstimator = new SwerveDrivePoseEstimator(
-			mKinematics,
-			new Rotation2d(),
-			getPositions(),
-			new Pose2d()
-		);
+				mKinematics,
+				new Rotation2d(),
+				getPositions(),
+				new Pose2d());
 
 		mLimelight = new Limelight("limelight");
 
@@ -200,11 +196,11 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void initialize() {
-		//do we want to call getPositions() to reset pose to current position?
+		// do we want to call getPositions() to reset pose to current position?
 		this.drive(new ChassisSpeeds());
-		mPoseEstimator.resetPosition(new Rotation2d(), getPositions(),new Pose2d());
+		mPoseEstimator.resetPosition(new Rotation2d(), getPositions(), new Pose2d());
 		zeroGyroscope();
-		//mNavx.setAngleAdjustment(0.0);
+		// mNavx.setAngleAdjustment(0.0);
 		counter = 0;
 		mNavx.setAngleAdjustment(-4.0);
 	}
@@ -212,34 +208,33 @@ public class DriveSubsystem extends AftershockSubsystem {
 	@Override
 	public void periodic() {
 
-		//System.out.println("X-Pose" + mPoseEstimator.getEstimatedPosition().getX() + " Y Pose : " + mPoseEstimator.getEstimatedPosition().getY());
+		// System.out.println("X-Pose" + mPoseEstimator.getEstimatedPosition().getX() +
+		// " Y Pose : " + mPoseEstimator.getEstimatedPosition().getY());
 
 		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
-		//delete
-		//System.out.println(poseInfo);
-		
-		if(poseInfo != null && poseInfo.isValidTarget()) {
+		// delete
+		// System.out.println(poseInfo);
+
+		if (poseInfo != null && poseInfo.isValidTarget()) {
 			mPoseEstimator.addVisionMeasurement(poseInfo.getPose(), poseInfo.getTimestamp());
 		}
 
 		mPoseEstimator.update(getGyroscopeRotation(), getPositions());
 
-		
-		//var result = mPhotonCamera.getLatestResult();
+		// var result = mPhotonCamera.getLatestResult();
 
-		//mPoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
+		// mPoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
 
 		SwerveModuleState[] states = mKinematics.toSwerveModuleStates(mChassisSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, kMaxVelocityMetersPerSecond);
 
-
 		counter++;
-		if(counter > 50) {
-			//System.out.println("Angles FL" + states[0].angle.getRadians() + " FR " + states[1].angle.getRadians() + " BL " + states[2].angle.getRadians() + " BR " + states[3].angle.getRadians());
+		if (counter > 50) {
+			// System.out.println("Angles FL" + states[0].angle.getRadians() + " FR " +
+			// states[1].angle.getRadians() + " BL " + states[2].angle.getRadians() + " BR "
+			// + states[3].angle.getRadians());
 			counter = 0;
 		}
-
-		
 
 		mFrontLeftModule.set(states[0].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[0].angle.getRadians());
@@ -250,17 +245,20 @@ public class DriveSubsystem extends AftershockSubsystem {
 		mBackRightModule.set(states[3].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[3].angle.getRadians());
 
-		// mFrontLeftModule.set(states[0].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
-		// 		0);
-		// mFrontRightModule.set(states[1].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
-		// 		0);
-		// mBackLeftModule.set(states[2].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
-		// 		0);
-		// mBackRightModule.set(states[3].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
-		// 		0);
+		// mFrontLeftModule.set(states[0].speedMetersPerSecond /
+		// kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
+		// 0);
+		// mFrontRightModule.set(states[1].speedMetersPerSecond /
+		// kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
+		// 0);
+		// mBackLeftModule.set(states[2].speedMetersPerSecond /
+		// kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
+		// 0);
+		// mBackRightModule.set(states[3].speedMetersPerSecond /
+		// kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
+		// 0);
 
-
-		//System.out.println(getPose());
+		// System.out.println(getPose());
 
 	}
 
@@ -270,10 +268,14 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	public SwerveModulePosition[] getPositions() {
 		return new SwerveModulePosition[] {
-			new SwerveModulePosition(mFrontLeftModule.getPosition(), new Rotation2d(mFrontLeftModule.getSteerAngle())),
-			new SwerveModulePosition(mFrontRightModule.getPosition(), new Rotation2d(mFrontRightModule.getSteerAngle())),
-			new SwerveModulePosition(mBackLeftModule.getPosition(), new Rotation2d(mBackLeftModule.getSteerAngle())),
-			new SwerveModulePosition(mBackRightModule.getPosition(), new Rotation2d(mBackRightModule.getSteerAngle())),
+				new SwerveModulePosition(mFrontLeftModule.getPosition(),
+						new Rotation2d(mFrontLeftModule.getSteerAngle())),
+				new SwerveModulePosition(mFrontRightModule.getPosition(),
+						new Rotation2d(mFrontRightModule.getSteerAngle())),
+				new SwerveModulePosition(mBackLeftModule.getPosition(),
+						new Rotation2d(mBackLeftModule.getSteerAngle())),
+				new SwerveModulePosition(mBackRightModule.getPosition(),
+						new Rotation2d(mBackRightModule.getSteerAngle())),
 		};
 	}
 

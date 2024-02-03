@@ -12,15 +12,19 @@ public class IntakeRollerCommand extends Command {
     private RobotContainer mRobotContainer = RobotContainer.getInstance();
     private boolean isIntakeIn;
     private IntakeState mDesiredState;
-    private double velocity;
-    
-    public IntakeRollerCommand(double velocity, IntakeSubsystem mIntakeSubsystem) {
+    private double velocityOneToOne;
+
+    /**
+     * 
+     * @param velocityOneToOne velocity between [-1.0, 1.0]
+     * @param mIntakeSubsystem
+     */
+    public IntakeRollerCommand(double velocityOneToOne, IntakeSubsystem mIntakeSubsystem) {
         this.mDesiredState = mRobotContainer.getIntakeState();
         this.mIntakeSubsystem = mIntakeSubsystem;
         addRequirements(mIntakeSubsystem);
-        this.velocity = velocity;
+        this.velocityOneToOne = velocityOneToOne;
     }
-
 
     @Override
     public void initialize() {
@@ -29,7 +33,7 @@ public class IntakeRollerCommand extends Command {
 
     @Override
     public void execute() {
-        mIntakeSubsystem.setRollerMotorSpeed(velocity);
+        mIntakeSubsystem.setRollerMotorSpeed(velocityOneToOne);
     }
 
     @Override
@@ -41,9 +45,3 @@ public class IntakeRollerCommand extends Command {
     public void end(boolean interrupted) {
     }
 }
-
-
-
-
-
-

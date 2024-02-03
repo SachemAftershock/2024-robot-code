@@ -27,24 +27,24 @@ public class Ports {
     public static final class DrivePorts {
 
         // Front Left
-        public static final int kFrontLeftDriveMotorId = CanAddresses.eCanAddress15.get();
-        public static final int kFrontLeftSteerMotorId = CanAddresses.eCanAddress14.get();
-        public static final int kFrontLeftSteerEncoderId = CanAddresses.eCanAddress4.get();
+        public static final int kFrontLeftDriveMotorID = CanAddresses.eCanAddress15.get();
+        public static final int kFrontLeftSteerMotorID = CanAddresses.eCanAddress14.get();
+        public static final int kFrontLeftSteerEncoderID = CanAddresses.eCanAddress4.get();
 
         // Front Right
-        public static final int kFrontRightDriveMotorId = CanAddresses.eCanAddress2.get();
-        public static final int kFrontRightSteerMotorId = CanAddresses.eCanAddress1.get();
-        public static final int kFrontRightSteerEncoderId = CanAddresses.eCanAddress10.get();
+        public static final int kFrontRightDriveMotorID = CanAddresses.eCanAddress2.get();
+        public static final int kFrontRightSteerMotorID = CanAddresses.eCanAddress1.get();
+        public static final int kFrontRightSteerEncoderID = CanAddresses.eCanAddress10.get();
 
         // Back Left
-        public static final int kBackLeftDriveMotorId = CanAddresses.eCanAddress6.get();
-        public static final int kBackLeftSteerMotorId = CanAddresses.eCanAddress8.get();
-        public static final int kBackLeftSteerEncoderId = CanAddresses.eCanAddress7.get();
+        public static final int kBackLeftDriveMotorID = CanAddresses.eCanAddress6.get();
+        public static final int kBackLeftSteerMotorID = CanAddresses.eCanAddress8.get();
+        public static final int kBackLeftSteerEncoderID = CanAddresses.eCanAddress7.get();
 
         // Back Right
-        public static final int kBackRightDriveMotorId = CanAddresses.eCanAddress5.get();
-        public static final int kBackRightSteerMotorId = CanAddresses.eCanAddress11.get();
-        public static final int kBackRightSteerEncoderId = CanAddresses.eCanAddress9.get();
+        public static final int kBackRightDriveMotorID = CanAddresses.eCanAddress5.get();
+        public static final int kBackRightSteerMotorID = CanAddresses.eCanAddress11.get();
+        public static final int kBackRightSteerEncoderID = CanAddresses.eCanAddress9.get();
 
     }
 
