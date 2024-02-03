@@ -93,7 +93,7 @@ public class RobotContainer {
         () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
         () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
         () -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3));
-    mIntakeSubsystem.setDefaultCommand(new IntakePIDCommand(mIntakeSubsystem));
+    mIntakeSubsystem.setDefaultCommand(new IntakePIDCommand(mIntakeSubsystem)); //TODO: move to IntakeSubsystem
     mShooterSubsystem.setDefaultCommand(new ShooterPIDCommand(mShooterSubsystem));
 
   }
@@ -105,8 +105,8 @@ public class RobotContainer {
     mClimberSubsystem.initialize();
     setClimberState(ClimberState.eDown);
     setDesiredClimberState(ClimberState.eDown);
-    setIntakeState(IntakeState.eIn);
-    setDesiredIntakeState(IntakeState.eIn);
+    setIntakeState(IntakeState.eRetracted);
+    setDesiredIntakeState(IntakeState.eRetracted);
     setShooterState(ShooterState.eSpeaker);
     setDesiredShooterState(ShooterState.eSpeaker);
     setControlState(ControlState.eManualControl);
@@ -241,6 +241,12 @@ public class RobotContainer {
 
       Trigger ShooterWheelsTriggerPress = new Trigger(() -> mControllerTertiary.getXButtonPressed());
       Trigger ShooterWheelsTriggerRelease = new Trigger(() -> mControllerTertiary.getXButtonReleased());
+
+      Trigger EjectNote = new Trigger(()-> mControllerTertiary.getXButtonPressed()); //TODO: CHANGE FROM X
+      EjectNote.onTrue(new InstantCommand(mIntakeSubsystem.ejectNote()).andThen(mIntakeSubsystem.setRollerMotorSpeed(0.0)));
+
+      Trigger InjestNote = new Trigger(()-> mControllerTertiary.getXButtonPressed()); //TODO: CHANGE FROM X
+      EjectNote.onTrue(new InstantCommand(mIntakeSubsystem.ingestNote()).andThen(mIntakeSubsystem.setRollerMotorSpeed(0.0)));
 
       ShooterJogUpTriggerPress
           .onTrue(new ShooterRollerCommand(mLeftShootMotorSpeed, mRightShootMotorSpeed, mShooterSubsystem));// TODO: add

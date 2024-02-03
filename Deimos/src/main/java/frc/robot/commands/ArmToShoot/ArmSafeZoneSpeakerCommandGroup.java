@@ -15,7 +15,7 @@ public class ArmSafeZoneSpeakerCommandGroup extends ParallelCommandGroup {
         // Add commands to be run sequentially
         this.mIntakeSubsystem = mIntakeSubsystem;
         addCommands(
-            new ChangeDesiredIntakeStateCommandGroup(mIntakeSubsystem, IntakeState.eOut),
+            new ChangeDesiredIntakeStateCommandGroup(mIntakeSubsystem, IntakeState.eDeployed),
             new IntakeRollerCommand(outRollerVelocity, mIntakeSubsystem)
         );
     }

@@ -33,7 +33,7 @@ public class ZeroRobotCommandGroup extends SequentialCommandGroup {
                 CommandScheduler.getInstance().cancelAll();
             }),
             new ShooterRollerCommand(0,0,mShooterSubsystem),
-            new ChangeDesiredIntakeStateCommandGroup(mIntakeSubsystem,IntakeState.eIn),
+            new ChangeDesiredIntakeStateCommandGroup(mIntakeSubsystem,IntakeState.eRetracted),
             new ShooterAngleCommandGroup(mShooterSubsystem, ShooterState.eSpeaker)
         );
     }

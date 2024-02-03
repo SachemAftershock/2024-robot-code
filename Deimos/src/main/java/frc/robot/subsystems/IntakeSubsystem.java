@@ -83,11 +83,13 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		// 	mIntakeArmMotor.set(speed);
 		// 	return true;
 		// }
-		if(mIntakeLimitSwitch.get()){
+		if(mIntakeLimitSwitch.get() && mRobotContainer.getDesiredIntakeState()==IntakeState.eRetracted){
 			speed = 0;
 			mIntakeArmMotor.set(speed);
+			mRobotContainer.setIntakeState(IntakeState.eRetracted);
 			return true;
 		}
+		//TODO: create method to change state based on one or 2 sided epsilon
 		return false;
 	}
 

@@ -15,7 +15,7 @@ public class IntakeInCommandGroup extends SequentialCommandGroup {
         // Add commands to be run sequentially
         this.mIntakeSubsystem = mIntakeSubsystem;
         addCommands(
-            new ChangeDesiredIntakeStateCommandGroup(mIntakeSubsystem, IntakeState.eIn),
+            new ChangeDesiredIntakeStateCommandGroup(mIntakeSubsystem, IntakeState.eRetracted),
             new IngestNoteCommand(mIntakeSubsystem)
         );
     }

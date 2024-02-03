@@ -18,7 +18,7 @@ public class ManualShooterAngleCommand extends Command {
     private ProfiledPIDController mShooterAnglePIDController = mShooterSubsystem.getShooterAnglePIDController();
     private double speed;
     public ManualShooterAngleCommand(ShooterSubsystem mShooterSubsystem, double speed) {
-        mRobotContainer.setIntakeState(IntakeState.eIn);
+        mRobotContainer.setIntakeState(IntakeState.eRetracted);
         this.mShooterSubsystem = mShooterSubsystem;
         addRequirements(mShooterSubsystem);
         this.speed = speed;
