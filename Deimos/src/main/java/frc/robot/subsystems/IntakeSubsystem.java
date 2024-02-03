@@ -17,6 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import static frc.robot.Constants.IntakeConstants.*;
 
@@ -40,6 +41,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	private IntakeState mDesiredIntakeState;
 
+	private boolean mIntakeCalibrated = false;
+
 	private RobotContainer mRobotContainer = RobotContainer.getInstance();
 
 	private IntakeSubsystem() {
@@ -51,23 +54,26 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		mIntakeRetractedLimitSwitch = new DigitalInput(kIntakeLimitSwitchID);
 		mIntakeArmPIDConstraints = new TrapezoidProfile.Constraints(kIntakeConstraintsMaxVelocity, kIntakeConstraintsMaxAcceleration);
 		mIntakeArmPidController = new ProfiledPIDController(kIntakeArmGains[0], kIntakeArmGains[1], kIntakeArmGains[0], mIntakeArmPIDConstraints);
-
+		
 	}
 
 	@Override
 	public void initialize() {
-
-
-		
 	}
 
 	public void setDesiredState(IntakeState mDesiredIntakeState){
 		this.mDesiredIntakeState = mDesiredIntakeState;
-		
 	}
 
-	//Should be called continuously to keep intake in desiredposition, command returns finished when the PID error is less than a certain epsilon
 	public void runIntakePID(){
+		if(mIntakeCalibrated){
+			runNormalIntakePID();
+		} else {
+			mIntakeCalibrated = runCalibrateIntake();
+		}
+	}
+	//Should be called continuously to keep intake in desiredposition, command returns finished when the PID error is less than a certain epsilon
+	public void runNormalIntakePID(){
 		double mDesiredEncoderValue = mDesiredIntakeState.getPosition();
 		double speed = mIntakeArmPidController.calculate(mIntakeArmEncoder.getDistance(), mDesiredEncoderValue);
 		mIntakeArmMotor.set(speed);
@@ -90,7 +96,19 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		//TODO: create method to change state based on one or 2 sided epsilon
 	
 	}
-	
+	public boolean runCalibrateIntake(){
+		final double calibrationRetractionSpeed = 0.05;  // Percent
+		if(!mIntakeRetractedLimitSwitch.get()){
+			mIntakeArmMotor.set(-calibrationRetractionSpeed);
+		}else{
+			double speed = 0;
+			mIntakeArmMotor.set(speed);
+			mRobotContainer.setDesiredIntakeState(IntakeState.eRetracted);
+			mRobotContainer.setIntakeState(IntakeState.eRetracted);
+			return true;
+		}	
+		return false;
+	}
 	//Sets the motor idle mode to break or coast, this function may not be as useful as it seems, and only applies extra fiction when current is flowing through the motor, either by movement intentionally or by gravity
 	public void lockIntake(){
 		mIntakeArmMotor.setIdleMode(IdleMode.kBrake);

@@ -221,15 +221,41 @@ public class RobotContainer {
 
     // When in "automatic control", commands which involve PID movement of
     // mechanisms are availible
-    if (getControlState().equals(ControlState.eSemiAutoControl)) {
-      mControllerPrimary.button3.onTrue(new ZeroRobotCommandGroup(mShooterSubsystem, mIntakeSubsystem));
-      mControllerPrimary.button4
-          .onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, /* mIntakeSubsystem, */ ShooterState.eSpeaker));
+    //SEMIAUTO
+    if (getControlState() == (ControlState.eSemiAutoControl)) {
 
-      mControllerPrimary.button5.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, ShooterState.eAmp));
-      mControllerPrimary.button6.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, ShooterState.eSafeZone));
 
-    } else if (getControlState().equals(ControlState.eManualControl)) {
+      JoystickButton BackButtonPress =  new JoystickButton(mControllerTertiary, XboxController.Button.kBack.value);
+      BackButtonPress.onTrue(new ZeroRobotCommandGroup(mShooterSubsystem, mIntakeSubsystem));
+      // Trigger BackButtonPress = new Trigger(() -> mControllerTertiary.getBackButton());
+      // BackButtonPress.onTrue(new ZeroRobotCommandGroup(mShooterSubsystem, mIntakeSubsystem));
+      
+      //semi auto for intake would have one held button. the intake starts retracted, and while the
+      //button is held down the intake is deployed down and the rollers start spinning
+      //(until the game piece reaches the internal beambreaker).
+      //when the button is released the rollers stop and the intake retracts
+
+      JoystickButton Intake =  new JoystickButton(mControllerTertiary, XboxController.Button.kBack.value);
+      BackButtonPress.onTrue(new ZeroRobotCommandGroup(mShooterSubsystem, mIntakeSubsystem));
+
+      JoystickButton buttonAPressed =  new JoystickButton(mControllerTertiary, XboxController.Button.kA.value);
+      buttonAPressed.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, /* mIntakeSubsystem, */ ShooterState.eSpeaker));
+
+      JoystickButton buttonBPressed =  new JoystickButton(mControllerTertiary, XboxController.Button.kB.value);
+      buttonBPressed.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, /* mIntakeSubsystem, */ ShooterState.eSpeaker));
+
+      JoystickButton buttonYPressed =  new JoystickButton(mControllerTertiary, XboxController.Button.kB.value);
+      buttonYPressed.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, /* mIntakeSubsystem, */ ShooterState.eAmp));
+
+      // buttonAPressed.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, /* mIntakeSubsystem, */ ShooterState.eSafeZone));
+      // buttonBPressed.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, ShooterState.eAmp));
+      // buttonYPressed.onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, ShooterState.eSafeZone));
+
+     // Trigger DpadLeftPress = new Trigger(() -> mControllerTertiary.povLeft());
+     // mControllerTertiary.povLeft().onTrue(new ShooterAngleCommandGroup(mShooterSubsystem, ShooterState.eAmp));
+
+     //MANUAL
+    } else if (getControlState() == (ControlState.eManualControl)) {
       // when in "manual control", commands which involve direct driver control of
       // mechanisms are used
       // Trigger ShooterJogDownTriggerPress = new Trigger(() -> mControllerTertiary.getAButtonPressed());
