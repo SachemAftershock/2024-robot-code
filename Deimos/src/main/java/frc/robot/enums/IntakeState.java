@@ -6,9 +6,7 @@ package frc.robot.enums;
 public enum IntakeState {
     eDeployed(5),//TODO: change to eDeployed
     eRetracted(1),//TODO: change to eRetracted
-    // FIXME. This constant concerns SAFETY, so it needs to be written by a person with
-    // knowledge pertaining to what this "safety" even is
-    eSafeShooterMovement(1); //FIXME might be wrong 
+    eSafeShooterMovement(1); // TODO might be wrong 
     //Not totally out but far out enought to be safe to move the shooter without fear of getting caught on intake
     
     private double mIntakeEncoderPosition;

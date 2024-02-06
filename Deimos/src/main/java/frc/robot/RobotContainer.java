@@ -305,7 +305,7 @@ public class RobotContainer {
         mShooterSubsystem.spinShooterMotors(0, 0);
       }
       if( Math.abs(mControllerTertiary.getLeftY()) <= kXboxJoystickDeadband){
-        mShooterSubsystem.setShooterArmMotorSpeed(-mControllerTertiary.getLeftY());
+        mShooterSubsystem.setAngleShootMotorSpeed(-mControllerTertiary.getLeftY());
       }
 
       // ShooterLeftWheelsTriggerRelease.onTrue(new InstantCommand(() -> {

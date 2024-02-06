@@ -22,13 +22,13 @@ public final class Constants {
         public static final int kIntakeConstraintsMaxVelocity = 0;
         public static final int kIntakeConstraintsMaxAcceleration = 0;
 
-        public static final int kIntakeArmMotorID = 0;
-        public static final int kIntakeRollerMotorID = 1;
+        public static final int kIntakeArmMotorID = 21;
+        public static final int kIntakeRollerMotorID = 20;
 
-        public static final int kExternalBeamBreakerID = 0; // FIXME change these ids pretty pls thx <3
-        public static final int kInternalBeamBreakerID = 0;// FIXME change these ids pretty pls thx <3
+        public static final int kExternalBeamBreakerID = 2; // FIXME change these ids pretty pls thx <3
+        public static final int kInternalBeamBreakerID = 3;// FIXME change these ids pretty pls thx <3
 
-        public static final int kIntakeLimitSwitchID = 0;
+        public static final int kIntakeLimitSwitchID = 9; // FIXME
 
         public static final double kIngestNoteSpeed = 0.4;
         public static final double kEjectNoteSpeed = 0.5;
@@ -57,18 +57,20 @@ public final class Constants {
 
         public static final double kLeftShootMotorSpeed = 0.05; // Derive empirically
         public static final double kRightShootMotorSpeed = 0.05; // Derive empirically
-         public static final double kShooterEncoderSetPoint = 0.5; // Derive empirically
+        public static final double kShooterEncoderSetPoint = 0.5; // Derive empirically
 
         // IDs
-        public static final int kAngleEncoderID1 = 0;
-        public static final int kAngleEncoderID2 = 1;
-        public static final int kLeftShootMotorID = 0;
-        public static final int kRightShootMotorID = 1;
-        public static final int kAngleShootMotorID = 2;
-        public static final int kBeamBreakerEnterID = 0;
-        public static final int kBeamBreakerLeaveID = 1;
-        public static final int kShooterLimitSwitchID = 0;
-        public static final int kShooterArmMotorID = 1;
+        public static final int kLeftShootMotorID = 24;
+        public static final int kRightShootMotorID = 23;
+        public static final int kAngleShootMotorID = 22;
+
+        public static final int kAngleEncoderID1 = 4; // TODO 4 to 8 are placeholder numbers
+        public static final int kAngleEncoderID2 = 5; // TODO
+
+        public static final int kBeamBreakerEnterID = 6; // TODO
+        public static final int kBeamBreakerLeaveID = 7; // TODO
+        
+        public static final int kShooterLimitSwitchID = 8; // TODO
 
 
         // hardcoded speeds

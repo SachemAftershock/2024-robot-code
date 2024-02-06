@@ -99,7 +99,7 @@ public class Robot extends TimedRobot {
     double intakeArmSpeed = mController.getRightY() * 0.4;
     mIntakeSubsystem.setIntakeArmMotorSpeed(intakeArmSpeed);
     double shooterArmSpeed= mController.getLeftY() * 0.4;
-    mShooterSubsystem.setShooterArmMotorSpeed(shooterArmSpeed);
+    mShooterSubsystem.setAngleShootMotorSpeed(shooterArmSpeed);
   }
     
   @Override
