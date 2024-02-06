@@ -42,7 +42,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	private DigitalInput mBeamBreakerEnter;
 	private DigitalInput mBeamBreakerLeave;
 
-	private RobotContainer mRobotContainer = RobotContainer.getInstance();
+	private RobotContainer mRobotContainer;
 	// PID for shooting
 	private ProfiledPIDController mRightShooterPIDController;
 	private Constraints mRightShooterPIDConstraints;
@@ -64,7 +64,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		mBeamBreakerLeave = new DigitalInput(kBeamBreakerLeaveID);
 		mLeftShootMotor = new CANSparkMax(kLeftShootMotorID, MotorType.kBrushless);
 		mRightShootMotor = new CANSparkMax(kRightShootMotorID, MotorType.kBrushless);
-		mShooterArmMotor = new CANSparkMax(kShooterArmMotorID, MotorType.kBrushless);
+		mShooterArmMotor = new CANSparkMax(kShooterArmMotorID, MotorType.kBrushless); // FIXME mRightShoot and mShooterArm ID issue
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
 		mRightShootEncoder = mRightShootMotor.getEncoder();
 		mAngleEncoder = mAngleShootMotor.getAlternateEncoder(5);
@@ -87,6 +87,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void initialize() {
+		mRobotContainer = RobotContainer.getInstance();
 
 	}
 

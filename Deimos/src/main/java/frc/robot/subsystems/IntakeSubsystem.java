@@ -43,9 +43,10 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	private boolean mIntakeCalibrated = false;
 
-	private RobotContainer mRobotContainer = RobotContainer.getInstance();
+	private RobotContainer mRobotContainer;
 
 	private IntakeSubsystem() {
+		mRobotContainer = RobotContainer.getInstance();
 		mIntakeArmEncoder = new Encoder(1, 0, false, Encoder.EncodingType.k4X); //TODO: make encoder value into constants //TODO: change from DIO to alternate encoder port
 		mIntakeArmMotor = new CANSparkMax(kIntakeArmMotorID, MotorType.kBrushless);
 		mIntakeRollerMotor = new CANSparkMax(kIntakeRollerMotorID, MotorType.kBrushless);

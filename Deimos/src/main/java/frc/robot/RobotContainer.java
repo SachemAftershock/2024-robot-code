@@ -61,7 +61,7 @@ import frc.robot.Constants.*;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private DriveSubsystem mDriveSubsystem = DriveSubsystem.getInstance();
-  private IntakeSubsystem mIntakeSubsystem = IntakeSubsystem.getInstance();
+  private IntakeSubsystem mIntakeSubsystem;
   private ShooterSubsystem mShooterSubsystem = ShooterSubsystem.getInstance();
   private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
 
@@ -88,6 +88,7 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    mIntakeSubsystem = IntakeSubsystem.getInstance();
     // Configure the button bindings
     configureButtonBindings();
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
