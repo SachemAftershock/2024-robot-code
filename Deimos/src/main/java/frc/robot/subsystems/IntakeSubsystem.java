@@ -1,11 +1,24 @@
+//TODO: Bind intake in, intake out to buttons
 package frc.robot.subsystems;
 
+
 import frc.lib.AftershockSubsystem;
+import frc.robot.Constants.IntakeConstants;
+import frc.robot.RobotContainer;
+import frc.robot.enums.IntakeState;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import static frc.robot.Constants.IntakeConstants.*;
 
 public class IntakeSubsystem extends AftershockSubsystem {

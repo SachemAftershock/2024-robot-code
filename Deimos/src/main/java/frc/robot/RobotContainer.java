@@ -37,7 +37,6 @@ import frc.robot.commands.RotateDriveCommand;
 import frc.robot.enums.IntakeState;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
-//import frc.robot.commands.ManualIntakeArm;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -55,7 +54,7 @@ public class RobotContainer {
   
   private final AftershockXboxController mControllerPrimary = new AftershockXboxController(0);
   private final Joystick mControllerSecondary = new Joystick(1);
-  //private final Joystick mControllerPrimary = new Joystick(1);
+  // private final Joystick mControllerPrimary = new Joystick(2);
 
   private Command sequenceDeployIngestRetractEject = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
@@ -127,8 +126,8 @@ public class RobotContainer {
 
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(-mControllerPrimary.getLeftY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
-            () -> -modifyAxis(-mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerSecondary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerSecondary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
             () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
