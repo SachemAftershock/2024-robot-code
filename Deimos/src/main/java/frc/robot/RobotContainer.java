@@ -61,9 +61,9 @@ import frc.robot.Constants.*;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private DriveSubsystem mDriveSubsystem = DriveSubsystem.getInstance();
-  private IntakeSubsystem mIntakeSubsystem;
+  private IntakeSubsystem     mIntakeSubsystem = IntakeSubsystem.getInstance();
   private ShooterSubsystem mShooterSubsystem = ShooterSubsystem.getInstance();
-  private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
+  // private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
 
   // Driver 1 - drives
   private final CommandJoystick mControllerPrimary = new CommandJoystick(0);
@@ -81,14 +81,16 @@ public class RobotContainer {
 
     Example: read second example in https://docs.wpilib.org/en/stable/docs/software/dashboards/shuffleboard/layouts-with-code/sending-data.html
   */
-    private ShuffleboardTab mErrorTab = Shuffleboard.getTab("Error");
-    private GenericEntry bindingsExist = mErrorTab.add("Current state is bound correctly", true).getEntry();
+    private ShuffleboardTab mErrorTab;
+    private GenericEntry bindingsExist;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    mIntakeSubsystem = IntakeSubsystem.getInstance();
+    // mErrorTab = Shuffleboard.getTab("Error");
+    // bindingsExist = mErrorTab.add("Current state is bound correctly", true).getEntry();
+    // mIntakeSubsystem = IntakeSubsystem.getInstance();
     // Configure the button bindings
     configureButtonBindings();
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
@@ -105,13 +107,13 @@ public class RobotContainer {
     mDriveSubsystem.initialize();
     mIntakeSubsystem.initialize();
     mShooterSubsystem.initialize();
-    mClimberSubsystem.initialize();
+    // mClimberSubsystem.initialize();
     setClimberState(ClimberState.eDown);
     setDesiredClimberState(ClimberState.eDown);
-    setIntakeState(IntakeState.eRetracted);
-    setDesiredIntakeState(IntakeState.eRetracted);
-    setShooterState(ShooterState.eSpeaker);
-    setDesiredShooterState(ShooterState.eSpeaker);
+    mIntakeSubsystem.setIntakeState(IntakeState.eRetracted);
+    mIntakeSubsystem.setDesiredIntakeState(IntakeState.eRetracted);
+    mShooterSubsystem.setShooterState(ShooterState.eSpeaker);
+    mShooterSubsystem.setDesiredShooterState(ShooterState.eSpeaker);
     setControlState(ControlState.eManualControl);
     setSuperState(null);
   }
@@ -165,46 +167,6 @@ public class RobotContainer {
 
   public SuperState getSuperState() {
     return mCurrentSuperState;
-  }
-
-  private IntakeState mCurrentIntakeState;
-
-  public void setIntakeState(IntakeState mCurrentIntakeState) {
-    this.mCurrentIntakeState = mCurrentIntakeState;
-  }
-
-  public IntakeState getIntakeState() {
-    return mCurrentIntakeState;
-  }
-
-  private IntakeState mDesiredIntakeState;
-
-  public void setDesiredIntakeState(IntakeState mDesiredIntakeState) {
-    this.mDesiredIntakeState = mDesiredIntakeState;
-  }
-
-  public IntakeState getDesiredIntakeState() {
-    return mDesiredIntakeState;
-  }
-
-  private ShooterState mCurrentShooterState;
-
-  public void setShooterState(ShooterState mCurrentShooterState) {
-    this.mCurrentShooterState = mCurrentShooterState;
-  }
-
-  public ShooterState getShooterState() {
-    return mCurrentShooterState;
-  }
-
-  private ShooterState mDesiredShooterState;
-
-  public void setDesiredShooterState(ShooterState mDesiredShooterState) {
-    this.mDesiredShooterState = mDesiredShooterState;
-  }
-
-  public ShooterState getDesiredShooterState() {
-    return mDesiredShooterState;
   }
 
   public AftershockXboxController getControllerTertiary() {
@@ -328,6 +290,13 @@ public class RobotContainer {
       */
       // FIX ME move intake arm with tertiarycontroller right stick
 
+      Trigger mControllerTertiaryLeftJoystickMoved = new Trigger(() -> (
+        Math.abs(mControllerTertiary.getLeftY()) > .05
+      ));
+      mControllerTertiaryLeftJoystickMoved.onTrue(new InstantCommand(() -> {
+        mIntakeSubsystem.setIntakeArmMotorSpeed(mControllerTertiary.getLeftY());
+      }));
+
       Trigger IntakeRollerIngestTriggerPress = new Trigger(() -> mControllerTertiary.getLeftBumper());
       Trigger IntakeRollerIngestTriggerRelease = new Trigger(() -> mControllerTertiary.getLeftBumper());
 
@@ -352,7 +321,7 @@ public class RobotContainer {
 
     } else {
       // TODO: Add else statement that makes an error signal to the dashboard
-      bindingsExist.setBoolean(false);
+      // bindingsExist.setBoolean(false);
     }
   }
 

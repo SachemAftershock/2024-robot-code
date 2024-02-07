@@ -27,7 +27,7 @@ public class ZeroRobotCommandGroup extends SequentialCommandGroup {
         // Add commands to be run sequentially
         this.mShooterSubsystem = mShooterSubsystem;
         this.mIntakeSubsystem = mIntakeSubsystem;
-        previousIntakeState = mRobotContainer.getIntakeState();
+        previousIntakeState = mIntakeSubsystem.getIntakeState();
         addCommands(
             new InstantCommand(() -> {
                 CommandScheduler.getInstance().cancelAll();

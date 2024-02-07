@@ -68,9 +68,12 @@ public final class Constants {
         public static final int kAngleEncoderID2 = 5; // TODO
 
         public static final int kBeamBreakerEnterID = 6; // TODO
-        public static final int kBeamBreakerLeaveID = 7; // TODO
-        
+        public static final int kBeamBreakerLeaveID = 7;
+
         public static final int kShooterLimitSwitchID = 8; // TODO
+
+        public static final int kClimberArmMotorID = 0; // TODO
+        public static final int kClimberRollerMotorID = 0; // TODO
 
 
         // hardcoded speeds

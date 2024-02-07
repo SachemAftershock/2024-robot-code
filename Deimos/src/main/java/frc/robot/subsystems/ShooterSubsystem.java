@@ -60,11 +60,10 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	private ShooterSubsystem() {
 		mAngleShootMotor = new CANSparkMax(kAngleShootMotorID, MotorType.kBrushless);
-		mBeamBreakerEnter = new DigitalInput(kBeamBreakerEnterID);
-		mBeamBreakerLeave = new DigitalInput(kBeamBreakerLeaveID);
+		// mBeamBreakerEnter = new DigitalInput(kBeamBreakerEnterID); // TODO these were temporarily removed
+		// mBeamBreakerLeave = new DigitalInput(kBeamBreakerLeaveID);
 		mLeftShootMotor = new CANSparkMax(kLeftShootMotorID, MotorType.kBrushless);
 		mRightShootMotor = new CANSparkMax(kRightShootMotorID, MotorType.kBrushless);
-		mAngleShootMotor = new CANSparkMax(kAngleShootMotorID, MotorType.kBrushless); // FIXME mRightShoot and mShooterArm ID issue
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
 		mRightShootEncoder = mRightShootMotor.getEncoder();
 		mAngleEncoder = mAngleShootMotor.getAlternateEncoder(5);
@@ -109,14 +108,32 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	public void setAngleShootMotorSpeed(double speed) {
 		mAngleShootMotor.set(speed);
 	}
+	private ShooterState mCurrentShooterState;
 
+	public void setShooterState(ShooterState mCurrentShooterState) {
+	  this.mCurrentShooterState = mCurrentShooterState;
+	}
+  
+	public ShooterState getShooterState() {
+	  return mCurrentShooterState;
+	}
+  
+	private ShooterState mDesiredShooterState;
+  
+	public void setDesiredShooterState(ShooterState mDesiredShooterState) {
+	  this.mDesiredShooterState = mDesiredShooterState;
+	}
+  
+	public ShooterState getDesiredShooterState() {
+	  return mDesiredShooterState;
+	}
 
 	// Should be called continuously, returns true when error is less than a certain
 	// epsilon
 	public boolean runShooterPID() {
 		double mDesiredEncoderValue;
 		if (mRobotContainer.getControlState() != ControlState.eManualControl) {
-			mDesiredEncoderValue = mRobotContainer.getDesiredShooterState().getAngle();
+			mDesiredEncoderValue = getDesiredShooterState().getAngle();
 		} else {
 			mDesiredEncoderValue = jogAngle;
 		}

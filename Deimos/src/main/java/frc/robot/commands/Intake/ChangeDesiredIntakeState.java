@@ -27,7 +27,7 @@ public class ChangeDesiredIntakeState extends Command {
 
     @Override
     public void execute() {
-        mRobotContainer.setDesiredIntakeState(mDesiredState);
+        mIntakeSubsystem.setDesiredIntakeState(mDesiredState);
     }
 
     @Override

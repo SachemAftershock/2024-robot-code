@@ -27,7 +27,7 @@ public class ChangeDesiredShooterStateCommand extends Command {
 
     @Override
     public void execute() {
-        mRobotContainer.setDesiredShooterState(mDesiredState);
+        mShooterSubsystem.setDesiredShooterState(mDesiredState);
 
     }
 

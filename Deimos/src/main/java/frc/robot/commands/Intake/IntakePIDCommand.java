@@ -9,7 +9,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 
 public class IntakePIDCommand extends Command {
     private IntakeSubsystem mIntakeSubsystem;
-    private RobotContainer mRobotContainer = RobotContainer.getInstance();
+    // private RobotContainer mRobotContainer = RobotContainer.getInstance();
     private boolean isIntakeIn;
     private IntakeState mDesiredState;
     public IntakePIDCommand(IntakeSubsystem mIntakeSubsystem) {
@@ -19,7 +19,7 @@ public class IntakePIDCommand extends Command {
 
     @Override
     public void initialize() {
-        this.mDesiredState = mRobotContainer.getIntakeState();
+        this.mDesiredState = mIntakeSubsystem.getIntakeState();
 
     }
 
@@ -30,7 +30,7 @@ public class IntakePIDCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return mRobotContainer.getIntakeState() == mRobotContainer.getDesiredIntakeState();
+        return mIntakeSubsystem.getIntakeState() == mIntakeSubsystem.getDesiredIntakeState();
     }
 
     @Override

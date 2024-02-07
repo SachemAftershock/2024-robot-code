@@ -13,12 +13,12 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 public class ManualShooterAngleCommand extends Command {
     private ShooterSubsystem mShooterSubsystem;
-    private RobotContainer mRobotContainer = RobotContainer.getInstance();
+    private IntakeSubsystem mIntakeSubsystem = IntakeSubsystem.getInstance();
     private ShooterState mDesiredState;
     private ProfiledPIDController mShooterAnglePIDController = mShooterSubsystem.getShooterAnglePIDController();
     private double speed;
     public ManualShooterAngleCommand(ShooterSubsystem mShooterSubsystem, double speed) {
-        mRobotContainer.setIntakeState(IntakeState.eRetracted);
+        mIntakeSubsystem.setIntakeState(IntakeState.eRetracted);
         this.mShooterSubsystem = mShooterSubsystem;
         addRequirements(mShooterSubsystem);
         this.speed = speed;
@@ -37,7 +37,7 @@ public class ManualShooterAngleCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return mRobotContainer.getShooterState()==mRobotContainer.getDesiredShooterState();
+        return mShooterSubsystem.getShooterState()==mShooterSubsystem.getDesiredShooterState();
     }
 
     @Override

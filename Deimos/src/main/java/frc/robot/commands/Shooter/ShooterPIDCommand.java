@@ -11,7 +11,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 public class ShooterPIDCommand extends Command {
     private ShooterSubsystem mShooterSubsystem;
-    private RobotContainer mRobotContainer = RobotContainer.getInstance();
+    // private RobotContainer mRobotContainer = RobotContainer.getInstance();
     private boolean isIntakeIn;
     private ShooterState mDesiredState;
     public ShooterPIDCommand(ShooterSubsystem mShooterSubsystem) {
@@ -21,20 +21,20 @@ public class ShooterPIDCommand extends Command {
 
     @Override
     public void initialize() {
-        this.mDesiredState = mRobotContainer.getDesiredShooterState();
+        this.mDesiredState = mShooterSubsystem.getDesiredShooterState();
 
     }
 
     @Override
     public void execute() {
         if(mShooterSubsystem.runShooterPID()){
-            mRobotContainer.setShooterState(mDesiredState);
+            mShooterSubsystem.setShooterState(mDesiredState);
         }
     }
 
     @Override
     public boolean isFinished() {
-        return mRobotContainer.getShooterState()==mRobotContainer.getDesiredShooterState();
+        return mShooterSubsystem.getShooterState()==mShooterSubsystem.getDesiredShooterState();
     }
 
     @Override

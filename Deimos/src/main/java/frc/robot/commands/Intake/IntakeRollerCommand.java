@@ -20,7 +20,7 @@ public class IntakeRollerCommand extends Command {
      * @param mIntakeSubsystem
      */
     public IntakeRollerCommand(double velocityOneToOne, IntakeSubsystem mIntakeSubsystem) {
-        this.mDesiredState = mRobotContainer.getIntakeState();
+        this.mDesiredState = mIntakeSubsystem.getIntakeState();
         this.mIntakeSubsystem = mIntakeSubsystem;
         addRequirements(mIntakeSubsystem);
         this.velocityOneToOne = velocityOneToOne;

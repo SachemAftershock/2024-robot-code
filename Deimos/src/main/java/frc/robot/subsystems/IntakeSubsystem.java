@@ -37,7 +37,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	private ProfiledPIDController mIntakeArmPidController;
 	private TrapezoidProfile.Constraints mIntakeArmPIDConstraints;
 
-	private final Encoder mIntakeArmEncoder;
+	private final RelativeEncoder mIntakeArmEncoder;
 
 	private IntakeState mDesiredIntakeState;
 
@@ -46,9 +46,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	private RobotContainer mRobotContainer;
 
 	private IntakeSubsystem() {
-		mRobotContainer = RobotContainer.getInstance();
-		mIntakeArmEncoder = new Encoder(1, 0, false, Encoder.EncodingType.k4X); //TODO: make encoder value into constants //TODO: change from DIO to alternate encoder port
 		mIntakeArmMotor = new CANSparkMax(kIntakeArmMotorID, MotorType.kBrushless);
+		mIntakeArmEncoder = mIntakeArmMotor.getEncoder();
 		mIntakeRollerMotor = new CANSparkMax(kIntakeRollerMotorID, MotorType.kBrushless);
 		mExternalBeamBreaker = new DigitalInput(kExternalBeamBreakerID); //EXTERNAL B1
 		mInternalBeamBreaker = new DigitalInput(kInternalBeamBreakerID); //INTERNAL B2
@@ -60,6 +59,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void initialize() {
+				mRobotContainer = RobotContainer.getInstance();
+
 	}
 
 	public void setDesiredState(IntakeState mDesiredIntakeState){
@@ -76,7 +77,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	//Should be called continuously to keep intake in desiredposition, command returns finished when the PID error is less than a certain epsilon
 	public void runNormalIntakePID(){
 		double mDesiredEncoderValue = mDesiredIntakeState.getPosition();
-		double speed = mIntakeArmPidController.calculate(mIntakeArmEncoder.getDistance(), mDesiredEncoderValue);
+		double speed = mIntakeArmPidController.calculate(mIntakeArmEncoder.getPosition(), mDesiredEncoderValue);
 		mIntakeArmMotor.set(speed);
 		// if(mIntakeArmPidController.getPositionError()<.1){//TODO: make espilon
 		// 	speed = 0;
@@ -84,15 +85,15 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		// 	return true;
 		// }
 		if(Math.abs(mIntakeArmPidController.getPositionError())<.1){// TODO: add actual epsilon
-			mRobotContainer.setIntakeState(mDesiredIntakeState);
+			setIntakeState(mDesiredIntakeState);
 		}
 		if(mIntakeRetractedLimitSwitch.get()){
-			mRobotContainer.setDesiredIntakeState(IntakeState.eRetracted);
+			setDesiredIntakeState(IntakeState.eRetracted);
 		}
-		if(mRobotContainer.getDesiredIntakeState()==IntakeState.eRetracted && mRobotContainer.getIntakeState()==IntakeState.eRetracted){
+		if(getDesiredIntakeState()==IntakeState.eRetracted && getIntakeState()==IntakeState.eRetracted){
 			speed = 0;
 			mIntakeArmMotor.set(speed);
-			mRobotContainer.setIntakeState(IntakeState.eRetracted);
+			setIntakeState(IntakeState.eRetracted);
 		}
 		//TODO: create method to change state based on one or 2 sided epsilon
 	
@@ -104,8 +105,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		}else{
 			double speed = 0;
 			mIntakeArmMotor.set(speed);
-			mRobotContainer.setDesiredIntakeState(IntakeState.eRetracted);
-			mRobotContainer.setIntakeState(IntakeState.eRetracted);
+			setDesiredIntakeState(IntakeState.eRetracted);
+			setIntakeState(IntakeState.eRetracted);
 			return true;
 		}	
 		return false;
@@ -139,6 +140,23 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		setRollerMotorSpeed(speed);
 	}
 
+	private IntakeState mCurrentIntakeState;
+
+	public void setIntakeState(IntakeState mCurrentIntakeState) {
+	  this.mCurrentIntakeState = mCurrentIntakeState;
+	}
+  
+	public IntakeState getIntakeState() {
+	  return mCurrentIntakeState;
+	}  
+	public void setDesiredIntakeState(IntakeState mDesiredIntakeState) {
+	  this.mDesiredIntakeState = mDesiredIntakeState;
+	}
+  
+	public IntakeState getDesiredIntakeState() {
+	  return mDesiredIntakeState;
+	}
+
 	public void ejectNote() {
 		if (!mExternalBeamBreaker.get() || !mInternalBeamBreaker.get()) {
 			setRollerMotorSpeed(kEjectNoteSpeed);
@@ -154,8 +172,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	public void periodic(){
 		//call statecheck method, ... make statecheck call
 		if(mIntakeRetractedLimitSwitch.get()){
-			mRobotContainer.setIntakeState(IntakeState.eRetracted);
-			mIntakeArmEncoder.reset();
+			setIntakeState(IntakeState.eRetracted);
+			mIntakeArmEncoder.setPosition(0);
 		}
 	}
 
