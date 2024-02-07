@@ -17,8 +17,10 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.AftershockXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.Constants.DriveConstants;
@@ -29,7 +31,8 @@ import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
-;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -51,6 +54,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
             () -> -modifyAxis(-mControllerPrimary.getLeftY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
@@ -71,7 +75,34 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+    //ROLLERS
+    Trigger IntakeRollerIngestTrigger = new Trigger(() -> mControllerSecondary.getTrigger());
+
+    IntakeRollerIngestTrigger.onTrue(new InstantCommand(() -> { 
+      mIntakeSubsystem.setRollerMotorSpeed(-0.4);
+    })).onFalse(new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0)));
+
+    //ARM
+    Trigger IntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getAButton());
+
+    IntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
+      mIntakeSubsystem.setIntakeArmMotorSpeed();
+    }));
+
+    Trigger negIntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getYButton());
+
+    negIntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
+      mIntakeSubsystem.setNegIntakeArmMotorSpeed();
+    }));
+
+
+    // Trigger IntakeRollerIngestTrigger = new Trigger(() -> mControllerSecondary.getTrigger());
+    // IntakeRollerIngestTrigger.onTrue(new InstantCommand(() -> { 
+    //   mIntakeSubsystem.setRollerMotorSpeed(0.4);//.onFalse(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.4)); 
+    // }));
+
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
