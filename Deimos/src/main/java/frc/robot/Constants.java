@@ -16,8 +16,7 @@ package frc.robot;
 public final class Constants {
      public static class IntakeConstants {
         // public static final double kExampleVariable = 0.05;
-        public static final double kIntakeConstraintsMaxVelocity = 1.0;
-        public static final double kIntakeConstraintsMaxAcceleration = 1.0;
+ 
 
         public static final int kIntakeArmMotorID = 21;
         public static final int kIntakeRollerMotorID = 20;
@@ -30,10 +29,11 @@ public final class Constants {
         public static final double kIngestNoteSpeed = 0.4;
         public static final double kEjectNoteSpeed = 0.5;
 
-        public static double[] kIntakeArmGains = { 0.4, 0, 0 };
+        public static double[] kIntakeArmGains = { 1.0, 0, 0 };
 
         public static double kIntakeArmMotorSpeed = 0.05;
         public static double kIntakeRollerMotorSpeed = 0.05;
+
     }
 
     public static class DriveConstants {

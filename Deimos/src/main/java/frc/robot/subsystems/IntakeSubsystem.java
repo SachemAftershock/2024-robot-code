@@ -12,6 +12,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -35,16 +36,20 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	private DigitalInput mIntakeRetractedLimitSwitch;
 	
-	private ProfiledPIDController mIntakeArmPidController;
+	//private ProfiledPIDController mIntakeArmPidController;
+	private PIDController mIntakeArmPidController;
 	private TrapezoidProfile.Constraints mIntakeArmPIDConstraints;
 
 	//private final Encoder mIntakeArmEncoder;
-	private double speed = 0.0;
+	private double mSpeed = 0.0;
 	//rec  3, trans 4 BEAM BREAKER
 
 	//private IntakeState mDesiredIntakeState;
 
 	private boolean mIntakeCalibrated = false;
+
+	public final double kIntakeConstraintsMaxVelocity = 0.3;
+	public final double kIntakeConstraintsMaxAcceleration = 0.05;
 
 	//private RobotContainer mRobotContainer = RobotContainer.getInstance();
 
@@ -61,9 +66,10 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		mInternalBeamBreaker = new DigitalInput(kInternalBeamBreakerID); //INTERNAL B2
 
 		mIntakeRetractedLimitSwitch = new DigitalInput(kIntakeLimitSwitchID);
-		mIntakeArmPIDConstraints = new TrapezoidProfile.Constraints(kIntakeConstraintsMaxVelocity, kIntakeConstraintsMaxAcceleration);
-		mIntakeArmPidController = new ProfiledPIDController(kIntakeArmGains[0], kIntakeArmGains[1], kIntakeArmGains[2], mIntakeArmPIDConstraints);
-		
+		//mIntakeArmPIDConstraints = new TrapezoidProfile.Constraints(kIntakeConstraintsMaxVelocity, kIntakeConstraintsMaxAcceleration);
+		//mIntakeArmPIDConstraints = new TrapezoidProfile.Constraints(100.0, 100.0);
+		//mIntakeArmPidController = new ProfiledPIDController(kIntakeArmGains[0], kIntakeArmGains[1], kIntakeArmGains[2], mIntakeArmPIDConstraints);
+		mIntakeArmPidController = new PIDController(kIntakeArmGains[0], kIntakeArmGains[1], kIntakeArmGains[2]);
 	}
 
 	@Override
@@ -83,7 +89,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		return mCurrentIntakeState;
 	  }
 	
-	  private IntakeState mDesiredIntakeState;
+	  private IntakeState mDesiredIntakeState = IntakeState.eSafeShooterMovement;
 	
 	  public void setDesiredIntakeState(IntakeState DesiredIntakeState) {
 		mDesiredIntakeState = DesiredIntakeState;
@@ -95,30 +101,40 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	public void runIntakePID(){
 		if(mIntakeCalibrated){
-			runNormalIntakePID();
+			//runNormalIntakePID(); TODO: ADD IN
 		} else {
 			mIntakeCalibrated = runCalibrateIntake();
 		}
 	}
 	//Should be called continuously to keep intake in desiredposition, command returns finished when the PID error is less than a certain epsilon
-	public void runNormalIntakePID(){
-		double mDesiredEncoderValue = mDesiredIntakeState.getPosition();
-		double speed = mIntakeArmPidController.calculate(mIntakeArmEncoder.getPosition(), mDesiredEncoderValue);
-		mIntakeArmMotor.set(speed);
+	public void runNormalIntakePID(IntakeState DesiredIntakeState){
+
+		mDesiredIntakeState = DesiredIntakeState;
+		double mDesiredEncoderValue = mDesiredIntakeState.getDesiredPosition();
+		mIntakeArmPidController.setSetpoint(mDesiredEncoderValue);
+		mIntakeArmPidController.setTolerance(1.0);
+
+		mSpeed = mIntakeArmPidController.calculate(mIntakeArmEncoder.getPosition(), mDesiredEncoderValue);
+
+		mIntakeArmMotor.set(mSpeed);
+		// System.out.println("-------Desired State encoder: " + mDesiredEncoderValue);
+		// System.out.println("-------Current State encoder IntakeState: " + mCurrentIntakeState.getDesiredPosition());
+		// System.out.println("-------Desired State encoder IntakeState: " + mDesiredIntakeState.getDesiredPosition());
+		// System.out.println("CURRENT SPEED: " + speed);
 		// if(mIntakeArmPidController.getPositionError()<.1){//TODO: make espilon
 		// 	speed = 0;
 		// 	mIntakeArmMotor.set(speed);
 		// 	return true;
 		// }
-		if(Math.abs(mIntakeArmPidController.getPositionError())<.1){// TODO: add actual epsilon
+		if(Math.abs(mIntakeArmPidController.getPositionError()) < 0.1){// TODO: add actual epsilon
 			setIntakeState(mDesiredIntakeState);
 		}
-		if(mIntakeRetractedLimitSwitch.get()){
-			setDesiredIntakeState(IntakeState.eRetracted);
-		}
+		// if(mIntakeRetractedLimitSwitch.get()){
+		// 	setDesiredIntakeState(IntakeState.eRetracted);
+		// } TODO: CODE IN
 		if(getDesiredIntakeState()==IntakeState.eRetracted && getIntakeState()==IntakeState.eRetracted){
-			speed = 0;
-			mIntakeArmMotor.set(speed);
+			mSpeed = 0;
+			mIntakeArmMotor.set(mSpeed);
 			setIntakeState(IntakeState.eRetracted);
 		}
 		//TODO: create method to change state based on one or 2 sided epsilon
@@ -150,29 +166,38 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	}
 	
 	public void setIntakeArmMotorSpeed() {
-		if(speed < 1.0){
-			speed += 0.1;	
-		}
-		else
+		while(mIntakeArmEncoder.getPosition() < -1.0)
 		{
-			speed = 1.0;
+		// if(speed > -1.0){
+		// 	speed -= 0.1;	
+		// }
+		// else
+		// {
+		// 	speed = -1.0;
+		// }
+		mIntakeArmMotor.set(0.3);
 		}
-		mIntakeArmMotor.set(speed);
-		System.out.println("INTAKE ARM MOTOR SPEED: " + speed + "-------------");
+		mIntakeArmMotor.set(0);
+		//mIntakeArmMotor.set(speed);
+		//System.out.println("INTAKE ARM MOTOR SPEED: " + speed + "-------------");
 		//System.out.println("ENCODER VALUES: " + mIntakeArmEncoder.getPosition() + "-------");
 
 	}
 	//TEMP
 	public void setNegIntakeArmMotorSpeed() {
-		if(speed > -1.0){
-			speed -= 0.1;	
-		}
-		else
+		while(mIntakeArmEncoder.getPosition() > -4.0)
 		{
-			speed = -1.0;
+		// if(speed > -1.0){
+		// 	speed -= 0.1;	
+		// }
+		// else
+		// {
+		// 	speed = -1.0;
+		// }
+		mIntakeArmMotor.set(-0.3);
 		}
-		mIntakeArmMotor.set(speed);
-		System.out.println("INTAKE ARM MOTOR SPEED: " + speed + "-------------");
+		mIntakeArmMotor.set(0);
+		//System.out.println("INTAKE ARM MOTOR SPEED: " + speed + "-------------");
 		//System.out.println("ENCODER VALUES: " + mIntakeArmEncoder.getPosition() + "-------");
 
 	}
@@ -203,11 +228,15 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	@Override
 	public void periodic(){
 		//call statecheck method, ... make statecheck call
-		if(mIntakeRetractedLimitSwitch.get()){
-			setIntakeState(IntakeState.eRetracted);
-			//mIntakeArmEncoder.setPosition(0.0);//   .reset();
-		}
-		System.out.println("ENCODER VALUES: " + mIntakeArmEncoder.getPosition() + "-------");
+		// if(mIntakeRetractedLimitSwitch.get()){
+		// 	setIntakeState(IntakeState.eRetracted);
+		// 	//mIntakeArmEncoder.setPosition(0.0);//   .reset();
+		// } TODO: FIX
+		System.out.println(mIntakeArmEncoder.getPosition() + "-----" + mDesiredIntakeState.getDesiredPosition() + "-----" + mSpeed);
+		//System.out.println("-------Current State encoder IntakeState: " + mCurrentIntakeState.getDesiredPosition());
+		// System.out.println("-------Desired State encoder IntakeState: " + mDesiredIntakeState.getDesiredPosition());
+		// System.out.println("CURRENT SPEED: " + mSpeed);
+		//System.out.println("ENCODER VALUES: " + mIntakeArmEncoder.getPosition() + "-------");
 
 
 
