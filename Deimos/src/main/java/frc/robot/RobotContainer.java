@@ -29,6 +29,7 @@ import frc.robot.commands.DelayCommand;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
+import frc.robot.enums.IntakeState;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -87,20 +88,38 @@ public class RobotContainer {
     Trigger IntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getAButton());
 
     IntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.setIntakeArmMotorSpeed();
+      mIntakeSubsystem.runNormalIntakePID(IntakeState.eRetracted);
     }));
 
     Trigger negIntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getYButton());
 
     negIntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.setNegIntakeArmMotorSpeed();
+      mIntakeSubsystem.runNormalIntakePID(IntakeState.eDeployed);
     }));
 
 
-    // Trigger IntakeRollerIngestTrigger = new Trigger(() -> mControllerSecondary.getTrigger());
-    // IntakeRollerIngestTrigger.onTrue(new InstantCommand(() -> { 
-    //   mIntakeSubsystem.setRollerMotorSpeed(0.4);//.onFalse(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.4)); 
-    // }));
+      // Intake ingestion (from BrendanBranch)
+      // Trigger IntakeRollerIngestTriggerPress = new Trigger(() -> mControllerTertiary.getLeftBumper());
+      // Trigger IntakeRollerIngestTriggerRelease = new Trigger(() -> mControllerTertiary.getLeftBumper());
+
+      // Trigger IntakeRollerEjectTriggerPress = new Trigger(() -> mControllerTertiary.getRightBumper());
+      // Trigger IntakeRollerEjectTriggerRelease = new Trigger(() -> mControllerTertiary.getRightBumper());
+
+      // IntakeRollerIngestTriggerPress.onTrue(new InstantCommand(() -> { 
+      //   mIntakeSubsystem.setRollerMotorSpeed(0.4);
+      // }));
+ 
+      // IntakeRollerIngestTriggerRelease.onTrue(new InstantCommand(() -> { 
+      //   mIntakeSubsystem.setRollerMotorSpeed(0); 
+      // }));
+
+      // IntakeRollerEjectTriggerPress.onTrue(new InstantCommand(() -> { 
+      //   mIntakeSubsystem.setRollerMotorSpeed(-0.4);
+      // }));
+
+      // IntakeRollerEjectTriggerRelease.onTrue(new InstantCommand(() -> { 
+      //   mIntakeSubsystem.setRollerMotorSpeed(0); 
+      // }));
 
   }
 
