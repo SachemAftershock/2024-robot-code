@@ -29,7 +29,7 @@ public final class Constants {
         public static final double kIngestNoteSpeed = 0.4;
         public static final double kEjectNoteSpeed = 0.5;
 
-        public static double[] kIntakeArmGains = { 1.0, 0, 0 };
+        public static double[] kIntakeArmGains = { 0.05, 0.0, 0.0 };
 
         public static double kIntakeArmMotorSpeed = 0.05;
         public static double kIntakeRollerMotorSpeed = 0.05;
