@@ -63,6 +63,7 @@ public class RobotContainer {
             () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
 
     ));
+    
   }
 
   public void initialize() {
@@ -77,23 +78,23 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     //ROLLERS
-    Trigger IntakeRollerIngestTrigger = new Trigger(() -> mControllerSecondary.getTrigger());
+    Trigger IntakeRollerIngestTrigger = new Trigger(() -> mControllerPrimary.getRightBumperPressed());
 
     IntakeRollerIngestTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.setRollerMotorSpeed(-0.4);
+      mIntakeSubsystem.setRollerMotorSpeed(-0.25);
     })).onFalse(new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0)));
 
     //ARM
     Trigger IntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getAButton());
 
     IntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.runNormalIntakePID(IntakeState.eRetracted);
+      mIntakeSubsystem.setDesiredIntakeState(IntakeState.eRetracted);
     }));
 
     Trigger negIntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getYButton());
 
     negIntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.runNormalIntakePID(IntakeState.eDeployed);
+      mIntakeSubsystem.setDesiredIntakeState(IntakeState.eDeployed);
     }));
 
 
@@ -233,5 +234,9 @@ public class RobotContainer {
 
     return value;
   }
+
+  public void resetIntakeCalibration(){
+		mIntakeSubsystem.resetCalibration();
+	}
 }
 
