@@ -32,6 +32,7 @@ import frc.robot.commands.RotateDriveCommand;
 import frc.robot.enums.IntakeState;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
+//import frc.robot.commands.ManualIntakeArm;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -64,6 +65,10 @@ public class RobotContainer {
             () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
 
     ));
+    // mIntakeSubsystem.setDefaultCommand(new ManualIntakeArm(
+    //         mIntakeSubsystem,
+    //         () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7),
+    //         () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7);
     
   }
 
