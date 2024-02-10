@@ -4,7 +4,7 @@ package frc.robot.enums;
 
 
 public enum IntakeState {
-    eDeployed(-4.0),//TODO: change to eDeployed
+    eDeployed(-8.0),//TODO: change to eDeployed
     eRetracted(0.0),//TODO: change to eRetracted
     // FIXME. This constant concerns SAFETY, so it needs to be written by a person with
     // knowledge pertaining to what this "safety" even is
