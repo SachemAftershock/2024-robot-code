@@ -38,6 +38,7 @@ import frc.robot.commands.EjectNoteCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
 import frc.robot.enums.IntakeState;
+import frc.robot.enums.ShooterAngleState;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -282,8 +283,18 @@ private boolean mIsMappedForShooterNotClimber = true;
     else{
     }
 
-    //DPAD CLIMBER COMMANDS
-    
+    // X to aim at amp, otherwise aim at speaker
+    Trigger AngleShootMotorPIDTrigger = new Trigger(()->{
+      return mControllerPrimary.getXButton();
+    });
+    AngleShootMotorPIDTrigger.whileTrue(new InstantCommand(()->{
+      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);
+      mShooterSubsystem.runShooterAnglePID();
+    }).repeatedly()).whileFalse(new InstantCommand(()->{
+      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
+      mShooterSubsystem.runShooterAnglePID();
+    }).repeatedly());
+
   }
 
   /**
