@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.DelayCommand;
 import frc.robot.commands.DeployIntakeCommand;
@@ -54,7 +55,7 @@ private boolean mIsMappedForShooterNotClimber = true;
   private DriveSubsystem mDriveSubsystem = DriveSubsystem.getInstance();
   private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
   private IntakeSubsystem mIntakeSubsystem = IntakeSubsystem.getInstance();
-
+  private ShooterSubsystem mShooterSubsystem = ShooterSubsystem.getInstance();
   
   private final AftershockXboxController mControllerTertiary = new AftershockXboxController(0);
   private final Joystick mControllerPrimary = new Joystick(1);
