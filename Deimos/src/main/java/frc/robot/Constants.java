@@ -29,13 +29,15 @@ public final class Constants {
         public static final double kIngestNoteSpeed = 0.4;
         public static final double kEjectNoteSpeed = 0.5;
 
-        public static double[] kIntakeArmGains = { 0.05, 0.0, 0.0 };
-        public static double[] kCalibrateGains = { 0.1, 0.0, 0.0 };
+        public static final double[] kIntakeArmGains = { 0.3, 0.0, 0.0 };
+        public static final double[] kCalibrateGains = { 0.1, 0.0, 0.0 };
+        public static final double[] kHoldPID = {0.5, 0.0, 0.0};
 
-        public static double kDeltaExtendedToRetracted = 8.017;
+        public static final double kDeltaExtendedToRetracted = 8.017;
+        public static final double kIntakeDeployed = 8.017;
 
-        public static double kIntakeArmMotorSpeed = 0.05;
-        public static double kIntakeRollerMotorSpeed = 0.05;
+        public static final double kIntakeArmMotorSpeed = 0.05;
+        public static final double kIntakeRollerMotorSpeed = 0.05;
 
     }
 
