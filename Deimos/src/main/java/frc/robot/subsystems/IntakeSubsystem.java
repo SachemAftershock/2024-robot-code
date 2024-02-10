@@ -194,10 +194,16 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		//System.out.println("LIMIT SWITCH: " + mIntakeRetractedLimitSwitch.get());
 		double calibrationRetractionSpeed;
 		if (Math.abs(mIntakeArmEncoder.getPosition()) > EncoderCountThresholdToReverseDirection) {
+			// from deployed position start with maxium lift speed but then ramp it down propotionaly
+			// to full swing, but only up to the apogee.   So still a bit of momentum towards 
+			// Retracted position at apogee.
 			calibrationRetractionSpeed = mMaximumCalibrationUpswingLiftMaxSpeed * (mDesiredCalibrateCount - mCurrentCalibrateCount)/(mDesiredCalibrateCountSweep);  // Percent
 		}
 		else{
-			calibrationRetractionSpeed = mMaximumCalibrationDownswingBrakingMaxSpeed * (EncoderCountThresholdToReverseDirection - Math.abs(mIntakeArmEncoder.getPosition()));  // Percent
+			// after reachinig apogee, make zero speed (letting momentum and gravity take over) 
+			// then ramp up the reverse power until max braking speed (is negative speed) 
+			// applied near retracted landing position. 
+			calibrationRetractionSpeed = mMaximumCalibrationDownswingBrakingMaxSpeed * (EncoderCountThresholdToReverseDirection - Math.abs(mIntakeArmEncoder.getPosition())/EncoderCountThresholdToReverseDirection);  // Percent
 		}
 		System.out.println("CAL: SPD: " + calibrationRetractionSpeed +" Desire: "+ mDesiredCalibrateCount +" Sweep: " +  mDesiredCalibrateCountSweep);
 
