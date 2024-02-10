@@ -31,6 +31,7 @@ import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
 import frc.robot.enums.IntakeState;
+import frc.robot.enums.ShooterAngleState;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -79,6 +80,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     //ROLLERS
+    // RB for something
     Trigger IntakeRollerIngestTrigger = new Trigger(() -> mControllerPrimary.getRightBumperPressed());
 
     IntakeRollerIngestTrigger.onTrue(new InstantCommand(() -> { 
@@ -86,12 +88,14 @@ public class RobotContainer {
     })).onFalse(new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0)));
 
     //ARM
+    // A for retracted
     Trigger IntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getAButton());
 
     IntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
       mIntakeSubsystem.setDesiredIntakeState(IntakeState.eRetracted);
     }));
 
+    // Y for deployed
     Trigger negIntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getYButton());
 
     negIntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
@@ -99,6 +103,7 @@ public class RobotContainer {
     }));
 
     // LT and RT for shooter motors
+    // LT is a bit left, RT is a bit right, both is straight forward
     Trigger ShooterMotorTrigger = new Trigger(() -> {
       return mControllerPrimary.getLeftTriggerAxis() > .05
         || mControllerPrimary.getRightTriggerAxis() > .05;
@@ -106,23 +111,42 @@ public class RobotContainer {
 
     ShooterMotorTrigger
       .onTrue(new InstantCommand(() -> {
-        mShooterSubsystem.spinShooterMotors(
-          mControllerPrimary.getLeftTriggerAxis(),
-          mControllerPrimary.getRightTriggerAxis()
-        );
-    })).onFalse(new InstantCommand(()-> {
-      mShooterSubsystem.spinShooterMotors(0, 0);
+        boolean LTPushed = mControllerPrimary.getLeftTriggerAxis() > .05;
+        boolean RTPushed = mControllerPrimary.getRightTriggerAxis() > .05;
+        boolean bothPushed = LTPushed && RTPushed;
+        if (LTPushed && RTPushed) {
+          mShooterSubsystem.spinShooterMotors(1, 1);
+        } else if (LTPushed) {// TODO make sure this is left
+          mShooterSubsystem.spinShooterMotors(.5,1); 
+        } else if (RTPushed) {
+          mShooterSubsystem.spinShooterMotors(1,.4);
+        }
+      })).onFalse(new InstantCommand(()-> {
+        mShooterSubsystem.spinShooterMotors(0, 0);
     }));
 
-    // Left Y for angle shooter
+    // Left joystick Y to change angle of shooter
     Trigger AngleShootMotorTrigger = new Trigger(()->{
       return Math.abs(mControllerPrimary.getLeftY()) > .1;
     });
-    AngleShootMotorTrigger.onTrue(new InstantCommand(()->{
-      mShooterSubsystem.setAngleShootMotorSpeed(mControllerPrimary.getLeftY());
-    })).onFalse(new InstantCommand(()->{
-      mShooterSubsystem.setAngleShootMotorSpeed(0);
+    AngleShootMotorTrigger
+      .onTrue(new InstantCommand(()->{
+        mShooterSubsystem.setAngleShooterMotorSpeed(mControllerPrimary.getLeftY());
+      })).onFalse(new InstantCommand(()->{
+        mShooterSubsystem.setAngleShooterMotorSpeed(0);
     }));
+
+    // X to aim at amp, otherwise aim at speaker
+    Trigger AngleShootMotorPIDTrigger = new Trigger(()->{
+      return mControllerPrimary.getXButton();
+    });
+    AngleShootMotorPIDTrigger.whileTrue(new InstantCommand(()->{
+      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);
+      mShooterSubsystem.runShooterAnglePID();
+    }).repeatedly()).whileFalse(new InstantCommand(()->{
+      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
+      mShooterSubsystem.runShooterAnglePID();
+    }).repeatedly());
 
   }
 

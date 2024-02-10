@@ -159,7 +159,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	 */
 	public boolean runCalibrateIntake(){
 		final double calibrationRetractionSpeed = 0.05;  // Percent
-		System.out.println("LIMIT SWITCH: " + mIntakeRetractedLimitSwitch.get());
+		// System.out.println("LIMIT SWITCH: " + mIntakeRetractedLimitSwitch.get());
 		if(!mIntakeRetractedLimitSwitch.get()){
 			if(mEnableMotors) mIntakeArmMotor.set(calibrationRetractionSpeed);
 		}else{

@@ -34,7 +34,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	private CANSparkMax mAngleShootMotor;
 	private CANSparkMax mLeftShootMotor;
-	private RelativeEncoder mAngleEncoder;
+	private Encoder mAngleEncoder; // FIXME we will need to call .reset() for zeroing
 	private RelativeEncoder mLeftShootEncoder;
 	private RelativeEncoder mRightShootEncoder;
 	private CANSparkMax mRightShootMotor;
@@ -52,7 +52,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	private double[] mShooterGains = kShooterGains;
 
 	// PID for angle stuff
-	private double mAngleShootMotorSpeed;
+	private double mAngleShooterMotorSpeed;
 	private ProfiledPIDController mShooterAnglePIDController;
 	private TrapezoidProfile.Constraints mShooterAnglePIDConstraints;
 	private double[] mAngleGains = kAngleGains;
@@ -66,7 +66,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		mRightShootMotor = new CANSparkMax(kRightShootMotorID, MotorType.kBrushless);
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
 		mRightShootEncoder = mRightShootMotor.getEncoder();
-		mAngleEncoder = mAngleShootMotor.getAlternateEncoder(5);
+		mAngleEncoder = new Encoder(0, 1); // FIXME wrong encoder
 		mLeftShootEncoder.setPosition(0);
 		mRightShootEncoder.setPosition(0);
 		mShooterLimitSwitch = new DigitalInput(kShooterLimitSwitchID);
@@ -86,6 +86,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void initialize() {
+		mAngleEncoder.reset();
 
 	}
 
@@ -111,16 +112,18 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	}
 
 	/**
-	 * Sets angle of the shooter.
-	 * 
-	 * <p><i>Don't directly set mAngleShootMotor. Route through here instead.</i></p>
+	 * Sets rotational speed of the shooter.
 	 * @param speed [-1.0, 1.0]. Positive is inward-facing.
 	 */
-	public void setAngleShootMotorSpeed(double speed) {
-		mAngleShootMotor.set(speed);
+	public void setAngleShooterMotorSpeed(double speed) {
+		// System.out.println(speed);
+		// mAngleShootMotor.set(speed);
 	}
 
-	private ShooterAngleState mCurrentShooterAngleState;
+	// TODO this is a randomly set beginning position.
+	// Perhaps we should read the encoder or have some safety method to dodge
+	// mCurrentShooterAngleState pointer nulls
+	private ShooterAngleState mCurrentShooterAngleState = ShooterAngleState.eSpeaker;
 	
 	public void setCurrentShooterAngleState(ShooterAngleState mCurrentShooterAngleState) {
 		this.mCurrentShooterAngleState = mCurrentShooterAngleState;
@@ -132,11 +135,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	
 	private ShooterAngleState mDesiredShooterAngleState;
 
-	public void setDesiredShooterState(ShooterAngleState mDesiredShooterAngleState) {
+	public void setDesiredShooterAngleState(ShooterAngleState mDesiredShooterAngleState) {
 	  this.mDesiredShooterAngleState = mDesiredShooterAngleState;
 	}
   
-	public ShooterAngleState getDesiredShooterState() {
+	public ShooterAngleState getDesiredShooterAngleState() {
 	  return mDesiredShooterAngleState;
 	}
 
@@ -145,12 +148,12 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	// public boolean runShooterPID() {
 	// 	double mDesiredEncoderValue;
 	// 	// if (getControlState() != ControlState.eManualControl) {
-	// 		mDesiredEncoderValue = getDesiredShooterState().getAngle();
+	// 		mDesiredEncoderValue = getDesiredShooterAngleState().getAngle();
 	// 	// } else {
 	// 	// 	mDesiredEncoderValue = jogAngle;
 	// 	// }
-	// 	double speed = mShooterAnglePIDController.calculate(mAngleEncoder.getPosition(), mDesiredEncoderValue);
-	// 	setAngleShootMotorSpeed(speed);
+	// 	double speed = mShooterAnglePIDController.calculate(mAngleEncoder.getDistance(), mDesiredEncoderValue);
+	// 	setAngleShooterMotorSpeed(speed);
 	// 	final double mArmAngleEpsilon = 0.001;
 	// 	if (Math.abs(mShooterAnglePIDController.getPositionError()) < mArmAngleEpsilon) {
 
@@ -161,25 +164,51 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	// 	}
 	// 	return false;
 	// }
-
-	public void runAngleShooterPID(){
+	private int counter = 0;
+	public void runShooterAnglePID(){
 		double mDesiredEncoderValue = mDesiredShooterAngleState.getAngle();
 		mShooterAnglePIDController.setGoal(mDesiredEncoderValue);
-
-		mAngleShootMotorSpeed = mShooterAnglePIDController.calculate(mAngleEncoder.getPosition(), mDesiredEncoderValue);
-
+		counter++;
+		/**
+		 * Reads shooter arm rotation with a precision of ~4 degrees.
+		 * The "zero", which is when the shooter arm is down (eSpeaker),
+		 * is generally between 0 and -1.0 --- e.g. -.308, -.43, etc.
+		 * 
+		 * We acquired the magic number 5.68888 with this:
+		 * counts per rev (https://www.revrobotics.com/content/docs/REV-11-1271-DS.pdf)
+		 * divided by 360 divided by 4 (for 4x encoding, we think)
+		 * 	8192/360/4
+		 */
+		double mDegrees = mAngleEncoder.getDistance() / 5.688888;
 		
-		System.out.println("-------Desired State encoder: " + mDesiredEncoderValue);
-		System.out.println("-------Current State encoder IntakeState: " + mCurrentShooterAngleState.getAngle());
-		System.out.println("-------Desired State encoder IntakeState: " + mDesiredShooterAngleState.getAngle());
-		System.out.println("CURRENT SPEED: " + mAngleShootMotorSpeed);
+		mAngleShooterMotorSpeed = mShooterAnglePIDController.calculate(
+			/*TODO FIXME this is rotations. are we comparing to angles or radians */
+			mDegrees, 
+			mDesiredEncoderValue
+		);
+		if (counter % 20 == 0) {
+			System.out.println("getDistance() / 4.1 = "+mDegrees);
+			System.out.println("----SPEED IN PID FILTER: " + mAngleShooterMotorSpeed);
+			System.out.println("------- RAW RATE "+mAngleEncoder.getRate());
+			// System.out.println("--------Desired State encoder: " + mDesiredEncoderValue);
+		}
 		if(Math.abs(mShooterAnglePIDController.getPositionError()) < kShooterAngleEpsilon){//TODO: make espilon
-			mAngleShootMotorSpeed = 0;
-			if(mEnableMotors) setAngleShootMotorSpeed(mAngleShootMotorSpeed);
+			System.out.println("new Current State: "+mDesiredEncoderValue);
+			mAngleShooterMotorSpeed = 0;
+			if(mEnableMotors) setAngleShooterMotorSpeed(mAngleShooterMotorSpeed);
 			setCurrentShooterAngleState(mDesiredShooterAngleState);
 			//return true;
 		}
-		if(mEnableMotors) setAngleShootMotorSpeed(mAngleShootMotorSpeed);
+		if(mEnableMotors) setAngleShooterMotorSpeed(mAngleShooterMotorSpeed);
+
+
+
+
+
+
+
+
+
 		// if(Math.abs(mShooterAnglePIDController.getPositionError()) < 0.1){// TODO: add actual epsilon
 		// 	setCurrentIntakeState(mDesiredShooterAngleState);
 		// }
@@ -193,7 +222,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 		// if(getDesiredIntakeState()==IntakeState.eRetracted && getIntakeState()==IntakeState.eRetracted){
 		// 	mSpeed = 0;
-		// 	setAngleShootMotorSpeed(mSpeed);
+		// 	setAngleShooterMotorSpeed(mSpeed);
 		// 	setCurrentIntakeState(IntakeState.eRetracted);
 		// }
 
@@ -207,7 +236,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	@Override
 	public void outputTelemetry() {
 		ShuffleboardTab tab = Shuffleboard.getTab("SubsystemShooter");
-		tab.add("Angle Encoder: ", mAngleEncoder.getVelocity()).getEntry();
+		tab.add("Angle Encoder: ", mAngleEncoder.getRate()).getEntry();
 		tab.add("Left Shooter Encoder: ", mLeftShootEncoder.getVelocity()).getEntry();
 		tab.add("Right Shooter Encoder: ", mRightShootEncoder.getVelocity()).getEntry();
 		// TODO:Dump current encoder speeds

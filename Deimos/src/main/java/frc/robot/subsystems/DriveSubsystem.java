@@ -241,7 +241,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 		if(counter > 50) {
 			//System.out.println("Angles FL" + states[0].angle.getRadians() + " FR " + states[1].angle.getRadians() + " BL " + states[2].angle.getRadians() + " BR " + states[3].angle.getRadians());
 			counter = 0;
-					System.out.println(mNavx.getAngle());
+					// System.out.println(mNavx.getAngle());
 
 		}
 		mFrontLeftModule.set(states[0].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
