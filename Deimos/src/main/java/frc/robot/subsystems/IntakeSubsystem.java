@@ -101,6 +101,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		//mIntakeArmPidController = new PIDController(kIntakeArmGains[0], kIntakeArmGains[1], kIntakeArmGains[2]);
 	}
 	public void resetCalibration(){
+		mIntakeArmEncoder.setPosition(0.0);
 		mIntakeCalibrated = false;
 		mCalibrateNeverCalled = true;
 	}
