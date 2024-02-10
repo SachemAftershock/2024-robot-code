@@ -74,6 +74,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    System.out.println("teleopINIT");
     m_robotContainer.initialize();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
@@ -82,6 +83,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    //TODO: but a guard here, do not do again after auto mode if this is running on the real field managemeent system. 
     m_robotContainer.resetIntakeCalibration();//NEW
   }
 

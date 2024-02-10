@@ -46,14 +46,33 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	//private IntakeState mDesiredIntakeState;
 
+	// Intake arm position Concept of Operations (CONOPS)
+	// When robot is powered on, the intake arm is using a
+	// relative encoder, so does not know its position.  The arm
+	// is pulled down by gravity to either of its extreme positions.
+	// The approach is to use a limit switch at the Retracted position 
+	// to detect that position, and reset the encoder to zero counts.
+	// If limit switch is detected upon auton or tele enable, then 
+	// calibration is complete.  If not, then assume fully deployed.
+	// That case we empirically measured the count sweep for the full
+	// swing motion of the intake arm as about 8.0, starting there
+	// to then travel/decrement down to encoder position count of zero-ish.
+	// We make the motor speed move the arm to the retracted position. 
+	// We move slow because are not totally sure where we are or how 
+	// much power will prevent a slam.  Gravity is still an issue, so 
+	// we power higher and diminish during the lift to apogee, then
+	// reverse power and start from zero speed up to a workable 
+	// soft landing spead, then zero the power. 
+	// The encoder threshold to switch motor direction is 6.5.
+
 	private boolean mIntakeCalibrated = false;
 	private boolean mCalibrateNeverCalled = true;
 	private double mCurrentCalibrateCount = 0;
-	private final double mDesiredCalibrateDelta = 8.0;
-	private double mDesiredCalibrateCount = 0.0;
-	
-
-	
+	private final double mDesiredCalibrateCountSweep = 8.0;
+	private double mDesiredCalibrateCount = 8.0;
+	private double mMaximumCalibrationUpswingLiftMaxSpeed = 0.4;
+	private double mMaximumCalibrationDownswingBrakingMaxSpeed = -0.05;
+	private double EncoderCountThresholdToReverseDirection = 6.5;
 
 	public final double kIntakeConstraintsMaxVelocity = 0.3;
 	public final double kIntakeConstraintsMaxAcceleration = 0.05;
@@ -82,6 +101,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		//mIntakeArmPidController = new PIDController(kIntakeArmGains[0], kIntakeArmGains[1], kIntakeArmGains[2]);
 	}
 	public void resetCalibration(){
+		mIntakeArmEncoder.setPosition(0.0);
 		mIntakeCalibrated = false;
 		mCalibrateNeverCalled = true;
 	}
@@ -165,29 +185,39 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	 * sets the speed slow and moves to the limit switch
 	 */
 	public boolean runCalibrateIntake(){
+
+		mCurrentCalibrateCount = mIntakeArmEncoder.getPosition();
 		if (mCalibrateNeverCalled) { 
-			mCurrentCalibrateCount = mIntakeArmEncoder.getPosition();
-			mDesiredCalibrateCount = mCurrentCalibrateCount + mDesiredCalibrateDelta;
+			System.out.println("CAL NEVER CALLED");
+			mDesiredCalibrateCount = mCurrentCalibrateCount - mDesiredCalibrateCountSweep;
 			mCalibrateNeverCalled = false;
 		}
 
-
 		//System.out.println("LIMIT SWITCH: " + mIntakeRetractedLimitSwitch.get());
-		double calibrationRetractionSpeed = 0.2 * (mDesiredCalibrateCount - mCurrentCalibrateCount)/(mDesiredCalibrateDelta);  // Percent
-		//System.out.println("CAL: " + calibrationRetractionSpeed +" "+ mDesiredCalibrateCount +" " +  mDesiredCalibrateDelta);
-
-		//mIntakeArmMotor.setVoltage(1.5); //volts
+		double calibrationRetractionSpeed = 0;
+		double factor = 0;
+		if (Math.abs(mCurrentCalibrateCount) < EncoderCountThresholdToReverseDirection) {
+			// from deployed position start with maxium lift speed but then ramp it down propotionaly
+			// to full swing, but only up to the apogee.   So still a bit of momentum towards 
+			// Retracted position at apogee.
+			factor = (EncoderCountThresholdToReverseDirection - mCurrentCalibrateCount)/(EncoderCountThresholdToReverseDirection);
+			calibrationRetractionSpeed = mMaximumCalibrationUpswingLiftMaxSpeed * factor;  // Percent
+			System.out.print("Phase 1: ");
+		}
+		else{
+			// after reachinig apogee, make zero speed (letting momentum and gravity take over) 
+			// then ramp up the reverse power until max braking speed (is negative speed) 
+			// applied near retracted landing position. 
+			factor = Math.abs((EncoderCountThresholdToReverseDirection - mCurrentCalibrateCount)/(mDesiredCalibrateCountSweep - Math.abs(EncoderCountThresholdToReverseDirection)));
+			calibrationRetractionSpeed = mMaximumCalibrationDownswingBrakingMaxSpeed * factor;  // Percent
+			System.out.print("Phase 2: ");
+		}
+		System.out.println("CAL: ENCODER: " + mIntakeArmEncoder.getPosition() +  " SPD: " + calibrationRetractionSpeed + " Factor: " + factor + " Desire: "+ mDesiredCalibrateCount +" Sweep: " +  mDesiredCalibrateCountSweep + " Limit " + mIntakeRetractedLimitSwitch.get());
 
 		if(!mIntakeRetractedLimitSwitch.get()){
 			if(mEnableMotors) {
-				System.out.println("ENCODER: " + mIntakeArmEncoder.getPosition());
-				if (Math.abs(mIntakeArmEncoder.getPosition()) > 6.5) {
-					System.out.println("------------------ Voltage --------------");	
-					mIntakeArmMotor.setVoltage(-0.9);
-				} else {
-					mIntakeArmMotor.set(calibrationRetractionSpeed);
-				}
-				
+				//System.out.println("ENCODER: " + mIntakeArmEncoder.getPosition());
+				mIntakeArmMotor.set(calibrationRetractionSpeed);
 			}
 		}else{
 			double speed = 0;
