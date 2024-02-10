@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.DelayCommand;
@@ -45,7 +46,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private DriveSubsystem mDriveSubsystem = DriveSubsystem.getInstance();
   private IntakeSubsystem mIntakeSubsystem = IntakeSubsystem.getInstance();
-
+  private ShooterSubsystem mShooterSubsystem = ShooterSubsystem.getInstance();
   
   private final AftershockXboxController mControllerPrimary = new AftershockXboxController(0);
   private final Joystick mControllerSecondary = new Joystick(1);
@@ -97,29 +98,31 @@ public class RobotContainer {
       mIntakeSubsystem.setDesiredIntakeState(IntakeState.eDeployed);
     }));
 
+    // LT and RT for shooter motors
+    Trigger ShooterMotorTrigger = new Trigger(() -> {
+      return mControllerPrimary.getLeftTriggerAxis() > .05
+        || mControllerPrimary.getRightTriggerAxis() > .05;
+    });
 
-      // Intake ingestion (from BrendanBranch)
-      // Trigger IntakeRollerIngestTriggerPress = new Trigger(() -> mControllerTertiary.getLeftBumper());
-      // Trigger IntakeRollerIngestTriggerRelease = new Trigger(() -> mControllerTertiary.getLeftBumper());
+    ShooterMotorTrigger
+      .onTrue(new InstantCommand(() -> {
+        mShooterSubsystem.spinShooterMotors(
+          mControllerPrimary.getLeftTriggerAxis(),
+          mControllerPrimary.getRightTriggerAxis()
+        );
+    })).onFalse(new InstantCommand(()-> {
+      mShooterSubsystem.spinShooterMotors(0, 0);
+    }));
 
-      // Trigger IntakeRollerEjectTriggerPress = new Trigger(() -> mControllerTertiary.getRightBumper());
-      // Trigger IntakeRollerEjectTriggerRelease = new Trigger(() -> mControllerTertiary.getRightBumper());
-
-      // IntakeRollerIngestTriggerPress.onTrue(new InstantCommand(() -> { 
-      //   mIntakeSubsystem.setRollerMotorSpeed(0.4);
-      // }));
- 
-      // IntakeRollerIngestTriggerRelease.onTrue(new InstantCommand(() -> { 
-      //   mIntakeSubsystem.setRollerMotorSpeed(0); 
-      // }));
-
-      // IntakeRollerEjectTriggerPress.onTrue(new InstantCommand(() -> { 
-      //   mIntakeSubsystem.setRollerMotorSpeed(-0.4);
-      // }));
-
-      // IntakeRollerEjectTriggerRelease.onTrue(new InstantCommand(() -> { 
-      //   mIntakeSubsystem.setRollerMotorSpeed(0); 
-      // }));
+    // Left Y for angle shooter
+    Trigger AngleShootMotorTrigger = new Trigger(()->{
+      return Math.abs(mControllerPrimary.getLeftY()) > .1;
+    });
+    AngleShootMotorTrigger.onTrue(new InstantCommand(()->{
+      mShooterSubsystem.setAngleShootMotorSpeed(mControllerPrimary.getLeftY());
+    })).onFalse(new InstantCommand(()->{
+      mShooterSubsystem.setAngleShootMotorSpeed(0);
+    }));
 
   }
 

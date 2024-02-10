@@ -251,7 +251,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			//mIntakeArmEncoder.setPosition(0.0);//   .reset();
 		// } TODO: FIX
 		runIntakePID();
-		System.out.println("ACTUAL: " + mIntakeArmEncoder.getPosition() + "-----Desired: " + mDesiredIntakeState.getDesiredPosition() + "-----Speed: " + mSpeed + "----error: " + mIntakeArmPidController.getPositionError() + "-----P*error: " + mIntakeArmPidController.getPositionError()* kIntakeArmGains[0]+ "LIMITSWITCH: " + mIntakeRetractedLimitSwitch.get());
+		// System.out.println("ACTUAL: " + mIntakeArmEncoder.getPosition() + "-----Desired: " + mDesiredIntakeState.getDesiredPosition() + "-----Speed: " + mSpeed + "----error: " + mIntakeArmPidController.getPositionError() + "-----P*error: " + mIntakeArmPidController.getPositionError()* kIntakeArmGains[0]+ "LIMITSWITCH: " + mIntakeRetractedLimitSwitch.get());
 	}
 
 		// what is telemetry 	@Override //idek breh
