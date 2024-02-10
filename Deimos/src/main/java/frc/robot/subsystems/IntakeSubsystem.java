@@ -47,6 +47,11 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	//private IntakeState mDesiredIntakeState;
 
 	private boolean mIntakeCalibrated = false;
+	private boolean mCalibrateNeverCalled = true;
+	private double mCurrentCalibrateCount = 0;
+	private final double mDesiredCalibrateDelta = 8.0;
+	private double mDesiredCalibrateCount = 0.0;
+	
 
 	
 
@@ -78,10 +83,12 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	}
 	public void resetCalibration(){
 		mIntakeCalibrated = false;
+		mCalibrateNeverCalled = true;
 	}
 
 	@Override
 	public void initialize() {
+		mIntakeArmMotor.setIdleMode(IdleMode.kBrake);
 	}
 
 	// public void setDesiredState(IntakeState mDesiredIntakeState){
@@ -158,15 +165,36 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	 * sets the speed slow and moves to the limit switch
 	 */
 	public boolean runCalibrateIntake(){
-		final double calibrationRetractionSpeed = 0.05;  // Percent
-		System.out.println("LIMIT SWITCH: " + mIntakeRetractedLimitSwitch.get());
+		if (mCalibrateNeverCalled) { 
+			mCurrentCalibrateCount = mIntakeArmEncoder.getPosition();
+			mDesiredCalibrateCount = mCurrentCalibrateCount + mDesiredCalibrateDelta;
+			mCalibrateNeverCalled = false;
+		}
+
+
+		//System.out.println("LIMIT SWITCH: " + mIntakeRetractedLimitSwitch.get());
+		double calibrationRetractionSpeed = 0.2 * (mDesiredCalibrateCount - mCurrentCalibrateCount)/(mDesiredCalibrateDelta);  // Percent
+		//System.out.println("CAL: " + calibrationRetractionSpeed +" "+ mDesiredCalibrateCount +" " +  mDesiredCalibrateDelta);
+
+		//mIntakeArmMotor.setVoltage(1.5); //volts
+
 		if(!mIntakeRetractedLimitSwitch.get()){
-			if(mEnableMotors) mIntakeArmMotor.set(calibrationRetractionSpeed);
+			if(mEnableMotors) {
+				System.out.println("ENCODER: " + mIntakeArmEncoder.getPosition());
+				if (Math.abs(mIntakeArmEncoder.getPosition()) > 6.5) {
+					System.out.println("------------------ Voltage --------------");	
+					mIntakeArmMotor.setVoltage(-0.9);
+				} else {
+					mIntakeArmMotor.set(calibrationRetractionSpeed);
+				}
+				
+			}
 		}else{
 			double speed = 0;
 			if(mEnableMotors) mIntakeArmMotor.set(speed);
 			setDesiredIntakeState(IntakeState.eRetracted);
 			setCurrentIntakeState(IntakeState.eRetracted);
+			mIntakeArmEncoder.setPosition(0.0);
 			return true;
 		}	
 		return false;
@@ -251,7 +279,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			//mIntakeArmEncoder.setPosition(0.0);//   .reset();
 		// } TODO: FIX
 		runIntakePID();
-		System.out.println("ACTUAL: " + mIntakeArmEncoder.getPosition() + "-----Desired: " + mDesiredIntakeState.getDesiredPosition() + "-----Speed: " + mSpeed + "----error: " + mIntakeArmPidController.getPositionError() + "-----P*error: " + mIntakeArmPidController.getPositionError()* kIntakeArmGains[0]+ "LIMITSWITCH: " + mIntakeRetractedLimitSwitch.get());
+		//System.out.println();
+		//System.out.println("ACTUAL: " + mIntakeArmEncoder.getPosition() + "-----Desired: " + mDesiredIntakeState.getDesiredPosition() + "-----Speed: " + mSpeed + "----error: " + mIntakeArmPidController.getPositionError() + "-----P*error: " + mIntakeArmPidController.getPositionError()* kIntakeArmGains[0]+ "LIMITSWITCH: " + mIntakeRetractedLimitSwitch.get());
 	}
 
 		// what is telemetry 	@Override //idek breh
