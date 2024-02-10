@@ -69,9 +69,9 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	private boolean mCalibrateNeverCalled = true;
 	private double mCurrentCalibrateCount = 0;
 	private final double mDesiredCalibrateCountSweep = 8.0;
-	private double mDesiredCalibrateCount = 0.0;
-	private double mMaximumCalibrationUpswingLiftMaxSpeed = 2.0;
-	private double mMaximumCalibrationDownswingBrakingMaxSpeed = -1.0;
+	private double mDesiredCalibrateCount = 8.0;
+	private double mMaximumCalibrationUpswingLiftMaxSpeed = 0.4;
+	private double mMaximumCalibrationDownswingBrakingMaxSpeed = -0.05;
 	private double EncoderCountThresholdToReverseDirection = 6.5;
 
 	public final double kIntakeConstraintsMaxVelocity = 0.3;
@@ -185,31 +185,37 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	 */
 	public boolean runCalibrateIntake(){
 
+		mCurrentCalibrateCount = mIntakeArmEncoder.getPosition();
 		if (mCalibrateNeverCalled) { 
-			mCurrentCalibrateCount = mIntakeArmEncoder.getPosition();
-			mDesiredCalibrateCount = mCurrentCalibrateCount + mDesiredCalibrateCountSweep;
+			System.out.println("CAL NEVER CALLED");
+			mDesiredCalibrateCount = mCurrentCalibrateCount - mDesiredCalibrateCountSweep;
 			mCalibrateNeverCalled = false;
 		}
 
 		//System.out.println("LIMIT SWITCH: " + mIntakeRetractedLimitSwitch.get());
-		double calibrationRetractionSpeed;
-		if (Math.abs(mIntakeArmEncoder.getPosition()) > EncoderCountThresholdToReverseDirection) {
+		double calibrationRetractionSpeed = 0;
+		double factor = 0;
+		if (Math.abs(mCurrentCalibrateCount) < EncoderCountThresholdToReverseDirection) {
 			// from deployed position start with maxium lift speed but then ramp it down propotionaly
 			// to full swing, but only up to the apogee.   So still a bit of momentum towards 
 			// Retracted position at apogee.
-			calibrationRetractionSpeed = mMaximumCalibrationUpswingLiftMaxSpeed * (mDesiredCalibrateCount - mCurrentCalibrateCount)/(mDesiredCalibrateCountSweep);  // Percent
+			factor = (EncoderCountThresholdToReverseDirection - mCurrentCalibrateCount)/(EncoderCountThresholdToReverseDirection);
+			calibrationRetractionSpeed = mMaximumCalibrationUpswingLiftMaxSpeed * factor;  // Percent
+			System.out.print("Phase 1: ");
 		}
 		else{
 			// after reachinig apogee, make zero speed (letting momentum and gravity take over) 
 			// then ramp up the reverse power until max braking speed (is negative speed) 
 			// applied near retracted landing position. 
-			calibrationRetractionSpeed = mMaximumCalibrationDownswingBrakingMaxSpeed * (EncoderCountThresholdToReverseDirection - Math.abs(mIntakeArmEncoder.getPosition())/EncoderCountThresholdToReverseDirection);  // Percent
+			factor = Math.abs((EncoderCountThresholdToReverseDirection - mCurrentCalibrateCount)/(mDesiredCalibrateCountSweep - Math.abs(EncoderCountThresholdToReverseDirection)));
+			calibrationRetractionSpeed = mMaximumCalibrationDownswingBrakingMaxSpeed * factor;  // Percent
+			System.out.print("Phase 2: ");
 		}
-		System.out.println("CAL: SPD: " + calibrationRetractionSpeed +" Desire: "+ mDesiredCalibrateCount +" Sweep: " +  mDesiredCalibrateCountSweep);
+		System.out.println("CAL: ENCODER: " + mIntakeArmEncoder.getPosition() +  " SPD: " + calibrationRetractionSpeed + " Factor: " + factor + " Desire: "+ mDesiredCalibrateCount +" Sweep: " +  mDesiredCalibrateCountSweep + " Limit " + mIntakeRetractedLimitSwitch.get());
 
 		if(!mIntakeRetractedLimitSwitch.get()){
 			if(mEnableMotors) {
-				System.out.println("ENCODER: " + mIntakeArmEncoder.getPosition());
+				//System.out.println("ENCODER: " + mIntakeArmEncoder.getPosition());
 				mIntakeArmMotor.set(calibrationRetractionSpeed);
 			}
 		}else{
