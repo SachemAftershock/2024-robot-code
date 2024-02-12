@@ -39,6 +39,8 @@ public final class Constants {
         public static final double kIntakeArmMotorSpeed = 0.05;
         public static final double kIntakeRollerMotorSpeed = 0.05;
 
+        public static final double kIntakeArmEpsilon  = 0.2;
+
     }
 
     public static class DriveConstants {

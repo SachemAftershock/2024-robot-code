@@ -60,9 +60,7 @@ public class RobotContainer {
             mDriveSubsystem,
             () -> -modifyAxis(mControllerSecondary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
             () -> -modifyAxis(mControllerSecondary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
-
             () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
-
     ));
     // mIntakeSubsystem.setDefaultCommand(new ManualIntakeArm(
     //         mIntakeSubsystem,
@@ -93,13 +91,13 @@ public class RobotContainer {
     Trigger IntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getAButton());
 
     IntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.setDesiredIntakeState(IntakeState.eRetracted);
+      mIntakeSubsystem.setIntakePosition(IntakeState.eRetracted.getDesiredPosition());
     }));
 
     Trigger negIntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getYButton());
 
     negIntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.setDesiredIntakeState(IntakeState.eDeployed);
+      mIntakeSubsystem.setIntakePosition(IntakeState.eDeployed.getDesiredPosition());
     }));
 
 
