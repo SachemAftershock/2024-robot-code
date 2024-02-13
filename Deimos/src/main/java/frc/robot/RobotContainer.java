@@ -102,26 +102,15 @@ public class RobotContainer {
       mIntakeSubsystem.setDesiredIntakeState(IntakeState.eDeployed);
     }));
 
-    // LT and RT for shooter motors
-    // LT is a bit left, RT is a bit right, both is straight forward
+    // LT to activate shooter motors.
     Trigger ShooterMotorTrigger = new Trigger(() -> {
-      return mControllerPrimary.getLeftTriggerAxis() > .05
-        || mControllerPrimary.getRightTriggerAxis() > .05;
+      return mControllerPrimary.getLeftTriggerAxis() > .05;
     });
-
     ShooterMotorTrigger
       .onTrue(new InstantCommand(() -> {
-        boolean LTPushed = mControllerPrimary.getLeftTriggerAxis() > .05;
-        boolean RTPushed = mControllerPrimary.getRightTriggerAxis() > .05;
-        boolean bothPushed = LTPushed && RTPushed;
-        if (LTPushed && RTPushed) {
           mShooterSubsystem.spinShooterMotors(1, 1);
-        } else if (LTPushed) {// TODO make sure this is left
-          mShooterSubsystem.spinShooterMotors(.5,1); 
-        } else if (RTPushed) {
-          mShooterSubsystem.spinShooterMotors(1,.4);
-        }
-      })).onFalse(new InstantCommand(()-> {
+        })
+      ).onFalse(new InstantCommand(()-> {
         mShooterSubsystem.spinShooterMotors(0, 0);
     }));
 
@@ -136,7 +125,7 @@ public class RobotContainer {
         mShooterSubsystem.setAngleShooterMotorSpeed(0);
     }));
 
-    // X to aim at amp, otherwise aim at speaker
+    // X to aim at amp, not X to aim at speaker
     Trigger AngleShootMotorPIDTrigger = new Trigger(()->{
       return mControllerPrimary.getXButton();
     });
