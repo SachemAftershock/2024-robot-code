@@ -4,6 +4,8 @@ package frc.robot.subsystems;
 
 import frc.lib.AftershockSubsystem;
 import frc.lib.PID;
+import frc.lib.AftershockMotionProfile;
+import frc.lib.PositionVelocityProfile;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.RobotContainer;
 import frc.robot.enums.IntakeState;
@@ -81,6 +83,9 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	private IntakeState mIntakeState;
 	private double mIntakePosition;
 
+	private AftershockMotionProfile mDeployProfile;
+	private AftershockMotionProfile mRetractProfile;
+	private PID mPID;
 
 	private IntakeSubsystem() {
 		
@@ -101,7 +106,13 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		mIntakeState = IntakeState.eUnknown;
 		mIntakePosition = 0.0;
 
+		mDeployProfile = new AftershockMotionProfile(0.0, 8.701, 0.5, kIntakeDeployProfile);
+		mRetractProfile = new AftershockMotionProfile(0.0, 8.701, 0.5, kIntakeRetractProfile);
+		mPID = new PID();
+		mPID.start(kIntakeArmGains);
+
 	}
+
 	public void resetCalibration(){
 		mIntakeArmEncoder.setPosition(0.0);
 		mIntakeCalibrated = false;
@@ -111,6 +122,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	@Override
 	public void initialize() {
 		mIntakeArmMotor.setIdleMode(IdleMode.kBrake);
+		mIntakePosition = 0.0;
 	}
 
 	public void setIntakePosition(double position) {
@@ -126,6 +138,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	}
 
 	public void runIntakePID(){
+		//System.out.println("Limit Switch : " + mIntakeRetractedLimitSwitch.get());
 		if(mIntakeCalibrated){
 			runNormalIntakePID(); 
 		} else {
@@ -135,18 +148,31 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	public void runNormalIntakePID(){
 
-		mIntakeArmPidController.setGoal(mIntakePosition);
+		//mIntakeArmPidController.setGoal(mIntakePosition);
 
-		mSpeed = mIntakeArmPidController.calculate(mIntakeArmEncoder.getPosition(), mIntakePosition);
-		System.out.println("Motor Speed : " + mSpeed + " Current Position : " + mIntakeArmEncoder.getPosition() + " Setpoint : " + mIntakePosition);
+		double speed = mPID.update(mIntakeArmEncoder.getPosition(), mIntakePosition);
+		//double speed = mIntakeArmPidController.calculate(mIntakeArmEncoder.getPosition(), mIntakePosition);
+		//System.out.println("Motor Speed : " + mSpeed + " Current Position : " + mIntakeArmEncoder.getPosition() + " Setpoint : " + mIntakePosition);
 
-		if(Math.abs(mIntakeArmPidController.getPositionError()) < kIntakeArmEpsilon){
-			System.out.println("Intake arm PID within epsilon ");
-			mSpeed = 0;
-			runArmMotor(mSpeed);
+		//System.out.println("Speed --> " + speed + " Intake Position --> " + mIntakePosition + " Current --> " + mIntakeArmEncoder.getPosition());
+
+		if(mIntakePosition == -8.0) {
+			speed = mDeployProfile.getOutput(mIntakeArmEncoder.getPosition());
+		} else if (mIntakePosition == 0.1) {
+			speed = mRetractProfile.getOutput(mIntakeArmEncoder.getPosition());
 		}
 		
-		runArmMotor(mSpeed);
+		if(Math.abs(mPID.getError()) < kIntakeArmEpsilon){
+			//System.out.println("Intake arm PID within epsilon ");
+			speed = 0;
+		}
+
+
+		System.out.println("Current --> " + mIntakeArmEncoder.getPosition() + " Setpoint --> " + mIntakePosition + " Speed --> " + speed);
+		
+		//System.out.println("Output : " + speed);
+		
+		runArmMotor(speed);
 		
 		if(mIntakeRetractedLimitSwitch.get()){
 			mIntakeArmEncoder.setPosition(0.0);
@@ -159,6 +185,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	 * sets the speed slow and moves to the limit switch
 	 */
 	public boolean runCalibrateIntake(){
+
+		//System.out.println("Calibrating");
 
 		mCurrentCalibrateCount = mIntakeArmEncoder.getPosition();
 		if (mCalibrateNeverCalled) { 
@@ -265,7 +293,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	public void runArmMotor(double speed) {
 		if(mEnableMotors) {
-			mIntakeArmMotor.set(0.5);
+			mIntakeArmMotor.set(speed);
 		}	
 	}
 

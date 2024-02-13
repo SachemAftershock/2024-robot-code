@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import frc.lib.AftershockMotionProfile;
+import frc.lib.PositionVelocityProfile;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -34,13 +36,37 @@ public final class Constants {
         public static final double[] kHoldPID = {0.5, 0.0, 0.0};
 
         public static final double kDeltaExtendedToRetracted = 8.017;
-        public static final double kIntakeDeployed = 8.017;
+        public static final double kIntakeDeployed = -8.0; //8.017
 
         public static final double kIntakeArmMotorSpeed = 0.05;
         public static final double kIntakeRollerMotorSpeed = 0.05;
 
         public static final double kIntakeArmEpsilon  = 0.2;
 
+        public static final PositionVelocityProfile[] kIntakeDeployProfile = {
+            new PositionVelocityProfile(-7.5, -8.701, 0.05),
+            new PositionVelocityProfile(-7.5, -6.5, 0.04),
+            new PositionVelocityProfile(-6.5, -5.5, 0.03),
+            new PositionVelocityProfile(-5.5, -4.5, 0.02),
+            new PositionVelocityProfile(-4.5, -3.5, 0.01),
+            new PositionVelocityProfile(-3.5, -2.5, 0.0),
+            new PositionVelocityProfile(-3.0, -3.2, 0.0),
+            new PositionVelocityProfile(-2.5, -1.5, -0.25),
+            new PositionVelocityProfile(-1.5, -0.5, -0.3),
+            new PositionVelocityProfile(-0.5, -0.0, -0.4)
+        };
+
+        public static final PositionVelocityProfile[] kIntakeRetractProfile = {
+            new PositionVelocityProfile(-7.5, -8.701, 0.4),
+            new PositionVelocityProfile(-7.5, -6.5, 0.4),
+            new PositionVelocityProfile(-6.5, -5.5, 0.4),
+            new PositionVelocityProfile(-5.5, -4.5, 0.3),
+            new PositionVelocityProfile(-4.5, -3.5, 0.3),
+            new PositionVelocityProfile(-3.5, -2.5, 0.25),
+            new PositionVelocityProfile(-2.5, -1.5, 0.2),
+            new PositionVelocityProfile(-1.5, -0.5, -0.15),
+            new PositionVelocityProfile(-0.5, -0.0, -0.05)
+        };
     }
 
     public static class DriveConstants {
