@@ -3,23 +3,13 @@ package frc.robot.subsystems;
 
 
 import frc.lib.AftershockSubsystem;
-import frc.lib.PID;
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.RobotContainer;
-import frc.robot.enums.IntakeState;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import static frc.robot.Constants.IntakeConstants.*;
 
@@ -37,19 +27,6 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	final private boolean mEnableMotors = false;
 	private DigitalInput mIntakeRetractedLimitSwitch;
 	
-	//private PIDController mIntakeArmPidController;
-	private ProfiledPIDController mIntakeArmPidController;
-	private TrapezoidProfile.Constraints mIntakeArmPIDConstraints;
-
-	//private final Encoder mIntakeArmEncoder;
-	private double mSpeed = 0.0;
-	//rec  3, trans 4 BEAM BREAKER
-
-	//private IntakeState mDesiredIntakeState;
-
-	public final double kIntakeConstraintsMaxVelocity = 0.3;
-	public final double kIntakeConstraintsMaxAcceleration = 0.05;
-
 	public enum  IntakeArmPositionEnum { eUnknown, eDeployed, eRetracted };
 	private IntakeArmPositionEnum mDesiredIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
 	
@@ -66,8 +43,6 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		mInternalBeamBreaker = new DigitalInput(kInternalBeamBreakerID); //INTERNAL B2
 
 		mIntakeRetractedLimitSwitch = new DigitalInput(kIntakeLimitSwitchID);
-		mIntakeArmPIDConstraints = new TrapezoidProfile.Constraints(0.4, 0.25);
-		mIntakeArmPidController = new ProfiledPIDController(kIntakeArmGains[0], kIntakeArmGains[1], kIntakeArmGains[2], mIntakeArmPIDConstraints);
 	}
 	
 	@Override
@@ -85,7 +60,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	public IntakeArmPositionEnum getIntakeArmState() {
 		IntakeArmPositionEnum currentIntakeArmPosition;
-		if(!mIntakeRetractedLimitSwitch.get())
+		if(mIntakeRetractedLimitSwitch.get())
 			currentIntakeArmPosition = IntakeArmPositionEnum.eRetracted;
 		else if ((mIntakeArmEncoder.getPosition() < 1.0) || (mIntakeArmEncoder.getPosition() > 7.0)) 
 			currentIntakeArmPosition = IntakeArmPositionEnum.eDeployed;
@@ -98,10 +73,10 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	public void runControlIntakeArmPosition(){
 		final boolean showPrints = true;
 		
-		double mDesiredIntakeArmEncoderSweep = -1;
-		double mMaximumIntakeArmUpswingLiftMaxSpeed = -1;
-		double mMaximumIntakeArmDownswingBrakingMaxSpeed = -1;
-		double EncoderCountThresholdToReverseDirection = -1;
+		double mDesiredIntakeArmEncoderSweep = 8.0;
+		double mMaximumIntakeArmUpswingLiftMaxSpeed = 0;
+		double mMaximumIntakeArmDownswingBrakingMaxSpeed = 0;
+		double EncoderCountThresholdToReverseDirection = 5.0;
 	
 		double currentIntakeArmEncoderPosition = mIntakeArmEncoder.getPosition();
 
@@ -116,7 +91,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.05;
 			EncoderCountThresholdToReverseDirection = 6.5;
 
-		if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
+			if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
 				// from deployed position start with maxium lift speed but then ramp it down propotionaly
 				// to full swing, but only up to the apogee.   So still a bit of momentum towards 
 				// Retracted position at apogee.
@@ -156,10 +131,11 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			} 
 
 		} else {
+			factor = 0.0;
 			intakeArmSpeed = 0.0;
 			if (showPrints) System.out.print("Phase 0: ");
 		}
-		if (showPrints) System.out.println("CAL: ENCODER: " + mIntakeArmEncoder.getPosition() +  " SPD: " + intakeArmSpeed + " Factor: " + factor + " Desire: "+ mDesiredIntakeArmPosition +" Sweep: " +  mDesiredIntakeArmEncoderSweep + " Limit " + mIntakeRetractedLimitSwitch.get());
+		if (showPrints) System.out.println("IntakeArm: ENCODER: " + mIntakeArmEncoder.getPosition() +  " SPD: " + intakeArmSpeed + " Factor: " + factor + " Desire: "+ mDesiredIntakeArmPosition +" Sweep: " +  mDesiredIntakeArmEncoderSweep + " Limit " + mIntakeRetractedLimitSwitch.get());
 
 		if(mIntakeRetractedLimitSwitch.get()) {
 			mIntakeArmEncoder.setPosition(0.0);
@@ -188,6 +164,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	public void ejectNote() {
 		if (!mExternalBeamBreaker.get() || !mInternalBeamBreaker.get()) {
 			setRollerMotorSpeed(kEjectNoteSpeed);
+		} else {
+			setRollerMotorSpeed(0.0);
 		}
 	}
 
