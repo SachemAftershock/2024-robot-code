@@ -283,7 +283,7 @@ private boolean mIsMappedForShooterNotClimber = true;
     else{
     }
 
-    // X to aim at amp, otherwise aim at speaker
+    // X to aim at amp, not X to aim at speaker
     Trigger AngleShootMotorPIDTrigger = new Trigger(()->{
       return mControllerPrimary.getXButton();
     });

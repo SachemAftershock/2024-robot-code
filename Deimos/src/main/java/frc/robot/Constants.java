@@ -57,7 +57,6 @@ public final class Constants {
         public static final double kConstraintsMaxVelocity = 0.5;
         public static final double kShooterConstraintsMaxAcceleration = 0.5;
         public static final double kShooterAngleSetPWhenBelowEpsilon = 4;
-
         public static final double kLeftShootMotorSpeed = 0.05; // Derive empirically
         public static final double kRightShootMotorSpeed = 0.05; // Derive empirically
         public static final double kShooterEncoderSetPoint = 0.5; // Derive empirically
@@ -73,7 +72,7 @@ public final class Constants {
         public static final int kBeamBreakerEnterID = 6; // TODO
         public static final int kBeamBreakerLeaveID = 7;
 
-        public static final int kShooterLimitSwitchID = 8; // TODO
+        public static final int kShooterLimitSwitchID = 5;
 
         public static final int kClimberArmMotorID = 0; // TODO
         public static final int kClimberRollerMotorID = 0; // TODO
