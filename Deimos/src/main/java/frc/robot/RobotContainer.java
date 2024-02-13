@@ -90,16 +90,16 @@ public class RobotContainer {
     })).onFalse(new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0)));
 
     //ARM
-    Trigger IntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getAButton());
+    Trigger IntakeArmRetractTrigger = new Trigger(() -> mControllerPrimary.getAButton());
 
-    IntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.setIntakePosition(IntakeState.eRetracted.getDesiredPosition());
+    IntakeArmRetractTrigger.onTrue(new InstantCommand(() -> { 
+      mIntakeSubsystem.RetractIntake();
     }));
 
-    Trigger negIntakeArmIngestTrigger = new Trigger(() -> mControllerPrimary.getYButton());
+    Trigger negIntakeArmDeployTrigger = new Trigger(() -> mControllerPrimary.getYButton());
 
-    negIntakeArmIngestTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.setIntakePosition(IntakeState.eDeployed.getDesiredPosition());
+    negIntakeArmDeployTrigger.onTrue(new InstantCommand(() -> { 
+      mIntakeSubsystem.DeployIntake();
     }));
 
 
@@ -254,8 +254,5 @@ public class RobotContainer {
     return value;
   }
 
-  public void resetIntakeCalibration(){
-		mIntakeSubsystem.resetCalibration();
-	}
 }
 

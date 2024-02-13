@@ -65,7 +65,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-    m_robotContainer.resetIntakeCalibration();
   }
 
   /** This function is called periodically during autonomous. */
@@ -84,7 +83,6 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     //TODO: but a guard here, do not do again after auto mode if this is running on the real field managemeent system. 
-    m_robotContainer.resetIntakeCalibration();//NEW
   }
 
   /** This function is called periodically during operator control. */
