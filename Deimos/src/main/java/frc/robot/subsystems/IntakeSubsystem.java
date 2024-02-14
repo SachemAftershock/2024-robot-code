@@ -36,8 +36,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		
 		//mIntakeArmEncoder.setPositionConversionFactor(2000);
 		mIntakeArmMotor = new CANSparkMax(kIntakeArmMotorID, MotorType.kBrushless);
-		mIntakeArmEncoder = mIntakeArmMotor.getEncoder(); //TODO: make encoder value into constants //TODO: change from DIO to alternate encoder port
-		mIntakeArmEncoder.setPosition(0.0);
+		mIntakeArmEncoder = mIntakeArmMotor.getEncoder(); 
 		
 		mIntakeRollerMotor = new CANSparkMax(kIntakeRollerMotorID, MotorType.kBrushless);
 
@@ -50,6 +49,11 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	@Override
 	public void initialize() {
 		mIntakeArmMotor.setIdleMode(IdleMode.kBrake);
+		if(mIntakeRetractedLimitSwitch.get()) {
+			mIntakeArmEncoder.setPosition(0.0);
+		} else {
+			mIntakeArmEncoder.setPosition(-kDesiredIntakeArmEncoderSweep);
+		}
 	}
 
 	public void RetractIntake() {
@@ -85,54 +89,71 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 		if (mDesiredIntakeArmPosition == IntakeArmPositionEnum.eRetracted) {
 
-			mMaximumIntakeArmUpswingLiftMaxSpeed = 0.4;
-			mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.05;
-			EncoderCountThresholdToReverseDirection = 6.5;
-
-			if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
-				// from deployed position start with maxium lift speed but then ramp it down propotionaly
-				// to full swing, but only up to the apogee.   So still a bit of momentum towards 
-				// Retracted position at apogee.
-				factor = (EncoderCountThresholdToReverseDirection - currentIntakeArmEncoderPosition)/(EncoderCountThresholdToReverseDirection);
-				intakeArmSpeed = mMaximumIntakeArmUpswingLiftMaxSpeed * factor;  // Percent
-				if (showPrints) System.out.print("Phase 1: ");
+			if (getIntakeArmState() == IntakeArmPositionEnum.eRetracted) {
+				intakeArmSpeed = 0.1;  // Apply persisting parking pressure, to counter robot motion dynamics
+				if (showPrints) System.out.print("Phase R3: ");
 			} else {
-				// after reachinig apogee, make zero speed (letting momentum and gravity take over) 
-				// then ramp up the reverse power until max braking speed (is negative speed) 
-				// applied near retracted landing position. 
-				factor = Math.abs((EncoderCountThresholdToReverseDirection - currentIntakeArmEncoderPosition)/(kDesiredIntakeArmEncoderSweep - Math.abs(EncoderCountThresholdToReverseDirection)));
-				intakeArmSpeed = mMaximumIntakeArmDownswingBrakingMaxSpeed * factor;  // Percent
-				if (showPrints) System.out.print("Phase 2: ");
-			} 
+				mMaximumIntakeArmUpswingLiftMaxSpeed = 0.4;
+				mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.05;
+				EncoderCountThresholdToReverseDirection = 6.5;
+
+				if (Math.abs(currentIntakeArmEncoderPosition) > EncoderCountThresholdToReverseDirection) {
+					// from deployed position, start with maximum lift speed but then ramp it down propotionaly to zero
+					// along to apogee position.   Still a bit of momentum towards retracted position when at apogee.
+					factor = (Math.abs(currentIntakeArmEncoderPosition) - EncoderCountThresholdToReverseDirection) 
+							/(kDesiredIntakeArmEncoderSweep - EncoderCountThresholdToReverseDirection);
+					intakeArmSpeed = mMaximumIntakeArmUpswingLiftMaxSpeed * factor;  // Percent
+					if (showPrints) System.out.print("Phase D1: ");			
+				} else {
+					// after reachinig apogee, start at zero speed (letting momentum and gravity take over) 
+					// then ramp up the reverse power until max braking speed (is reverse speed) 
+					// applied near retracted landing position. 
+					factor = (EncoderCountThresholdToReverseDirection - Math.abs(currentIntakeArmEncoderPosition))
+							/EncoderCountThresholdToReverseDirection;
+					intakeArmSpeed = mMaximumIntakeArmDownswingBrakingMaxSpeed * factor;  // Percent
+					if (showPrints) System.out.print("Phase R2: ");
+				} 
+			}
 
 		} else if (mDesiredIntakeArmPosition == IntakeArmPositionEnum.eDeployed) {
 
-			mMaximumIntakeArmUpswingLiftMaxSpeed = -0.4;
-			mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.05;
-			EncoderCountThresholdToReverseDirection = 4.5;
-
-			if (Math.abs(currentIntakeArmEncoderPosition) > EncoderCountThresholdToReverseDirection) {
-				// from retracted position start with maxium lift speed but then ramp it down propotionaly
-				// to full swing, but only up to the apogee.   So still a bit of momentum towards 
-				// deployed position at apogee.
-				factor = Math.abs((EncoderCountThresholdToReverseDirection - currentIntakeArmEncoderPosition)/(kDesiredIntakeArmEncoderSweep - Math.abs(EncoderCountThresholdToReverseDirection)));
-				intakeArmSpeed = mMaximumIntakeArmDownswingBrakingMaxSpeed * factor;  // Percent
-				if (showPrints) System.out.print("Phase 3: ");			
+			if (getIntakeArmState() == IntakeArmPositionEnum.eDeployed) {
+				intakeArmSpeed = -0.1;  // Apply persisting parking pressure, to counter robot motion dynamics
+				if (showPrints) System.out.print("Phase D3: ");
 			} else {
-				// after reachinig apogee, make zero speed (letting momentum and gravity take over) 
-				// then ramp up the reverse power until max braking speed (is negative speed) 
-				// applied near deployed landing position. 
-				factor = (EncoderCountThresholdToReverseDirection - currentIntakeArmEncoderPosition)/(EncoderCountThresholdToReverseDirection);
-				intakeArmSpeed = mMaximumIntakeArmUpswingLiftMaxSpeed * factor;  // Percent
-				if (showPrints) System.out.print("Phase 4: ");
-			} 
+				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.4;
+				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.05;
+				EncoderCountThresholdToReverseDirection = 4.5;
+
+				if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
+					// from retracted position, start with maximum lift speed but then ramp it down propotionaly to zero
+					// along to apogee position.   Still a bit of momentum towards retracted position at apogee.
+					factor = (EncoderCountThresholdToReverseDirection - Math.abs(currentIntakeArmEncoderPosition))
+							/EncoderCountThresholdToReverseDirection;
+					intakeArmSpeed = mMaximumIntakeArmUpswingLiftMaxSpeed * factor;  // Percent
+					if (showPrints) System.out.print("Phase R1: ");
+				} else {
+					// after reachinig apogee, make zero speed (letting momentum and gravity take over) 
+					// then ramp up the reverse power until max braking speed (is reverse speed) 
+					// applied near deployed landing position. 
+					factor = (Math.abs(currentIntakeArmEncoderPosition)-EncoderCountThresholdToReverseDirection)
+							/(kDesiredIntakeArmEncoderSweep - EncoderCountThresholdToReverseDirection);
+					intakeArmSpeed = mMaximumIntakeArmDownswingBrakingMaxSpeed * factor;  // Percent
+					if (showPrints) System.out.print("Phase D2: ");
+				} 
+			}
 
 		} else {
 			factor = 0.0;
 			intakeArmSpeed = 0.0;
-			if (showPrints) System.out.print("Phase 0: ");
+			if (showPrints) System.out.print("Phase U0: "); // eUnknown
 		}
-		if (showPrints) System.out.println("IntakeArm: ENCODER: " + mIntakeArmEncoder.getPosition() +  " SPD: " + intakeArmSpeed + " Factor: " + factor + " Desire: "+ mDesiredIntakeArmPosition +" Sweep: " +  kDesiredIntakeArmEncoderSweep + " Limit " + mIntakeRetractedLimitSwitch.get());
+		if (showPrints) System.out.println(	"IntakeArm: ENCODER: " + mIntakeArmEncoder.getPosition() +  
+											" SPD: " + intakeArmSpeed + 
+											" Factor: " + factor + 
+											" Desire: "+ mDesiredIntakeArmPosition +
+											" Sweep: " +  kDesiredIntakeArmEncoderSweep + 
+											" Limit " + mIntakeRetractedLimitSwitch.get());
 
 		if(mIntakeRetractedLimitSwitch.get()) {
 			mIntakeArmEncoder.setPosition(0.0);
