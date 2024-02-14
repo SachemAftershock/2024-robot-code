@@ -24,12 +24,14 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	private DigitalInput mExternalBeamBreaker;
 	private DigitalInput mInternalBeamBreaker;
-	final private boolean mEnableMotors = false;
+	final private boolean kEnableMotors = false;
 	private DigitalInput mIntakeRetractedLimitSwitch;
 	
 	public enum  IntakeArmPositionEnum { eUnknown, eDeployed, eRetracted };
 	private IntakeArmPositionEnum mDesiredIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
-	
+
+	final private double kDesiredIntakeArmEncoderSweep = 8.0;
+
 	private IntakeSubsystem() {
 		
 		//mIntakeArmEncoder.setPositionConversionFactor(2000);
@@ -59,10 +61,12 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	}
 
 	public IntakeArmPositionEnum getIntakeArmState() {
+		double epsilon = 0.1;
 		IntakeArmPositionEnum currentIntakeArmPosition;
 		if(mIntakeRetractedLimitSwitch.get())
 			currentIntakeArmPosition = IntakeArmPositionEnum.eRetracted;
-		else if ((mIntakeArmEncoder.getPosition() < 1.0) || (mIntakeArmEncoder.getPosition() > 7.0)) 
+		else if ((Math.abs(mIntakeArmEncoder.getPosition()) < epsilon) 
+			  || (Math.abs(mIntakeArmEncoder.getPosition()) > kDesiredIntakeArmEncoderSweep - epsilon)) 
 			currentIntakeArmPosition = IntakeArmPositionEnum.eDeployed;
 		else
 			currentIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
@@ -70,23 +74,17 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	}
 
 	
-	public void runControlIntakeArmPosition(){
-		final boolean showPrints = true;
-		
-		double mDesiredIntakeArmEncoderSweep = 8.0;
+	public void runControlIntakeArmPosition() {
+		final boolean showPrints = true;		
 		double mMaximumIntakeArmUpswingLiftMaxSpeed = 0;
 		double mMaximumIntakeArmDownswingBrakingMaxSpeed = 0;
-		double EncoderCountThresholdToReverseDirection = 5.0;
-	
+		double EncoderCountThresholdToReverseDirection = kDesiredIntakeArmEncoderSweep / 2.0;
 		double currentIntakeArmEncoderPosition = mIntakeArmEncoder.getPosition();
-
-		//System.out.println("LIMIT SWITCH: " + mIntakeRetractedLimitSwitch.get());
 		double intakeArmSpeed = 0;
 		double factor = 0;
 
 		if (mDesiredIntakeArmPosition == IntakeArmPositionEnum.eRetracted) {
 
-			mDesiredIntakeArmEncoderSweep = 8.0;
 			mMaximumIntakeArmUpswingLiftMaxSpeed = 0.4;
 			mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.05;
 			EncoderCountThresholdToReverseDirection = 6.5;
@@ -102,30 +100,29 @@ public class IntakeSubsystem extends AftershockSubsystem {
 				// after reachinig apogee, make zero speed (letting momentum and gravity take over) 
 				// then ramp up the reverse power until max braking speed (is negative speed) 
 				// applied near retracted landing position. 
-				factor = Math.abs((EncoderCountThresholdToReverseDirection - currentIntakeArmEncoderPosition)/(mDesiredIntakeArmEncoderSweep - Math.abs(EncoderCountThresholdToReverseDirection)));
+				factor = Math.abs((EncoderCountThresholdToReverseDirection - currentIntakeArmEncoderPosition)/(kDesiredIntakeArmEncoderSweep - Math.abs(EncoderCountThresholdToReverseDirection)));
 				intakeArmSpeed = mMaximumIntakeArmDownswingBrakingMaxSpeed * factor;  // Percent
 				if (showPrints) System.out.print("Phase 2: ");
 			} 
 
 		} else if (mDesiredIntakeArmPosition == IntakeArmPositionEnum.eDeployed) {
 
-			mDesiredIntakeArmEncoderSweep = 8.0;
-			mMaximumIntakeArmUpswingLiftMaxSpeed = 0.4;
-			mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.05;
-			EncoderCountThresholdToReverseDirection = 6.5;
+			mMaximumIntakeArmUpswingLiftMaxSpeed = -0.4;
+			mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.05;
+			EncoderCountThresholdToReverseDirection = 4.5;
 
 			if (Math.abs(currentIntakeArmEncoderPosition) > EncoderCountThresholdToReverseDirection) {
 				// from retracted position start with maxium lift speed but then ramp it down propotionaly
 				// to full swing, but only up to the apogee.   So still a bit of momentum towards 
 				// deployed position at apogee.
-				factor = -Math.abs((EncoderCountThresholdToReverseDirection - currentIntakeArmEncoderPosition)/(mDesiredIntakeArmEncoderSweep - Math.abs(EncoderCountThresholdToReverseDirection)));
+				factor = Math.abs((EncoderCountThresholdToReverseDirection - currentIntakeArmEncoderPosition)/(kDesiredIntakeArmEncoderSweep - Math.abs(EncoderCountThresholdToReverseDirection)));
 				intakeArmSpeed = mMaximumIntakeArmDownswingBrakingMaxSpeed * factor;  // Percent
 				if (showPrints) System.out.print("Phase 3: ");			
 			} else {
 				// after reachinig apogee, make zero speed (letting momentum and gravity take over) 
 				// then ramp up the reverse power until max braking speed (is negative speed) 
 				// applied near deployed landing position. 
-				factor = -(EncoderCountThresholdToReverseDirection - currentIntakeArmEncoderPosition)/(EncoderCountThresholdToReverseDirection);
+				factor = (EncoderCountThresholdToReverseDirection - currentIntakeArmEncoderPosition)/(EncoderCountThresholdToReverseDirection);
 				intakeArmSpeed = mMaximumIntakeArmUpswingLiftMaxSpeed * factor;  // Percent
 				if (showPrints) System.out.print("Phase 4: ");
 			} 
@@ -135,13 +132,13 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			intakeArmSpeed = 0.0;
 			if (showPrints) System.out.print("Phase 0: ");
 		}
-		if (showPrints) System.out.println("IntakeArm: ENCODER: " + mIntakeArmEncoder.getPosition() +  " SPD: " + intakeArmSpeed + " Factor: " + factor + " Desire: "+ mDesiredIntakeArmPosition +" Sweep: " +  mDesiredIntakeArmEncoderSweep + " Limit " + mIntakeRetractedLimitSwitch.get());
+		if (showPrints) System.out.println("IntakeArm: ENCODER: " + mIntakeArmEncoder.getPosition() +  " SPD: " + intakeArmSpeed + " Factor: " + factor + " Desire: "+ mDesiredIntakeArmPosition +" Sweep: " +  kDesiredIntakeArmEncoderSweep + " Limit " + mIntakeRetractedLimitSwitch.get());
 
 		if(mIntakeRetractedLimitSwitch.get()) {
 			mIntakeArmEncoder.setPosition(0.0);
 		} 
 
-		if (mEnableMotors) mIntakeArmMotor.set(intakeArmSpeed);
+		if (kEnableMotors) mIntakeArmMotor.set(intakeArmSpeed);
 	}
 
 	public void setRollerMotorSpeed(double speed){
@@ -150,14 +147,13 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	
 	public void ingestNote() {
 		double speed = kIngestNoteSpeed;
-
 		if (!mExternalBeamBreaker.get()) {
 			if (!mInternalBeamBreaker.get()) {
-				speed = 0;
+				speed = 0.0;
+			} else {
+				speed *= 0.5;
 			}
-			speed *= 0.5;
 		}   
-
 		setRollerMotorSpeed(speed);
 	}
 
@@ -167,6 +163,14 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		} else {
 			setRollerMotorSpeed(0.0);
 		}
+	}
+
+	public boolean isNoteCaptive(){
+		return (!mExternalBeamBreaker.get() && !mInternalBeamBreaker.get());
+	}
+
+	public boolean isIntakeEmpty(){
+		return (mExternalBeamBreaker.get() && mInternalBeamBreaker.get());
 	}
 
 	@Override

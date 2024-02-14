@@ -10,21 +10,24 @@ public class RetractIntakeCommand extends Command {
         mIntake = intake;
         addRequirements(mIntake);
     }
-    public void initialize() {
-        System.out.println("INIT");
 
+    public void initialize() {
+        System.out.println("RetractIntakeCommand INIT");
+        mIntake.RetractIntake();
     }
+
     public void execute() {
         System.out.println("_______INTAKE_______");
-        System.out.println("EXE");
+        System.out.println("RetractIntakeCommand EXE");    
+    }
 
-    }
     public boolean isFinished() {
-        System.out.println("FIN");
-        return true;
+        System.out.println("RetractIntakeCommand FIN");
+        return mIntake.getIntakeArmState() == IntakeSubsystem.IntakeArmPositionEnum.eRetracted;
     }
+
     public void end(){
-        System.out.println("END");
+        System.out.println("RetractIntakeCommand END");
     }
 
 }
