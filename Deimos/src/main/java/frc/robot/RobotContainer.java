@@ -72,6 +72,11 @@ public class RobotContainer {
       (new RetractIntakeCommand(mIntakeSubsystem)).andThen
       (new DelayCommand(3.0))); 
 
+  private Command sequenceStopRollersAndRetract = new SequentialCommandGroup(
+      (new DelayCommand(1.0)).andThen
+      ( (new RetractIntakeCommand(mIntakeSubsystem)).alongWith
+        (new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0))))); 
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
@@ -122,15 +127,16 @@ public class RobotContainer {
       mIntakeSubsystem.RetractIntake();
     }));
 
-    Trigger negIntakeArmDeployTrigger = new Trigger(() -> mControllerPrimary.getYButton());
-    negIntakeArmDeployTrigger.onTrue(new InstantCommand(() -> { 
+    Trigger IntakeArmDeployTrigger = new Trigger(() -> mControllerPrimary.getYButton());
+    IntakeArmDeployTrigger.onTrue(new InstantCommand(() -> { 
       mIntakeSubsystem.DeployIntake();
     }));
 
     //INTAKE ARM & ROLLERS
     
     Trigger IntakeDeployThenAutoIngestThenRetractTrigger = new Trigger(() -> mControllerPrimary.getBButton());
-    IntakeDeployThenAutoIngestThenRetractTrigger.onTrue(sequenceDeployIngestRetract);
+    IntakeDeployThenAutoIngestThenRetractTrigger.onTrue(sequenceDeployIngestRetract).onFalse
+      (sequenceStopRollersAndRetract);
 
   }
 
