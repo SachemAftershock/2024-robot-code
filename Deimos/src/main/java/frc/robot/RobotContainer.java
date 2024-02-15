@@ -26,7 +26,10 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.DelayCommand;
+import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
+import frc.robot.commands.IngestNoteCommand;
+import frc.robot.commands.EjectNoteCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
 import frc.robot.enums.IntakeState;
@@ -51,6 +54,23 @@ public class RobotContainer {
   private final AftershockXboxController mControllerPrimary = new AftershockXboxController(0);
   private final Joystick mControllerSecondary = new Joystick(1);
   //private final Joystick mControllerPrimary = new Joystick(1);
+
+  private Command sequenceDeployIngestRetractEject = new SequentialCommandGroup(
+      (new DelayCommand(1.0)).andThen
+      ( (new DeployIntakeCommand(mIntakeSubsystem)).alongWith
+        (new IngestNoteCommand(mIntakeSubsystem))).andThen
+      (new DelayCommand(3.0)).andThen
+      (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+      (new DelayCommand(3.0)).andThen
+      (new EjectNoteCommand(mIntakeSubsystem))); 
+
+  private Command sequenceDeployIngestRetract = new SequentialCommandGroup(
+      (new DelayCommand(1.0)).andThen
+      ( (new DeployIntakeCommand(mIntakeSubsystem)).alongWith
+        (new IngestNoteCommand(mIntakeSubsystem))).andThen
+      (new DelayCommand(3.0)).andThen
+      (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+      (new DelayCommand(3.0))); 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -82,49 +102,35 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    //ROLLERS
-    Trigger IntakeRollerIngestTrigger = new Trigger(() -> mControllerPrimary.getRightBumperPressed());
 
+    //INTAKE ROLLERS
+
+    Trigger IntakeRollerIngestTrigger = new Trigger(() -> mControllerPrimary.getLeftBumperPressed());
     IntakeRollerIngestTrigger.onTrue(new InstantCommand(() -> { 
       mIntakeSubsystem.setRollerMotorSpeed(-0.25);
     })).onFalse(new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0)));
 
-    //ARM
-    Trigger IntakeArmRetractTrigger = new Trigger(() -> mControllerPrimary.getAButton());
+    Trigger IntakeRollerEjectTrigger = new Trigger(() -> mControllerPrimary.getRightBumperPressed());
+    IntakeRollerEjectTrigger.onTrue(new InstantCommand(() -> { 
+      mIntakeSubsystem.setRollerMotorSpeed(0.25);
+    })).onFalse(new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0)));
 
+    //INTAKE ARM
+
+    Trigger IntakeArmRetractTrigger = new Trigger(() -> mControllerPrimary.getAButton());
     IntakeArmRetractTrigger.onTrue(new InstantCommand(() -> { 
       mIntakeSubsystem.RetractIntake();
     }));
 
     Trigger negIntakeArmDeployTrigger = new Trigger(() -> mControllerPrimary.getYButton());
-
     negIntakeArmDeployTrigger.onTrue(new InstantCommand(() -> { 
       mIntakeSubsystem.DeployIntake();
     }));
 
-
-      // Intake ingestion (from BrendanBranch)
-      // Trigger IntakeRollerIngestTriggerPress = new Trigger(() -> mControllerTertiary.getLeftBumper());
-      // Trigger IntakeRollerIngestTriggerRelease = new Trigger(() -> mControllerTertiary.getLeftBumper());
-
-      // Trigger IntakeRollerEjectTriggerPress = new Trigger(() -> mControllerTertiary.getRightBumper());
-      // Trigger IntakeRollerEjectTriggerRelease = new Trigger(() -> mControllerTertiary.getRightBumper());
-
-      // IntakeRollerIngestTriggerPress.onTrue(new InstantCommand(() -> { 
-      //   mIntakeSubsystem.setRollerMotorSpeed(0.4);
-      // }));
- 
-      // IntakeRollerIngestTriggerRelease.onTrue(new InstantCommand(() -> { 
-      //   mIntakeSubsystem.setRollerMotorSpeed(0); 
-      // }));
-
-      // IntakeRollerEjectTriggerPress.onTrue(new InstantCommand(() -> { 
-      //   mIntakeSubsystem.setRollerMotorSpeed(-0.4);
-      // }));
-
-      // IntakeRollerEjectTriggerRelease.onTrue(new InstantCommand(() -> { 
-      //   mIntakeSubsystem.setRollerMotorSpeed(0); 
-      // }));
+    //INTAKE ARM & ROLLERS
+    
+    Trigger IntakeDeployThenAutoIngestThenRetractTrigger = new Trigger(() -> mControllerPrimary.getBButton());
+    IntakeDeployThenAutoIngestThenRetractTrigger.onTrue(sequenceDeployIngestRetract);
 
   }
 
@@ -172,12 +178,15 @@ public class RobotContainer {
     (new LinearDriveCommand(mDriveSubsystem, 0.0, -2.5, 0.0)); //was 2.0**/
     
 
-    return new DelayCommand(1.0).andThen
-    (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 360.0)).andThen
-      ((new LinearDriveCommand(mDriveSubsystem, -1.0, 1.0, 360.0)).alongWith
-      (new RetractIntakeCommand(mIntakeSubsystem))).andThen
-    (new LinearDriveCommand(mDriveSubsystem, -1.0, -1.0, 360.0)).andThen
-    (new LinearDriveCommand(mDriveSubsystem, 1.0, -1.0, 360.0));
+    return sequenceDeployIngestRetractEject;
+
+
+    // return new DelayCommand(1.0).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 360.0)).andThen
+    //   ((new LinearDriveCommand(mDriveSubsystem, -1.0, 1.0, 360.0)).alongWith
+    //   (new RetractIntakeCommand(mIntakeSubsystem))).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, -1.0, -1.0, 360.0)).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, 1.0, -1.0, 360.0));
 
   //  return new  DelayCommand(1.0).andThen
   //   (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 0.0)).andThen
