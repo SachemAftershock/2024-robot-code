@@ -240,6 +240,8 @@ public class RobotContainer {
 
   public void resetIntakeCalibration(){
 		mIntakeSubsystem.resetCalibration();
+     mIntakeSubsystem.setIntakePosition(IntakeState.eRetracted.getDesiredPosition());
+
 	}
 }
 
