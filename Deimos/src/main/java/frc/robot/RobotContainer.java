@@ -57,8 +57,8 @@ public class RobotContainer {
 
   private Command sequenceDeployIngestRetractEject = new SequentialCommandGroup(
       (new DelayCommand(1.0)).andThen
-      ( (new DeployIntakeCommand(mIntakeSubsystem)).alongWith
-        (new IngestNoteCommand(mIntakeSubsystem))).andThen
+      (new IngestNoteCommand(mIntakeSubsystem)).andThen
+      (new DeployIntakeCommand(mIntakeSubsystem)).andThen
       (new DelayCommand(3.0)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem)).andThen
       (new DelayCommand(3.0)).andThen
@@ -66,16 +66,16 @@ public class RobotContainer {
 
   private Command sequenceDeployIngestRetract = new SequentialCommandGroup(
       (new DelayCommand(1.0)).andThen
-      ( (new DeployIntakeCommand(mIntakeSubsystem)).alongWith
-        (new IngestNoteCommand(mIntakeSubsystem))).andThen
+      (new IngestNoteCommand(mIntakeSubsystem)).andThen
+      (new DeployIntakeCommand(mIntakeSubsystem)).andThen
       (new DelayCommand(3.0)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem)).andThen
       (new DelayCommand(3.0))); 
 
   private Command sequenceStopRollersAndRetract = new SequentialCommandGroup(
       (new DelayCommand(1.0)).andThen
-      ( (new RetractIntakeCommand(mIntakeSubsystem)).alongWith
-        (new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0))))); 
+      (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+      (new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0)))); 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -267,6 +267,10 @@ public class RobotContainer {
     }
 
     return value;
+  }
+
+  public void calibrateIntakeArm() {
+    mIntakeSubsystem.calibrateArm();
   }
 
 }
