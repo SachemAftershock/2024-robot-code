@@ -45,6 +45,7 @@ public class RobotContainer {
   
   private final AftershockXboxController mControllerPrimary = new AftershockXboxController(0);
   private final Joystick mControllerSecondary = new Joystick(1);
+  //private final Joystick mControllerPrimary = new Joystick(1);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -52,8 +53,8 @@ public class RobotContainer {
     configureButtonBindings();
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getLeftY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
-            () -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(-mControllerPrimary.getLeftY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(-mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
             () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
 
@@ -123,13 +124,27 @@ public class RobotContainer {
     (new LinearDriveCommand(mDriveSubsystem, -1.0, -1.0, 360.0)).andThen
     (new LinearDriveCommand(mDriveSubsystem, 1.0, -1.0, 360.0));
 
+  //  return new  DelayCommand(1.0).andThen
+  //   (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 0.0)).andThen
+  //   (new LinearDriveCommand(mDriveSubsystem, 1.0, -2.0, 90.0)).andThen
+  //   (new LinearDriveCommand(mDriveSubsystem, 1.0, 2.0, -90.0)).andThen
+  //   (new LinearDriveCommand(mDriveSubsystem, 1.0, -1.0, 180)).andThen
+  //   (new DelayCommand(2.0)).andThen
+  //   (new LinearDriveCommand(mDriveSubsystem, 0.0, 0.0, 45.0)).andThen
+  //   (new DelayCommand(2.0)).andThen
+  //   (new LinearDriveCommand(mDriveSubsystem, 0.0, 0.0, 90.0)).andThen
+  //   (new DelayCommand(2.0)).andThen
+  //   (new LinearDriveCommand(mDriveSubsystem, 0.0, 0.0, 90.0)).andThen
+  //   (new DelayCommand(2.0)).andThen
+  //   (new LinearDriveCommand(mDriveSubsystem, 1.0, 0.0, 45.0)); 
+
     // return new  DelayCommand(1.0).andThen
     // (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 0.0)).andThen
     // (new LinearDriveCommand(mDriveSubsystem, 1.0, -2.0, 90.0)).andThen
     // (new LinearDriveCommand(mDriveSubsystem, 1.0, 2.0, -90.0)).andThen
     // (new LinearDriveCommand(mDriveSubsystem, 1.0, -1.0, 180)).andThen
     // (new LinearDriveCommand(mDriveSubsystem, 1.0, 0.0, 45.0)).andThen
-    // (new LinearDriveCommand(mDriveSubsystem, 1.0, 0.0, 45.0));
+    // (new LinearDriveCommand(mDriveSubsystem, 1.0, 0.0, 45.0)); TEST
 
 
 
