@@ -289,10 +289,10 @@ private boolean mIsMappedForShooterNotClimber = true;
     });
     AngleShootMotorPIDTrigger.whileTrue(new InstantCommand(()->{
       mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);
-      mShooterSubsystem.runShooterAnglePID();
+      mShooterSubsystem.runShooterAngleSetpointChaser();
     }).repeatedly()).whileFalse(new InstantCommand(()->{
       mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
-      mShooterSubsystem.runShooterAnglePID();
+      mShooterSubsystem.runShooterAngleSetpointChaser();
     }).repeatedly());
 
   }
