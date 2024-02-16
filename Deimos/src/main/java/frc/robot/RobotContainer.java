@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.util.PrimitiveArrayBuilder;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -56,26 +58,67 @@ public class RobotContainer {
   //private final Joystick mControllerPrimary = new Joystick(1);
 
   private Command sequenceDeployIngestRetractEject = new SequentialCommandGroup(
-      (new DelayCommand(1.0)).andThen
-      (new IngestNoteCommand(mIntakeSubsystem)).andThen
-      (new DeployIntakeCommand(mIntakeSubsystem)).andThen
-      (new DelayCommand(3.0)).andThen
-      (new RetractIntakeCommand(mIntakeSubsystem)).andThen
-      (new DelayCommand(3.0)).andThen
-      (new EjectNoteCommand(mIntakeSubsystem))); 
+    (new DelayCommand(1.0)).andThen
+    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
+    //(new DelayCommand(0.2)).andThen
+    (new IngestNoteCommand(mIntakeSubsystem)).andThen
+    //(new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    //(new DelayCommand(0.2)).andThen
+    (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    //(new DelayCommand(0.2)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem))
+  ); 
 
   private Command sequenceDeployIngestRetract = new SequentialCommandGroup(
-      (new DelayCommand(1.0)).andThen
-      (new IngestNoteCommand(mIntakeSubsystem)).andThen
-      (new DeployIntakeCommand(mIntakeSubsystem)).andThen
-      (new DelayCommand(3.0)).andThen
-      (new RetractIntakeCommand(mIntakeSubsystem)).andThen
-      (new DelayCommand(3.0))); 
+    (new DelayCommand(1.0)).andThen
+    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
+    //(new DelayCommand(0.2)).andThen
+    (new IngestNoteCommand(mIntakeSubsystem)).andThen
+    //(new DelayCommand(0.2)).andThen
+    //(new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    //(new DelayCommand(0.2)).andThen
+    (new RetractIntakeCommand(mIntakeSubsystem))
+  ); 
 
   private Command sequenceStopRollersAndRetract = new SequentialCommandGroup(
-      (new DelayCommand(1.0)).andThen
-      (new RetractIntakeCommand(mIntakeSubsystem)).andThen
-      (new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0)))); 
+    (new DelayCommand(1.0)).andThen
+    (new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0))).andThen
+    //(new DelayCommand(0.2)).andThen
+    (new RetractIntakeCommand(mIntakeSubsystem))
+  ); 
+
+  private Command sequenceArmToFire = new SequentialCommandGroup(
+    (new DelayCommand(1.0)).andThen
+//    (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+//    (new DelayCommand(0.2)).andThen
+    (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    //(new DelayCommand(0.2)).andThen
+//    (new ShooterMotorsToSpeekerSpeedCommand(mShooterSubsystem)).andThen
+//    (new DelayCommand(0.2)).andThen
+//    (new ShooterMotorsOffsetsPerLateralSpeakerAngleCommand(mShooterSubsystem)).andThen
+//    (new DelayCommand(0.2)).andThen
+//    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+//    (new DelayCommand(0.2)).andThen
+//    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+//    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; }))
+  );
+
+  private Command sequenceDisarm = new SequentialCommandGroup(
+    (new DelayCommand(1.0)).andThen
+//    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+//    (new DelayCommand(0.2))
+    (new InstantCommand(() -> { mArmedToFire = false; }))
+  );
+
+  private Command sequenceFireNote = new SequentialCommandGroup(
+    (new DelayCommand(1.0)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem))  //.andThen
+//    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+//    (new DelayCommand(0.2))
+  ); 
+
+  private boolean mArmedToFire = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -108,35 +151,61 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    //INTAKE ROLLERS
+    //INTAKE ROLLERS (Manual)
 
-    Trigger IntakeRollerIngestTrigger = new Trigger(() -> mControllerPrimary.getLeftBumperPressed());
-    IntakeRollerIngestTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.setRollerMotorSpeed(-0.25);
-    })).onFalse(new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0)));
+    Trigger IntakeRollerIngestTrigger 
+      = new Trigger(() -> mControllerPrimary.getRightBumperPressed());
+    IntakeRollerIngestTrigger
+      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(-0.25); } ));
 
-    Trigger IntakeRollerEjectTrigger = new Trigger(() -> mControllerPrimary.getRightBumperPressed());
-    IntakeRollerEjectTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.setRollerMotorSpeed(0.25);
-    })).onFalse(new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0)));
+    Trigger IntakeRollerStopIngestTrigger 
+      = new Trigger(() -> mControllerPrimary.getRightBumperReleased());
+    IntakeRollerStopIngestTrigger
+      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.0); } ));
 
-    //INTAKE ARM
+    Trigger IntakeRollerEjectTrigger 
+      = new Trigger(() -> mControllerPrimary.getLeftBumperPressed());
+    IntakeRollerEjectTrigger
+      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.25); } ));
 
-    Trigger IntakeArmRetractTrigger = new Trigger(() -> mControllerPrimary.getAButton());
-    IntakeArmRetractTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.RetractIntake();
-    }));
+    Trigger IntakeRollerStopEjectTrigger 
+      = new Trigger(() -> mControllerPrimary.getLeftBumperReleased());
+    IntakeRollerStopEjectTrigger
+      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.0); } ));
 
-    Trigger IntakeArmDeployTrigger = new Trigger(() -> mControllerPrimary.getYButton());
-    IntakeArmDeployTrigger.onTrue(new InstantCommand(() -> { 
-      mIntakeSubsystem.DeployIntake();
-    }));
+    //INTAKE ARM (Manual)
 
-    //INTAKE ARM & ROLLERS
+    Trigger IntakeArmDeployTrigger 
+      = new Trigger(() -> mControllerPrimary.getYButton());
+    IntakeArmDeployTrigger
+      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.DeployIntake(); } ));
+
+    Trigger IntakeArmRetractTrigger 
+      = new Trigger(() -> mControllerPrimary.getAButton());
+    IntakeArmRetractTrigger
+      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.RetractIntake(); } ));
+
+    //INTAKE ARM & ROLLERS (Semi-Auto)
     
-    Trigger IntakeDeployThenAutoIngestThenRetractTrigger = new Trigger(() -> mControllerPrimary.getBButton());
-    IntakeDeployThenAutoIngestThenRetractTrigger.onTrue(sequenceDeployIngestRetract).onFalse
-      (sequenceStopRollersAndRetract);
+    Trigger IntakeDeployThenAutoIngestThenRetractTrigger 
+      = new Trigger(() -> mControllerPrimary.getBButton());
+    IntakeDeployThenAutoIngestThenRetractTrigger
+      .onTrue(sequenceDeployIngestRetract);
+
+    Trigger IntakeStopRollersAndRetractTrigger 
+      = new Trigger(() -> mControllerPrimary.getXButton());
+    IntakeStopRollersAndRetractTrigger
+      .onFalse(sequenceStopRollersAndRetract);
+
+    Trigger IntakeArmToFireTrigger 
+      = new Trigger(() -> mControllerPrimary.getLeftTriggerPressed());
+    IntakeArmToFireTrigger
+      .whileTrue(sequenceArmToFire)
+      .whileFalse(sequenceDisarm);
+
+    Trigger IntakeFireNoteTrigger 
+      = new Trigger(() -> (mControllerPrimary.getRightTriggerPressed() && mArmedToFire));
+    IntakeFireNoteTrigger.onTrue(sequenceFireNote);
 
   }
 
