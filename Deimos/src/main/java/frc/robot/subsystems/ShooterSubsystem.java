@@ -101,7 +101,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	 * @param leftSpeed [-1.0, 1.0]
 	 * @param rightSpeed [-1.0, 1.0]
 	 */
-	public void spinShooterMotors(double leftSpeed, double rightSpeed) {
+	public void setShooterMotorSpeed(double leftSpeed, double rightSpeed) {
 		// startRollerMotor method or something here
 		System.out.println("Called spin shooter motors");
 		// TODO pid not working, stuck at 0
@@ -114,19 +114,19 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	/**
 	 * Sets rotational speed of the shooter. Recalibrates angle
 	 * shooter if limit switch is hit (when angle arm hits the body of the bot)
-	 * @param speed [-1.0, 1.0]. Positive is inward-facing.
+	 * @param speed [-1.0, 1.0]. Positive input is outwards-facing.
 	 */
 	public void setAngleShooterMotorSpeed(double speed) {
+		// Internally, it expects that negative is back out from the robot.
+		System.out.println("Sent speed:	" + speed);
+		speed *= -1;
 		// System.out.println(speed);
 		// if (mShooterLimitSwitch.get()) {   // if pressed,
 			// System.out.println("mShooterLimitSwitch was pressed");
 			// mAngleShootMotor.set(0); // stop the motor
 			// mAngleEncoder.reset(); 		   // zero out the angle encoder (stop error accumulate)
 		// } else {                           // otherwise,
-			// mAngleShootMotor.set(speed);   // set speed as normal
-			counter++;
-			if (counter%50==0||counter%50==1)
-			System.out.println("Wanted speed: "+mAngleShooterMotorSpeed);
+			mAngleShootMotor.set(speed);   // set speed as normal
 		// }
 	}
 	/**
@@ -147,13 +147,14 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	  return mCurrentShooterAngleState;
 	}
 	
-	private ShooterAngleState mDesiredShooterAngleState;
+	private ShooterAngleState mDesiredShooterAngleState = ShooterAngleState.eSafeZone;
 
 	/**
 	 * Our setpoint for the shooter angle is an enum defined in ShooterAngleState.java
 	 * @param mDesiredShooterAngleState
 	 */
 	public void setDesiredShooterAngleState(ShooterAngleState mDesiredShooterAngleState) {
+		System.out.println("Desired shooter state being called");
 	  this.mDesiredShooterAngleState = mDesiredShooterAngleState;
 	}
   
@@ -183,68 +184,99 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	// 	return false;
 	// }
 	private int counter = 0;
-	public void runShooterAnglePID(){
-		double mDesiredEncoderValueDegrees = mDesiredShooterAngleState.getAngle();
-		mShooterAnglePIDController.setGoal(mDesiredEncoderValueDegrees);
-		counter++;
-		/**
-		 * Reads shooter arm rotation with a precision of ~4 degrees.
-		 * The "zero", which is when the shooter arm is down (eSpeaker),
-		 * is generally between 0 and -1.0 --- e.g. -.308, -.43, etc.
-		 * 
-		 * We acquired the magic number 5.68888 with this:
-		 * counts per rev (https://www.revrobotics.com/content/docs/REV-11-1271-DS.pdf)
-		 * divided by 360 divided by 4 (for 4x encoding, we think)
-		 * Essentially: 8192/360/4
-		 */
-		double mAngleEncoderCurrentPositionDegrees = mAngleEncoder.getDistance() / 5.688888;
-		
-		mAngleShooterMotorSpeed = mShooterAnglePIDController.calculate(
-			/*TODO FIXME this is rotations. are we comparing to angles or radians */
-			mAngleEncoderCurrentPositionDegrees, 
-			mDesiredEncoderValueDegrees // this is also in degrees
-		);
 
-		counter++;
-		if (counter % 20 == 0) {
-			System.out.println("|||||||||CurrentShootState "+ mCurrentShooterAngleState);
-			System.out.println("WantedShootState "+ mDesiredShooterAngleState);
-			System.out.println("getDistance() / 5.68 = "+mAngleEncoderCurrentPositionDegrees);
-			System.out.println("SPEED IN PID FILTER: " + mAngleShooterMotorSpeed);
-			System.out.println("RAW RATE "+mAngleEncoder.getRate());
-			// System.out.println("--------Desired State encoder: " + mDesiredEncoderValueDegrees);
+	/**
+	 * Non-PID setpoint chaser :)
+	 * 
+	 */
+
+	 /**
+	  * helper method for picking the speed based on a heatfield (interval (its just if statements))
+	  * @param input
+	  * @param min
+	  * @param max
+	  * @param speedWeWant
+	  */
+	private void speedDecider(double input, double min, double max, double speedWeWant) {
+		if (min <= input && input < max) {
+			System.out.printf("SpeedDecider accepted: %f %f %f\n", min, input, max);
+			setAngleShooterMotorSpeed(speedWeWant);
+		} else {
+			System.out.printf("SpeedDecider rejected: %f %f %f\n", min, input, max);
 		}
-
-		if(Math.abs(mShooterAnglePIDController.getPositionError()) < kShooterAngleEpsilon){
-			// Stops motors if reached setpoint. TODO: make actual espilon
-			System.out.println("||||||||||BELOW EPSILON!!!");
-			System.out.println("---CurrentShootState "+ mCurrentShooterAngleState);
-			System.out.println("---WantedShootState "+ mDesiredShooterAngleState);
-			System.out.println("---getDistance() / 5.68 = "+mAngleEncoderCurrentPositionDegrees);
-			System.out.println("---SPEED IN PID FILTER: " + mAngleShooterMotorSpeed);
-			System.out.println("--- RAW RATE "+mAngleEncoder.getRate());
-			System.out.println("---below epsilon at "+mDesiredEncoderValueDegrees);
-			mAngleShooterMotorSpeed = 0;
-			System.out.println("---ZEROED SPEED: " + mAngleShooterMotorSpeed);
-			if(mEnableMotors) setAngleShooterMotorSpeed(mAngleShooterMotorSpeed);
-			setCurrentShooterAngleState(mDesiredShooterAngleState);
-		}
-		if(mEnableMotors) setAngleShooterMotorSpeed(mAngleShooterMotorSpeed);
-
-
-
-
-
-
-
-
-	
-	
 	}
+
+	/**
+	 * Instead of using a PID, use a big array of intervals for speeds
+	 * 
+	 * <pre>
+	 * {@code
+	 * {
+	 *   {minimumPos, maximumPos, desiredSpeed}, // desiredSpeed [-1.0, 1.0]
+	 *   {minimumPos, maximumPos, desiredSpeed},
+	 *   ...
+	 *}
+	 * </pre>
+	 * 
+	 * @param differenceFromSetpoint filtered through the heatfield
+	 * @param twoDimArr see above
+	 */
+	private void getSpeedFromPositionWith2DArray(double differenceFromSetpoint, double[][] twoDimArr) {
+		for (int i = 0; i < twoDimArr.length; i++) {
+			double[] intervalSet = twoDimArr[i];
+			double low = intervalSet[0];
+			double hi = intervalSet[1];
+			if (low <= differenceFromSetpoint && differenceFromSetpoint < hi) {
+				break;
+			}
+		}
+	}
+
+	public void runShooterAngleSetpointChaser() {
+		/**
+		 * 3 Angles. Positive direction is inward towards the robot, negative direction is away.
+		 * The shooter is physically angled at 34 degrees relative to the ground (just look at the
+		 * smaller angle) --- we consider that as zero.
+		 */
+
+		double mDesiredEncoderValueDegrees = mDesiredShooterAngleState.getAngle();
+		double mAngleEncoderCurrentPositionDegrees = -1.0 * mAngleEncoder.getDistance() / 5.688888;
+		mShooterAnglePIDController.setGoal(mDesiredEncoderValueDegrees);
+
+		//							like 20							like 0
+		double diffFromSetpointDegrees = mDesiredEncoderValueDegrees - mAngleEncoderCurrentPositionDegrees;
+		System.out.println("currentAngle: " + mAngleEncoderCurrentPositionDegrees);
+		System.out.println("desiredAngle: " + mDesiredEncoderValueDegrees);
+
+		speedDecider(mAngleEncoderCurrentPositionDegrees, -2, 20, 0.5);
+		speedDecider(mAngleEncoderCurrentPositionDegrees, 20, 30, 0.2);
+		speedDecider(mAngleEncoderCurrentPositionDegrees, 30, 37.5, .15);
+		speedDecider(mAngleEncoderCurrentPositionDegrees, 37.5, 42.5, .07);
+		speedDecider(mAngleEncoderCurrentPositionDegrees, 42.5, 45, -0.05);
+		speedDecider(mAngleEncoderCurrentPositionDegrees, 45, 60, -0.2);
+		speedDecider(mAngleEncoderCurrentPositionDegrees, 60, 80, -0.5);
+	}
+
+    @Override
+	public void periodic(){
+		//call statecheck method, ... make statecheck call
+		//if(mIntakeRetractedLimitSwitch.get()){
+			//setCurrentIntakeState(IntakeState.eRetracted);
+			//mIntakeArmEncoder.setPosition(0.0);//   .reset();
+		// } TODO: FIX
+		//System.out.println();
+		//System.out.println("ACTUAL: " + mIntakeArmEncoder.getPosition() + "-----Desired: " + mDesiredIntakeState.getDesiredPosition() + "-----Speed: " + mSpeed + "----error: " + mIntakeArmPidController.getPositionError() + "-----P*error: " + mIntakeArmPidController.getPositionError()* kIntakeArmGains[0]+ "LIMITSWITCH: " + mIntakeRetractedLimitSwitch.get());
+	}
+
 
 
 	public ProfiledPIDController getShooterAnglePIDController() {
 		return mShooterAnglePIDController;
+	}
+
+	@Override
+	public boolean checkSystem() {
+		return true;
 	}
 
 	@Override

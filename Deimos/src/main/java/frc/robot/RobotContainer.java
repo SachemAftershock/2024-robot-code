@@ -108,10 +108,10 @@ public class RobotContainer {
     });
     ShooterMotorTrigger
       .onTrue(new InstantCommand(() -> {
-          mShooterSubsystem.spinShooterMotors(1, 1);
+          mShooterSubsystem.setShooterMotorSpeed(1, 1);
         })
       ).onFalse(new InstantCommand(()-> {
-        mShooterSubsystem.spinShooterMotors(0, 0);
+        mShooterSubsystem.setShooterMotorSpeed(0, 0);
     }));
 
     // Left joystick Y to change angle of shooter
@@ -131,10 +131,10 @@ public class RobotContainer {
     });
     AngleShootMotorPIDTrigger.whileTrue(new InstantCommand(()->{
       mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);
-      mShooterSubsystem.runShooterAnglePID();
+      mShooterSubsystem.runShooterAngleSetpointChaser();
     }).repeatedly()).whileFalse(new InstantCommand(()->{
       mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
-      mShooterSubsystem.runShooterAnglePID();
+      mShooterSubsystem.runShooterAngleSetpointChaser();
     }).repeatedly());
 
   }
