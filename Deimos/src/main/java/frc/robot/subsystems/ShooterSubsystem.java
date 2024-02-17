@@ -3,12 +3,18 @@
 package frc.robot.subsystems;
 
 import frc.lib.AftershockSubsystem;
+import frc.lib.PositionToVelocityProfiler;
 import frc.robot.RobotContainer;
 import static frc.robot.Constants.ShooterConstants.*;
 // import frc.robot.enums.ControlState;
 import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterAngleState;
 
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -34,7 +40,9 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	private CANSparkMax mAngleShootMotor;
 	private CANSparkMax mLeftShootMotor;
-	private Encoder mAngleEncoder; // FIXME we will need to call .reset() for zeroing
+	private CANcoder mAngleEncoder; // FIXME wrong encoder
+; // FIXME we will need to call .reset() for zeroing
+	//private CANcoder mAnglenewEncoder; 
 	private RelativeEncoder mLeftShootEncoder;
 	private RelativeEncoder mRightShootEncoder;
 	private CANSparkMax mRightShootMotor;
@@ -66,7 +74,13 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		mRightShootMotor = new CANSparkMax(kRightShootMotorID, MotorType.kBrushless);
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
 		mRightShootEncoder = mRightShootMotor.getEncoder();
-		mAngleEncoder = new Encoder(0, 1); // FIXME wrong encoder
+
+		mAngleEncoder = new CANcoder(kAngleCANcoderID); // FIXME wrong encoder
+		var toApply = new CANcoderConfiguration();
+		mAngleEncoder.getConfigurator().apply(toApply);
+		mAngleEncoder.getPosition().setUpdateFrequency(100);
+		mAngleEncoder.getVelocity().setUpdateFrequency(100);
+
 		mLeftShootEncoder.setPosition(0);
 		mRightShootEncoder.setPosition(0);
 		mShooterLimitSwitch = new DigitalInput(kShooterLimitSwitchID);
@@ -86,9 +100,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void initialize() {
-		mAngleEncoder.reset();
+		// mAngleEncoder.reset();
 
+		
 	}
+	
 
 	double jogAngle = ShooterAngleState.eSpeaker.getAngle();
 
@@ -126,7 +142,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 			// mAngleShootMotor.set(0); // stop the motor
 			// mAngleEncoder.reset(); 		   // zero out the angle encoder (stop error accumulate)
 		// } else {                           // otherwise,
-			mAngleShootMotor.set(speed);   // set speed as normal
+			//mAngleShootMotor.set(speed);   // set speed as normal
 		// }
 	}
 	/**
@@ -187,51 +203,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	/**
 	 * Non-PID setpoint chaser :)
-	 * 
 	 */
-
-	 /**
-	  * helper method for picking the speed based on a heatfield (interval (its just if statements))
-	  * @param input
-	  * @param min
-	  * @param max
-	  * @param speedWeWant
-	  */
-	private void speedDecider(double input, double min, double max, double speedWeWant) {
-		if (min <= input && input < max) {
-			System.out.printf("SpeedDecider accepted: %f %f %f\n", min, input, max);
-			setAngleShooterMotorSpeed(speedWeWant);
-		} else {
-			System.out.printf("SpeedDecider rejected: %f %f %f\n", min, input, max);
-		}
-	}
-
-	/**
-	 * Instead of using a PID, use a big array of intervals for speeds
-	 * 
-	 * <pre>
-	 * {@code
-	 * {
-	 *   {minimumPos, maximumPos, desiredSpeed}, // desiredSpeed [-1.0, 1.0]
-	 *   {minimumPos, maximumPos, desiredSpeed},
-	 *   ...
-	 *}
-	 * </pre>
-	 * 
-	 * @param differenceFromSetpoint filtered through the heatfield
-	 * @param twoDimArr see above
-	 */
-	private void getSpeedFromPositionWith2DArray(double differenceFromSetpoint, double[][] twoDimArr) {
-		for (int i = 0; i < twoDimArr.length; i++) {
-			double[] intervalSet = twoDimArr[i];
-			double low = intervalSet[0];
-			double hi = intervalSet[1];
-			if (low <= differenceFromSetpoint && differenceFromSetpoint < hi) {
-				break;
-			}
-		}
-	}
-
 	public void runShooterAngleSetpointChaser() {
 		/**
 		 * 3 Angles. Positive direction is inward towards the robot, negative direction is away.
@@ -240,21 +212,24 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		 */
 
 		double mDesiredEncoderValueDegrees = mDesiredShooterAngleState.getAngle();
-		double mAngleEncoderCurrentPositionDegrees = -1.0 * mAngleEncoder.getDistance() / 5.688888;
+	// CANcoderConfiguration config = new CANCoderConfiguration();
+    // config.sensorCoefficient = 2 * Math.PI / 4096.0;
+    // config.unitString = "deg";
+    // config.sensorTimeBase = SensorTimeBase.PerSecond;
+    // mAngleEncoder.configAllSettings(config);
+		StatusSignal<Double> mAngleEncoderCurrentPositionDegrees = /*-1.0 */ mAngleEncoder.getAbsolutePosition().refresh(); /// (32768/360); // turn into 360 degrees
 		mShooterAnglePIDController.setGoal(mDesiredEncoderValueDegrees);
 
 		//							like 20							like 0
-		double diffFromSetpointDegrees = mDesiredEncoderValueDegrees - mAngleEncoderCurrentPositionDegrees;
+		// double diffFromSetpointDegrees = mDesiredEncoderValueDegrees - mAngleEncoderCurrentPositionDegrees;
 		System.out.println("currentAngle: " + mAngleEncoderCurrentPositionDegrees);
 		System.out.println("desiredAngle: " + mDesiredEncoderValueDegrees);
 
-		speedDecider(mAngleEncoderCurrentPositionDegrees, -2, 20, 0.5);
-		speedDecider(mAngleEncoderCurrentPositionDegrees, 20, 30, 0.2);
-		speedDecider(mAngleEncoderCurrentPositionDegrees, 30, 37.5, .15);
-		speedDecider(mAngleEncoderCurrentPositionDegrees, 37.5, 42.5, .07);
-		speedDecider(mAngleEncoderCurrentPositionDegrees, 42.5, 45, -0.05);
-		speedDecider(mAngleEncoderCurrentPositionDegrees, 45, 60, -0.2);
-		speedDecider(mAngleEncoderCurrentPositionDegrees, 60, 80, -0.5);
+		System.out.println("getposition: " + mAngleEncoder.getPosition().toString());
+		System.out.println("getvelocity: " + mAngleEncoder.getVelocity().toString());
+
+		// double desiredSpeed = kSpeakerAngleProfile.calculate(mAngleEncoderCurrentPositionDegrees);
+		// System.out.println("desiredSpeed: "+desiredSpeed);
 	}
 
     @Override
@@ -265,7 +240,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 			//mIntakeArmEncoder.setPosition(0.0);//   .reset();
 		// } TODO: FIX
 		//System.out.println();
-		//System.out.println("ACTUAL: " + mIntakeArmEncoder.getPosition() + "-----Desired: " + mDesiredIntakeState.getDesiredPosition() + "-----Speed: " + mSpeed + "----error: " + mIntakeArmPidController.getPositionError() + "-----P*error: " + mIntakeArmPidController.getPositionError()* kIntakeArmGains[0]+ "LIMITSWITCH: " + mIntakeRetractedLimitSwitch.get());
+		//System.out.println("ACTUAL: " + mIntakeArmEncoder.getAbsolutePosition() + "-----Desired: " + mDesiredIntakeState.getDesiredPosition() + "-----Speed: " + mSpeed + "----error: " + mIntakeArmPidController.getPositionError() + "-----P*error: " + mIntakeArmPidController.getPositionError()* kIntakeArmGains[0]+ "LIMITSWITCH: " + mIntakeRetractedLimitSwitch.get());
 	}
 
 
@@ -281,10 +256,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void outputTelemetry() {
-		ShuffleboardTab tab = Shuffleboard.getTab("SubsystemShooter");
-		tab.add("Angle Encoder: ", mAngleEncoder.getRate()).getEntry();
-		tab.add("Left Shooter Encoder: ", mLeftShootEncoder.getVelocity()).getEntry();
-		tab.add("Right Shooter Encoder: ", mRightShootEncoder.getVelocity()).getEntry();
+		// ShuffleboardTab tab = Shuffleboard.getTab("SubsystemShooter");
+		// tab.add("Angle Encoder: ", mAngleEncoder.getRate()).getEntry();
+		// tab.add("Left Shooter Encoder: ", mLeftShootEncoder.getVelocity()).getEntry();
+		// tab.add("Right Shooter Encoder: ", mRightShootEncoder.getVelocity()).getEntry();
+
 		// TODO:Dump current encoder speeds
 		// private RelativeEncoder mAngleEncoder;
 		// private RelativeEncoder mLeftShootEncoder;
