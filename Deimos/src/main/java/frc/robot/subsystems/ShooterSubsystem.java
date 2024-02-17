@@ -68,18 +68,18 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	private ShooterSubsystem() {
 		mAngleShootMotor = new CANSparkMax(kAngleShootMotorID, MotorType.kBrushless);
-		// mBeamBreakerEnter = new DigitalInput(kBeamBreakerEnterID); // TODO these were temporarily removed
-		// mBeamBreakerLeave = new DigitalInput(kBeam`BreakerLeaveID);
+		 mBeamBreakerEnter = new DigitalInput(kBeamBreakerEnterID); // TODO these were temporarily removed
+		 mBeamBreakerLeave = new DigitalInput(kBeamBreakerLeaveID);
 		mLeftShootMotor = new CANSparkMax(kLeftShootMotorID, MotorType.kBrushless);
 		mRightShootMotor = new CANSparkMax(kRightShootMotorID, MotorType.kBrushless);
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
 		mRightShootEncoder = mRightShootMotor.getEncoder();
 
-		mAngleEncoder = new CANcoder(kAngleCANcoderID); // FIXME wrong encoder
-		var toApply = new CANcoderConfiguration();
-		mAngleEncoder.getConfigurator().apply(toApply);
-		mAngleEncoder.getPosition().setUpdateFrequency(100);
-		mAngleEncoder.getVelocity().setUpdateFrequency(100);
+		mAngleEncoder = new CANcoder(kAngleCANcoderID, "FRC263CANivore1"); // FIXME wrong encoder
+		// var toApply = new CANcoderConfiguration();
+		// mAngleEncoder.getConfigurator().apply(toApply);
+		// mAngleEncoder.getPosition().setUpdateFrequency(100);
+		// mAngleEncoder.getVelocity().setUpdateFrequency(100);
 
 		mLeftShootEncoder.setPosition(0);
 		mRightShootEncoder.setPosition(0);
@@ -96,13 +96,23 @@ public class ShooterSubsystem extends AftershockSubsystem {
 				kAngleMaxAcceleration);
 		mShooterAnglePIDController = new ProfiledPIDController(mAngleGains[0], mAngleGains[1], mAngleGains[2],
 				mShooterAnglePIDConstraints);
+
+
+
+		
 	}
 
 	@Override
 	public void initialize() {
-		// mAngleEncoder.reset();
+		System.out.println("Started canconfig");
+        CANcoderConfiguration config = new CANcoderConfiguration();
+        // config.MagnetSensor.MagnetOffset = magneticOffset;
+        // config.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+        // config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+       // mAngleEncoder.getConfigurator().apply(config);
+		// mAngleEncoder.getPosition().setUpdateFrequency(100);
+        // mAngleEncoder.getVelocity().setUpdateFrequency(100);
 
-		
 	}
 	
 
@@ -212,21 +222,19 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		 */
 
 		double mDesiredEncoderValueDegrees = mDesiredShooterAngleState.getAngle();
-	// CANcoderConfiguration config = new CANCoderConfiguration();
-    // config.sensorCoefficient = 2 * Math.PI / 4096.0;
-    // config.unitString = "deg";
-    // config.sensorTimeBase = SensorTimeBase.PerSecond;
-    // mAngleEncoder.configAllSettings(config);
-		StatusSignal<Double> mAngleEncoderCurrentPositionDegrees = /*-1.0 */ mAngleEncoder.getAbsolutePosition().refresh(); /// (32768/360); // turn into 360 degrees
+	
+		StatusSignal<Double> mAngleEncoderCurrentPositionDegrees = /*-1.0 */ mAngleEncoder.getPosition(); /// (32768/360); // turn into 360 degrees
 		mShooterAnglePIDController.setGoal(mDesiredEncoderValueDegrees);
+		
 
 		//							like 20							like 0
 		// double diffFromSetpointDegrees = mDesiredEncoderValueDegrees - mAngleEncoderCurrentPositionDegrees;
-		System.out.println("currentAngle: " + mAngleEncoderCurrentPositionDegrees);
-		System.out.println("desiredAngle: " + mDesiredEncoderValueDegrees);
+		System.out.println("currentAngle: " + mAngleEncoder.getPosition().toString());
+		//System.out.println("Beam Breaker Status" + mBeamBreakerEnter.get());
+		//System.out.println("desiredAngle: " + mDesiredEncoderValueDegrees);
 
-		System.out.println("getposition: " + mAngleEncoder.getPosition().toString());
-		System.out.println("getvelocity: " + mAngleEncoder.getVelocity().toString());
+		// System.out.println("getposition: " + mAngleEncoder.getPosition().toString());
+		// System.out.println("getvelocity: " + mAngleEncoder.getVelocity().toString());
 
 		// double desiredSpeed = kSpeakerAngleProfile.calculate(mAngleEncoderCurrentPositionDegrees);
 		// System.out.println("desiredSpeed: "+desiredSpeed);
