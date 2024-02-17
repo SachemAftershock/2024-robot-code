@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import frc.lib.PositionToVelocityProfiler;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -68,6 +70,7 @@ public final class Constants {
 
         public static final int kAngleEncoderID1 = 4; // TODO 4 to 8 are placeholder numbers
         public static final int kAngleEncoderID2 = 5; // TODO
+        public static final int kAngleCANcoderID = 13;
 
         public static final int kBeamBreakerEnterID = 6; // TODO
         public static final int kBeamBreakerLeaveID = 7;
@@ -83,6 +86,16 @@ public final class Constants {
          * WARNING: Currently between [-1.0, 1.0]
          */
         public static double kArmAmpRollerVelocity = 0.5;
+
+        public static PositionToVelocityProfiler kSpeakerAngleProfile = (new PositionToVelocityProfiler()
+            .addProfileEntry(-2, 20, 0.5)
+            .addProfileEntry(20, 30, 0.2)
+            .addProfileEntry(30, 37.5, .15)
+            .addProfileEntry(37.5, 42.5, .07)
+            .addProfileEntry(42.5, 45, -0.05)
+            .addProfileEntry(45, 60, -0.2)
+            .addProfileEntry(60, 80, -0.5)
+        );
 
     }
 
