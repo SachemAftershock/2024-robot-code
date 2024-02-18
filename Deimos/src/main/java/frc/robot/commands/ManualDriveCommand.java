@@ -7,6 +7,9 @@ import frc.robot.subsystems.DriveSubsystem;
 import java.util.function.DoubleSupplier;
 
 public class ManualDriveCommand extends Command {
+
+    final boolean showPrints = false;		
+
     private final DriveSubsystem m_drivetrainSubsystem;
 
     private final DoubleSupplier m_translationXSupplier;

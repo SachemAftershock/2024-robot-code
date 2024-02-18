@@ -4,6 +4,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class DeployIntakeCommand extends Command {
+
+    final boolean showPrints = false;		
+
     private IntakeSubsystem mIntake;
 
     public DeployIntakeCommand(IntakeSubsystem intake){
@@ -12,22 +15,22 @@ public class DeployIntakeCommand extends Command {
     }
 
     public void initialize() {
-        System.out.println("DeployIntakeCommand INIT");
+        if (showPrints) System.out.println("DeployIntakeCommand INIT");
         mIntake.DeployIntake();
     }
 
     public void execute() {
-        System.out.println("_______INTAKE_______");
-        System.out.println("DeployIntakeCommand EXE");    
+        if (showPrints)  System.out.println("_______INTAKE_______");
+        if (showPrints)  System.out.println("DeployIntakeCommand EXE");    
     }
 
     public boolean isFinished() {
-        System.out.println("DeployIntakeCommand FIN");
+        if (showPrints) System.out.println("DeployIntakeCommand FIN");
         return mIntake.getIntakeArmState() == IntakeSubsystem.IntakeArmPositionEnum.eDeployed;
     }
 
     public void end(){
-        System.out.println("DeployIntakeCommand END");
+        if (showPrints) System.out.println("DeployIntakeCommand END");
     }
 
 }

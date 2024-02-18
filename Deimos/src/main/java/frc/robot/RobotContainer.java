@@ -58,7 +58,7 @@ public class RobotContainer {
   //private final Joystick mControllerPrimary = new Joystick(1);
 
   private Command sequenceDeployIngestRetractEject = new SequentialCommandGroup(
-    (new DelayCommand(1.0)).andThen
+    (new DelayCommand(0.1)).andThen
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     //(new DelayCommand(0.2)).andThen
     (new IngestNoteCommand(mIntakeSubsystem)).andThen
@@ -70,7 +70,7 @@ public class RobotContainer {
   ); 
 
   private Command sequenceDeployIngestRetract = new SequentialCommandGroup(
-    (new DelayCommand(1.0)).andThen
+    (new DelayCommand(0.1)).andThen
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     //(new DelayCommand(0.2)).andThen
     (new IngestNoteCommand(mIntakeSubsystem)).andThen
@@ -81,14 +81,14 @@ public class RobotContainer {
   ); 
 
   private Command sequenceStopRollersAndRetract = new SequentialCommandGroup(
-    (new DelayCommand(1.0)).andThen
+    (new DelayCommand(0.1)).andThen
     (new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0))).andThen
     //(new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem))
   ); 
 
   private Command sequenceArmToFire = new SequentialCommandGroup(
-    (new DelayCommand(1.0)).andThen
+    (new DelayCommand(0.1)).andThen
 //    (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
 //    (new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem)).andThen
@@ -105,14 +105,14 @@ public class RobotContainer {
   );
 
   private Command sequenceDisarm = new SequentialCommandGroup(
-    (new DelayCommand(1.0)).andThen
+    (new DelayCommand(0.1)).andThen
 //    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
 //    (new DelayCommand(0.2))
     (new InstantCommand(() -> { mArmedToFire = false; }))
   );
 
   private Command sequenceFireNote = new SequentialCommandGroup(
-    (new DelayCommand(1.0)).andThen
+    (new DelayCommand(0.1)).andThen
     (new EjectNoteCommand(mIntakeSubsystem))  //.andThen
 //    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
 //    (new DelayCommand(0.2))

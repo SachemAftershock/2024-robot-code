@@ -4,6 +4,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class RetractIntakeCommand extends Command {
+
+    final boolean showPrints = false;		
+
     private IntakeSubsystem mIntake;
 
     public RetractIntakeCommand(IntakeSubsystem intake){
@@ -12,22 +15,22 @@ public class RetractIntakeCommand extends Command {
     }
 
     public void initialize() {
-        System.out.println("RetractIntakeCommand INIT");
+        if (showPrints) System.out.println("RetractIntakeCommand INIT");
         mIntake.RetractIntake();
     }
 
     public void execute() {
-        System.out.println("_______INTAKE_______");
-        System.out.println("RetractIntakeCommand EXE");    
+        if (showPrints) System.out.println("_______INTAKE_______");
+        if (showPrints) System.out.println("RetractIntakeCommand EXE");    
     }
 
     public boolean isFinished() {
-        System.out.println("RetractIntakeCommand FIN");
+        if (showPrints) System.out.println("RetractIntakeCommand FIN");
         return mIntake.getIntakeArmState() == IntakeSubsystem.IntakeArmPositionEnum.eRetracted;
     }
 
     public void end(){
-        System.out.println("RetractIntakeCommand END");
+        if (showPrints) System.out.println("RetractIntakeCommand END");
     }
 
 }

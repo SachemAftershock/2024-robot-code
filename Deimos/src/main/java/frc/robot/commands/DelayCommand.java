@@ -1,9 +1,11 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
 
-public class DelayCommand extends CommandBase {
+public class DelayCommand extends Command {
+
+    final boolean showPrints = false;		
 
     private double mSecondsToDelay;
     private Timer mTimer;
@@ -16,7 +18,7 @@ public class DelayCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        System.out.println("DelayCommand started " + Double.toString(mSecondsToDelay) + " seconds.");
+        if (showPrints) System.out.println("DelayCommand started " + Double.toString(mSecondsToDelay) + " seconds.");
         mTimer.reset();
         mTimer.start();
     }
@@ -29,7 +31,7 @@ public class DelayCommand extends CommandBase {
     public boolean isFinished() {
         
         if (mTimer.hasElapsed(mSecondsToDelay)) {
-            System.out.println("DelayCommand completed " + Double.toString(mSecondsToDelay) + " seconds.");
+            if (showPrints) System.out.println("DelayCommand completed " + Double.toString(mSecondsToDelay) + " seconds.");
             return true;
         }
         return false;

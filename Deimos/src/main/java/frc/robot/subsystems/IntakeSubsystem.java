@@ -19,13 +19,14 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	private DigitalInput mExternalBeamBreaker;
 	private DigitalInput mInternalBeamBreaker;
-	final private boolean kEnableMotors = true;
 	private DigitalInput mIntakeRetractedLimitSwitch;
 	
 	public enum  IntakeArmPositionEnum { eUnknown, eDeployed, eRetracted };
 	private IntakeArmPositionEnum mDesiredIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
 
 	final private double kDesiredIntakeArmEncoderSweep = 7.4; //8.0;
+
+	final private boolean kEnableMotors = true;
 
 	private IntakeSubsystem() {
 		
@@ -147,12 +148,13 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			intakeArmSpeed = 0.0;
 			if (showPrints) System.out.print("Phase U0: "); // eUnknown
 		}
-		if (showPrints) System.out.println(	"IntakeArm: ENCODER: " + mIntakeArmEncoder.getPosition() +  
-											" Desire: "+ mDesiredIntakeArmPosition +
-											" SPD: " + intakeArmSpeed + 
-											" Factor: " + factor + 
-											" Sweep: " +  kDesiredIntakeArmEncoderSweep + 
-											" Limit " + mIntakeRetractedLimitSwitch.get());
+		if (showPrints) System.out.println(	
+			"IntakeArm: ENCODER: " + mIntakeArmEncoder.getPosition() +  
+			" Desire: "+ mDesiredIntakeArmPosition +
+			" SPD: " + intakeArmSpeed + 
+			" Factor: " + factor + 
+			" Sweep: " +  kDesiredIntakeArmEncoderSweep + 
+			" Limit " + mIntakeRetractedLimitSwitch.get());
 
 		if(mIntakeRetractedLimitSwitch.get()) {
 			mIntakeArmEncoder.setPosition(0.0);
@@ -195,6 +197,12 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	@Override
 	public boolean checkSystem() {
+		final boolean showPrints = false;		
+		if (showPrints) System.out.println(
+			"Intake ExternalBeamBreaker: " + 
+			mExternalBeamBreaker.get() + 
+			"  Intake InternalBeamBreaker: " + 
+			mInternalBeamBreaker.get());
 		return true;
 	}
 

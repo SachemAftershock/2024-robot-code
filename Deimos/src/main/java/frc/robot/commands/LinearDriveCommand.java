@@ -10,6 +10,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class LinearDriveCommand extends Command {
 
+    final boolean showPrints = false;		
+
     private DriveSubsystem mDrive;
     private double mDeltaY;
     private double mCurrentPoseY; 
@@ -80,7 +82,7 @@ public class LinearDriveCommand extends Command {
         m_controllerZ.reset(mCurrentPoseZ);
         m_controllerZ.setGoal(mDeltaZ);
 
-        System.out.println("Linear Drive Command started : Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ + ") to Setpoint ( " + mDeltaX + ", " + mDeltaY + ", " + mDeltaZ + ")");
+        if (showPrints) System.out.println("Linear Drive Command started : Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ + ") to Setpoint ( " + mDeltaX + ", " + mDeltaY + ", " + mDeltaZ + ")");
 
         mIterationCounter = 0;
     }
@@ -97,7 +99,7 @@ public class LinearDriveCommand extends Command {
         mCurrentPoseZ = mDrive.getNavxAngle(); //  mCurrentPoseZ = mDrive.getGyroscopeRotation().getRadians();
         double speedZ = m_controllerZ.calculate(mCurrentPoseZ);
 
-        System.out.println("Linear Drive Command execute : Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ + ") to Setpoint ( " + mDeltaX + ", " + mDeltaY + ", " + mDeltaZ + ")");
+        if (showPrints) System.out.println("Linear Drive Command execute : Current (" + mCurrentPoseX + ", " + mCurrentPoseY + ", " + mCurrentPoseZ + ") to Setpoint ( " + mDeltaX + ", " + mDeltaY + ", " + mDeltaZ + ")");
 
         mIterationCounter++;
 
@@ -132,14 +134,14 @@ public class LinearDriveCommand extends Command {
 
 
         if(acheivedX && acheivedY  && acheivedZ) {
-            System.out.println("Linear Drive Command Setpoint reached");
+            if (showPrints) System.out.println("Linear Drive Command Setpoint reached");
         }
 
         return acheivedX && acheivedY && acheivedZ;
     }
     @Override
     public void end(boolean interrupted) {
-        System.out.println("Linear Drive Command finished (Interupted: "+ interrupted +")");
+        if (showPrints) System.out.println("Linear Drive Command finished (Interupted: "+ interrupted +")");
         mDrive.drive(new ChassisSpeeds());
     }
 }

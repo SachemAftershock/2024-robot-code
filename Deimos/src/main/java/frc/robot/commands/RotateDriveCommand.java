@@ -11,6 +11,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class RotateDriveCommand extends Command {
 
+    final boolean showPrints = false;		
+
     private DriveSubsystem mDrive;
     private double mAngularSetpoint;
     private PID mPid;
@@ -26,7 +28,7 @@ public class RotateDriveCommand extends Command {
     @Override
     public void initialize() {
         mPid.start(DriveConstants.kDriveAngularGains);
-        System.out.println("RotateDriveCommand started " + Double.toString(mAngularSetpoint) + " degrees.");
+        if (showPrints) System.out.println("RotateDriveCommand started " + Double.toString(mAngularSetpoint) + " degrees.");
     }
 
     @Override
