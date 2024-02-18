@@ -52,10 +52,10 @@ public class RobotContainer {
   private IntakeSubsystem mIntakeSubsystem = IntakeSubsystem.getInstance();
 
   
-  private final AftershockXboxController mControllerPrimary = new AftershockXboxController(0);
-  private final Joystick mControllerSecondary = new Joystick(1);
-  // private final Joystick mControllerPrimary = new Joystick(2);
-
+  private final AftershockXboxController mControllerTertiary = new AftershockXboxController(0);
+  private final Joystick mControllerPrimary = new Joystick(1);
+  private final Joystick mControllerSecondary = new Joystick(2);
+  
   private Command sequenceDeployIngestRetractEject = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
@@ -126,8 +126,8 @@ public class RobotContainer {
 
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerSecondary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
-            () -> -modifyAxis(mControllerSecondary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
             () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
@@ -153,73 +153,73 @@ public class RobotContainer {
     //INTAKE ROLLERS (Manual)
 
     Trigger IntakeRollerIngestTrigger 
-      = new Trigger(() -> mControllerPrimary.getRightBumperPressed());
+      = new Trigger(() -> mControllerTertiary.getRightBumperPressed());
     IntakeRollerIngestTrigger
       .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(-0.25); } ));
 
     Trigger IntakeRollerStopIngestTrigger 
-      = new Trigger(() -> mControllerPrimary.getRightBumperReleased());
+      = new Trigger(() -> mControllerTertiary.getRightBumperReleased());
     IntakeRollerStopIngestTrigger
       .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.0); } ));
 
     Trigger IntakeRollerEjectTrigger 
-      = new Trigger(() -> mControllerPrimary.getLeftBumperPressed());
+      = new Trigger(() -> mControllerTertiary.getLeftBumperPressed());
     IntakeRollerEjectTrigger
       .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.25); } ));
 
     Trigger IntakeRollerStopEjectTrigger 
-      = new Trigger(() -> mControllerPrimary.getLeftBumperReleased());
+      = new Trigger(() -> mControllerTertiary.getLeftBumperReleased());
     IntakeRollerStopEjectTrigger
       .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.0); } ));
 
     //INTAKE ARM (Manual)
 
     Trigger IntakeArmDeployTrigger 
-      = new Trigger(() -> mControllerPrimary.getYButton());
+      = new Trigger(() -> mControllerTertiary.getYButton());
     IntakeArmDeployTrigger
       .onTrue(new InstantCommand(() -> { mIntakeSubsystem.DeployIntake(); } ));
 
     Trigger IntakeArmRetractTrigger 
-      = new Trigger(() -> mControllerPrimary.getAButton());
+      = new Trigger(() -> mControllerTertiary.getAButton());
     IntakeArmRetractTrigger
       .onTrue(new InstantCommand(() -> { mIntakeSubsystem.RetractIntake(); } ));
 
     //INTAKE ARM & ROLLERS (Semi-Auto)
     
     Trigger IntakeDeployThenAutoIngestThenRetractTrigger 
-      = new Trigger(() -> mControllerPrimary.getBButton());
+      = new Trigger(() -> mControllerTertiary.getBButton());
     IntakeDeployThenAutoIngestThenRetractTrigger
       .onTrue(sequenceDeployIngestRetract);
 
     Trigger IntakeStopRollersAndRetractTrigger 
-      = new Trigger(() -> mControllerPrimary.getXButton());
+      = new Trigger(() -> mControllerTertiary.getXButton());
     IntakeStopRollersAndRetractTrigger
       .onFalse(sequenceStopRollersAndRetract);
 
     Trigger IntakeArmToFireTrigger 
-      = new Trigger(() -> mControllerPrimary.getLeftTriggerPressed());
+      = new Trigger(() -> mControllerTertiary.getLeftTriggerPressed());
     IntakeArmToFireTrigger
       .whileTrue(sequenceArmToFire)
       .whileFalse(sequenceDisarm);
 
     Trigger IntakeFireNoteTrigger 
-      = new Trigger(() -> (mControllerPrimary.getRightTriggerPressed() && mArmedToFire));
+      = new Trigger(() -> (mControllerTertiary.getRightTriggerPressed() && mArmedToFire));
     IntakeFireNoteTrigger.onTrue(sequenceFireNote);
     
     Trigger upDPAD = new Trigger(() -> {
-      return mControllerPrimary.getDPadUp();
+      return mControllerTertiary.getDPadUp();
     });
 
     Trigger downDPAD = new Trigger(() -> {
-      return mControllerPrimary.getDPadDown();
+      return mControllerTertiary.getDPadDown();
     });
 
     Trigger leftDPAD = new Trigger(() -> {
-      return mControllerPrimary.getDPadLeft();
+      return mControllerTertiary.getDPadLeft();
     });
 
     Trigger rightDPAD = new Trigger(() -> {
-      return mControllerPrimary.getDPadRight();
+      return mControllerTertiary.getDPadRight();
     });
 
     upDPAD.onTrue(new InstantCommand(() -> {
@@ -236,7 +236,7 @@ public class RobotContainer {
 
     leftDPAD.onTrue(new InstantCommand(() -> {
       double speed = kClimberMotorSpeed;
-      if (mControllerPrimary.getRightStickButtonPressed()) {
+      if (mControllerTertiary.getRightStickButtonPressed()) {
         speed *= -1;
       }
       mClimberSubsystem.setClimberMotorSpeed(speed, "left");
@@ -246,7 +246,7 @@ public class RobotContainer {
 
     rightDPAD.onTrue(new InstantCommand(() -> {
       double speed = kClimberMotorSpeed;
-      if (mControllerPrimary.getRightStickButtonPressed()) {
+      if (mControllerTertiary.getRightStickButtonPressed()) {
         speed *= -1;
       }
       mClimberSubsystem.setClimberMotorSpeed(speed, "right");
