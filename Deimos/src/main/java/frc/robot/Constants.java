@@ -36,6 +36,13 @@ public final class Constants {
         public static double kIntakeRollerMotorSpeed = 0.05;
     }
 
+    public static class ClimberConstants {
+        public static final int kLeftClimberMotorID = 25;
+        public static final int kRightClimberMotorID = 26;
+
+        public static final double kClimberMotorSpeed = 0.4;
+    }
+
     public static class DriveConstants {
 
         public static enum CardinalDirection {
