@@ -38,7 +38,6 @@ import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualDriveCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -46,6 +45,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+private boolean mIsMappedForShooterNotClimber = true;
+
   // The robot's subsystems and commands are defined here...
   private DriveSubsystem mDriveSubsystem = DriveSubsystem.getInstance();
   private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
@@ -185,7 +186,6 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> { mIntakeSubsystem.RetractIntake(); } ));
 
     //INTAKE ARM & ROLLERS (Semi-Auto)
-    
     Trigger IntakeDeployThenAutoIngestThenRetractTrigger 
       = new Trigger(() -> mControllerTertiary.getBButton());
     IntakeDeployThenAutoIngestThenRetractTrigger
@@ -206,6 +206,24 @@ public class RobotContainer {
       = new Trigger(() -> (mControllerTertiary.getRightTriggerPressed() && mArmedToFire));
     IntakeFireNoteTrigger.onTrue(sequenceFireNote);
     
+    //togggle climber and shoooter ( default shooter; default false )
+    Trigger toggleToShooter = new Trigger(() -> {
+      return mControllerTertiary.getStartButton();
+      //Start maps Shooter
+    });
+    toggleToShooter.onTrue(new InstantCommand(() -> {
+      setForShooterNotClimber(true);
+    }));
+
+    Trigger toggleToClimber = new Trigger(() -> {
+      return mControllerTertiary.getBackButton();
+      //Back maps climber
+    });
+    toggleToClimber.onTrue(new InstantCommand(() -> {
+      setForShooterNotClimber(false);
+    }));
+    
+    //DPAD TRIGGERS
     Trigger upDPAD = new Trigger(() -> {
       return mControllerTertiary.getDPadUp();
     });
@@ -221,39 +239,47 @@ public class RobotContainer {
     Trigger rightDPAD = new Trigger(() -> {
       return mControllerTertiary.getDPadRight();
     });
+    
+    //checks if DPAD is in shooter(false) or climber(true) mode
+    if(mIsMappedForShooterNotClimber){
+      upDPAD.onTrue(new InstantCommand(() -> {
+        mClimberSubsystem.setClimberMotorSpeed(-kClimberMotorSpeed, "both");
+      })).onFalse(new InstantCommand(() -> {
+        mClimberSubsystem.setClimberMotorSpeed(0, "both");
+      }));
 
-    upDPAD.onTrue(new InstantCommand(() -> {
-      mClimberSubsystem.setClimberMotorSpeed(-kClimberMotorSpeed, "both");
-    })).onFalse(new InstantCommand(() -> {
-      mClimberSubsystem.setClimberMotorSpeed(0, "both");
-    }));
+      downDPAD.onTrue(new InstantCommand(() -> {
+        mClimberSubsystem.setClimberMotorSpeed(kClimberMotorSpeed, "both");
+      })).onFalse(new InstantCommand(() -> {
+        mClimberSubsystem.setClimberMotorSpeed(0, "both");
+      }));
 
-    downDPAD.onTrue(new InstantCommand(() -> {
-      mClimberSubsystem.setClimberMotorSpeed(kClimberMotorSpeed, "both");
-    })).onFalse(new InstantCommand(() -> {
-      mClimberSubsystem.setClimberMotorSpeed(0, "both");
-    }));
+      leftDPAD.onTrue(new InstantCommand(() -> {
+        double speed = kClimberMotorSpeed;
+        if (mControllerTertiary.getRightStickButtonPressed()) {
+          speed *= -1;
+        }
+        mClimberSubsystem.setClimberMotorSpeed(speed, "left");
+      })).onFalse(new InstantCommand(() -> {
+        mClimberSubsystem.setClimberMotorSpeed(0, "left");
+      }));
 
-    leftDPAD.onTrue(new InstantCommand(() -> {
-      double speed = kClimberMotorSpeed;
-      if (mControllerTertiary.getRightStickButtonPressed()) {
-        speed *= -1;
-      }
-      mClimberSubsystem.setClimberMotorSpeed(speed, "left");
-    })).onFalse(new InstantCommand(() -> {
-      mClimberSubsystem.setClimberMotorSpeed(0, "left");
-    }));
+      rightDPAD.onTrue(new InstantCommand(() -> {
+        double speed = kClimberMotorSpeed;
+        if (mControllerTertiary.getRightStickButtonPressed()) {
+          speed *= -1;
+        }
+        mClimberSubsystem.setClimberMotorSpeed(speed, "right");
+      })).onFalse(new InstantCommand(() -> {
+        mClimberSubsystem.setClimberMotorSpeed(0, "right");
+      })); 
 
-    rightDPAD.onTrue(new InstantCommand(() -> {
-      double speed = kClimberMotorSpeed;
-      if (mControllerTertiary.getRightStickButtonPressed()) {
-        speed *= -1;
-      }
-      mClimberSubsystem.setClimberMotorSpeed(speed, "right");
-    })).onFalse(new InstantCommand(() -> {
-      mClimberSubsystem.setClimberMotorSpeed(0, "right");
-    }));
+    }
+    else{
+    }
 
+    //DPAD CLIMBER COMMANDS
+    
   }
 
   /**
@@ -387,6 +413,10 @@ public class RobotContainer {
 
   public void calibrateIntakeArm() {
     mIntakeSubsystem.calibrateArm();
+  }
+
+  public void setForShooterNotClimber(boolean toggle){
+    mIsMappedForShooterNotClimber = toggle;
   }
 
 }

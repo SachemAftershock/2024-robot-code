@@ -21,7 +21,7 @@ public class EjectNoteCommand extends Command {
     public void execute() {
         if (showPrints) System.out.println("_______INTAKE_______");
         if (showPrints) System.out.println("EjectNoteCommand EXE");  
-        mIntake.ingestNote();  
+        mIntake.ejectNote();  
     }
 
     public boolean isFinished() {
