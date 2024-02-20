@@ -246,7 +246,8 @@ private boolean mIsMappedForShooterNotClimber = true;
     });
     
     //checks if DPAD is in shooter(false) or climber(true) mode
-    if(mIsMappedForShooterNotClimber){
+    // default is shooter
+    if(!mIsMappedForShooterNotClimber){
       upDPAD.onTrue(new InstantCommand(() -> {
         mClimberSubsystem.setClimberMotorSpeed(-kClimberMotorSpeed, "both");
       })).onFalse(new InstantCommand(() -> {
@@ -281,29 +282,29 @@ private boolean mIsMappedForShooterNotClimber = true;
 
     }
     else{
+      // DPAD Up (in correct mode) -> start to aim at amp
+      Trigger AngleShootMotorPIDTrigger = new Trigger(()->{
+        return mControllerTertiary.getDPadUp();
+      });
+      AngleShootMotorPIDTrigger.whileTrue(new InstantCommand(()->{
+        mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);
+        mShooterSubsystem.runShooterAngleSetpointChaser();
+      }).repeatedly()).whileFalse(new InstantCommand(()->{
+        mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
+        mShooterSubsystem.runShooterAngleSetpointChaser();
+      }).repeatedly());
+  
+      // DPAD Down to activate shooter motors.
+      Trigger ShooterMotorTrigger = new Trigger(() -> mControllerTertiary.getDPadDown());
+      ShooterMotorTrigger
+        .onTrue(new InstantCommand(() -> {
+            mShooterSubsystem.setShooterMotorSpeed(1, 1);
+          })
+        ).onFalse(new InstantCommand(()-> {
+          mShooterSubsystem.setShooterMotorSpeed(0, 0);
+      }));
     }
 
-    // Start to aim at amp
-    Trigger AngleShootMotorPIDTrigger = new Trigger(()->{
-      return mControllerTertiary.getStartButton();
-    });
-    AngleShootMotorPIDTrigger.whileTrue(new InstantCommand(()->{
-      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);
-      mShooterSubsystem.runShooterAngleSetpointChaser();
-    }).repeatedly()).whileFalse(new InstantCommand(()->{
-      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
-      mShooterSubsystem.runShooterAngleSetpointChaser();
-    }).repeatedly());
-
-    // DPAD Down to activate shooter motors.
-    Trigger ShooterMotorTrigger = new Trigger(() -> mControllerTertiary.getDPadDown());
-    ShooterMotorTrigger
-      .onTrue(new InstantCommand(() -> {
-          mShooterSubsystem.setShooterMotorSpeed(1, 1);
-        })
-      ).onFalse(new InstantCommand(()-> {
-        mShooterSubsystem.setShooterMotorSpeed(0, 0);
-    }));
 
   }
 
@@ -440,8 +441,13 @@ private boolean mIsMappedForShooterNotClimber = true;
     mIntakeSubsystem.calibrateArm();
   }
 
+  /**
+   * Reconfigures button bindings when start button and back button is pressed
+   * @param toggle
+   */
   public void setForShooterNotClimber(boolean toggle){
     mIsMappedForShooterNotClimber = toggle;
+    configureButtonBindings();
   }
 
 }
