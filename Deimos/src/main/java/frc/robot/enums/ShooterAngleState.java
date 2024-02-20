@@ -7,7 +7,7 @@ package frc.robot.enums;
  * smaller angle) --- we consider that as zero.
  */
 public enum ShooterAngleState {
-    eSpeaker(20),
+    eSpeaker(0),
     // safe zone is when you touch the pillar at the center and try to shoot
     eSafeZone(0), // maybe 10 degreesa bit lifted
     eAmp(45); // should be 44-45 degrees

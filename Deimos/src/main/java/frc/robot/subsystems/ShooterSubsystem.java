@@ -1,4 +1,3 @@
-//TODO: Set up angle encoder right
 
 package frc.robot.subsystems;
 
@@ -40,9 +39,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	private CANSparkMax mAngleShootMotor;
 	private CANSparkMax mLeftShootMotor;
-	private CANcoder mAngleEncoder; // FIXME wrong encoder
-; // FIXME we will need to call .reset() for zeroing
-	//private CANcoder mAnglenewEncoder; 
+	private CANcoder mAngleEncoder; 
 	private RelativeEncoder mLeftShootEncoder;
 	private RelativeEncoder mRightShootEncoder;
 	private CANSparkMax mRightShootMotor;
@@ -104,14 +101,6 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	@Override
 	public void initialize() {
-		System.out.println("Started canconfig");
-        CANcoderConfiguration config = new CANcoderConfiguration();
-        // config.MagnetSensor.MagnetOffset = magneticOffset;
-        // config.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
-        // config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-       // mAngleEncoder.getConfigurator().apply(config);
-		// mAngleEncoder.getPosition().setUpdateFrequency(100);
-        // mAngleEncoder.getVelocity().setUpdateFrequency(100);
 
 	}
 	
@@ -146,13 +135,14 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		// Internally, it expects that negative is back out from the robot.
 		System.out.println("Sent speed:	" + speed);
 		speed *= -1;
+		mAngleShootMotor.set(speed);
 		// System.out.println(speed);
 		// if (mShooterLimitSwitch.get()) {   // if pressed,
 			// System.out.println("mShooterLimitSwitch was pressed");
 			// mAngleShootMotor.set(0); // stop the motor
 			// mAngleEncoder.reset(); 		   // zero out the angle encoder (stop error accumulate)
 		// } else {                           // otherwise,
-			//mAngleShootMotor.set(speed);   // set speed as normal
+			// mAngleShootMotor.set(speed);   // set speed as normal
 		// }
 	}
 	/**
@@ -180,7 +170,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	 * @param mDesiredShooterAngleState
 	 */
 	public void setDesiredShooterAngleState(ShooterAngleState mDesiredShooterAngleState) {
-		System.out.println("Desired shooter state being called");
+		// System.out.println("Desired shooter state being called");
 	  this.mDesiredShooterAngleState = mDesiredShooterAngleState;
 	}
   
@@ -222,22 +212,34 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		 */
 
 		double mDesiredEncoderValueDegrees = mDesiredShooterAngleState.getAngle();
-	
-		StatusSignal<Double> mAngleEncoderCurrentPositionDegrees = /*-1.0 */ mAngleEncoder.getPosition(); /// (32768/360); // turn into 360 degrees
+
+		// Zero out when Shooter Angle Arm Limit Switch is pressed
+		if (mShooterLimitSwitch.get()) {
+			mAngleEncoder.setPosition(0);
+		}
+
+		double mAngleEncoderCurrentPositionDegrees = mAngleEncoder.getPosition().getValueAsDouble() * 360 * -1.0;
+		// Convert from rotations to degrees, then make the upward direction positive.
 		mShooterAnglePIDController.setGoal(mDesiredEncoderValueDegrees);
+
+		double desiredSpeed = 0;
+		switch (mDesiredShooterAngleState) {
+			case eAmp:
+				desiredSpeed = kSpeakerAngleAmpProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
+				break;
+			case eSpeaker:
+				desiredSpeed = kSpeakerAngleSpeakerProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
+				break;
+			case eSafeZone: // eh
+				desiredSpeed = 0;
+				break;
+		}
+
 		
+		System.out.println("current deg: "+mAngleEncoderCurrentPositionDegrees);
+		System.out.println("wanted v: " + desiredSpeed);
+		setAngleShooterMotorSpeed(desiredSpeed);
 
-		//							like 20							like 0
-		// double diffFromSetpointDegrees = mDesiredEncoderValueDegrees - mAngleEncoderCurrentPositionDegrees;
-		System.out.println("currentAngle: " + mAngleEncoder.getPosition().toString());
-		//System.out.println("Beam Breaker Status" + mBeamBreakerEnter.get());
-		//System.out.println("desiredAngle: " + mDesiredEncoderValueDegrees);
-
-		// System.out.println("getposition: " + mAngleEncoder.getPosition().toString());
-		// System.out.println("getvelocity: " + mAngleEncoder.getVelocity().toString());
-
-		// double desiredSpeed = kSpeakerAngleProfile.calculate(mAngleEncoderCurrentPositionDegrees);
-		// System.out.println("desiredSpeed: "+desiredSpeed);
 	}
 
     @Override

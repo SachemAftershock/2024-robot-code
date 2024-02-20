@@ -283,9 +283,9 @@ private boolean mIsMappedForShooterNotClimber = true;
     else{
     }
 
-    // X to aim at amp, not X to aim at speaker
+    // Start to aim at amp
     Trigger AngleShootMotorPIDTrigger = new Trigger(()->{
-      return mControllerPrimary.getXButton();
+      return mControllerPrimary.getStartButton();
     });
     AngleShootMotorPIDTrigger.whileTrue(new InstantCommand(()->{
       mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);

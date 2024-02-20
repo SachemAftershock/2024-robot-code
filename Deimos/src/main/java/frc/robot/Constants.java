@@ -87,14 +87,22 @@ public final class Constants {
          */
         public static double kArmAmpRollerVelocity = 0.5;
 
-        public static PositionToVelocityProfiler kSpeakerAngleProfile = (new PositionToVelocityProfiler()
-            .addProfileEntry(-2, 20, 0.5)
-            .addProfileEntry(20, 30, 0.2)
-            .addProfileEntry(30, 37.5, .15)
-            .addProfileEntry(37.5, 42.5, .07)
-            .addProfileEntry(42.5, 45, -0.05)
-            .addProfileEntry(45, 60, -0.2)
-            .addProfileEntry(60, 80, -0.5)
+        // shooter angle arm position to velocity profiles
+        public static PositionToVelocityProfiler kSpeakerAngleAmpProfiler = (new PositionToVelocityProfiler()
+            .addProfileEntry(-2, 10, 0.15)
+            .addProfileEntry(10, 20, 0.35)
+            .addProfileEntry(20, 30, 0.5)
+
+            .addProfileEntry(30, 60, 0.75)
+            
+            .addProfileEntry(60, 70, 0.2)
+            .addProfileEntry(70, 80, 0.1)
+            .addProfileEntry(80, 100, 0.01)
+        );
+        public static PositionToVelocityProfiler kSpeakerAngleSpeakerProfiler = (new PositionToVelocityProfiler()
+            .addProfileEntry(-2, 2, 0)
+            .addProfileEntry(2, 50, -0.15)
+            .addProfileEntry(50, 100, -0.3)
         );
 
     }
