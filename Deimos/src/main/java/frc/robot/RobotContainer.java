@@ -5,6 +5,7 @@
 package frc.robot;
 
 import static frc.robot.Constants.ClimberConstants.kClimberMotorSpeed;
+import static frc.robot.Constants.ShooterConstants.kShootMotorShootingVelocity;
 
 import com.fasterxml.jackson.databind.util.PrimitiveArrayBuilder;
 
@@ -37,6 +38,10 @@ import frc.robot.commands.IngestNoteCommand;
 import frc.robot.commands.EjectNoteCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
+import frc.robot.commands.ShooterMotorsOffCommand;
+import frc.robot.commands.ShooterMotorsToSpeakerSpeedCommand;
+import frc.robot.commands.ShooterStageToNoteLoadAngleCommand;
+import frc.robot.commands.ShooterStageToSpeakerAngleCommand;
 import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterAngleState;
 import frc.robot.commands.LinearDriveCommand;
@@ -92,27 +97,27 @@ private boolean mIsMappedForShooterNotClimber = true;
     (new RetractIntakeCommand(mIntakeSubsystem))
   ); 
 
+  // B to suck a note, then retract, then LT to go to speaker position and spin motors
+  // RT is ignored until ...
   private Command sequenceArmToFire = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
-//    (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
-//    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem)).andThen
-    //(new DelayCommand(0.2)).andThen
-//    (new ShooterMotorsToSpeekerSpeedCommand(mShooterSubsystem)).andThen
-//    (new DelayCommand(0.2)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
 //    (new ShooterMotorsOffsetsPerLateralSpeakerAngleCommand(mShooterSubsystem)).andThen
 //    (new DelayCommand(0.2)).andThen
-//    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
-//    (new DelayCommand(0.2)).andThen
-//    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
-//    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = true; }))
   );
 
   private Command sequenceDisarm = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
-//    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
-//    (new DelayCommand(0.2))
+   (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+   (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; }))
   );
 
@@ -202,13 +207,13 @@ private boolean mIsMappedForShooterNotClimber = true;
       .onFalse(sequenceStopRollersAndRetract);
 
     Trigger IntakeArmToFireTrigger 
-      = new Trigger(() -> mControllerTertiary.getLeftTriggerPressed());
+      = new Trigger(() -> Math.abs(mControllerTertiary.getLeftTriggerAxis()) > 0.5);
     IntakeArmToFireTrigger
-      .whileTrue(sequenceArmToFire)
-      .whileFalse(sequenceDisarm);
+      .onTrue(sequenceArmToFire)
+      .onFalse(sequenceDisarm);
 
     Trigger IntakeFireNoteTrigger 
-      = new Trigger(() -> (mControllerTertiary.getRightTriggerPressed() && mArmedToFire));
+      = new Trigger(() -> (Math.abs(mControllerTertiary.getRightTriggerAxis()) > 0.5) && mArmedToFire);
     IntakeFireNoteTrigger.onTrue(sequenceFireNote);
     
     //togggle climber and shoooter ( default shooter; default false )
@@ -298,7 +303,7 @@ private boolean mIsMappedForShooterNotClimber = true;
       Trigger ShooterMotorTrigger = new Trigger(() -> mControllerTertiary.getDPadDown());
       ShooterMotorTrigger
         .onTrue(new InstantCommand(() -> {
-            mShooterSubsystem.setShooterMotorSpeed(1, 1);
+            mShooterSubsystem.setShooterMotorSpeed(kShootMotorShootingVelocity, kShootMotorShootingVelocity);
           })
         ).onFalse(new InstantCommand(()-> {
           mShooterSubsystem.setShooterMotorSpeed(0, 0);

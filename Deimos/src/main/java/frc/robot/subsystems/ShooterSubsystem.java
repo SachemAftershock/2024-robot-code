@@ -47,21 +47,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	private DigitalInput mBeamBreakerEnter;
 	private DigitalInput mBeamBreakerLeave;
 
-	private boolean mEnableMotors = true;
-	// PID for shooting
-	private ProfiledPIDController mRightShooterPIDController;
-	private Constraints mRightShooterPIDConstraints;
-	private ProfiledPIDController mLeftShooterPIDController;
-	private Constraints mLeftShooterPIDConstraints;
-	private double mShooterConstraintsMaxAcceleration = kShooterConstraintsMaxAcceleration;
-	private double[] mShooterGains = kShooterGains;
+	private double mAngleEncoderCurrentPositionDegrees = 0;
 
-	// PID for angle stuff
-	private double mAngleShooterMotorSpeed;
-	private ProfiledPIDController mShooterAnglePIDController;
-	private TrapezoidProfile.Constraints mShooterAnglePIDConstraints;
-	private double[] mAngleGains = kAngleGains;
-	double leftSpeed, rightSpeed;
+	boolean showPrints = true;
+	// states
+	private ShooterAngleState mCurrentShooterAngleState = ShooterAngleState.eUnknown;
 
 	private ShooterSubsystem() {
 		mAngleShootMotor = new CANSparkMax(kAngleShootMotorID, MotorType.kBrushless);
@@ -72,44 +62,25 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
 		mRightShootEncoder = mRightShootMotor.getEncoder();
 
-		mAngleEncoder = new CANcoder(kAngleCANcoderID, "FRC263CANivore1"); // FIXME wrong encoder
-		// var toApply = new CANcoderConfiguration();
-		// mAngleEncoder.getConfigurator().apply(toApply);
-		// mAngleEncoder.getPosition().setUpdateFrequency(100);
-		// mAngleEncoder.getVelocity().setUpdateFrequency(100);
-
+		mAngleEncoder = new CANcoder(kAngleCANcoderID, "FRC263CANivore1");
+  		mAngleEncoderCurrentPositionDegrees = mAngleEncoder.getPosition().getValueAsDouble() * 360 * -1.0;
 		mLeftShootEncoder.setPosition(0);
 		mRightShootEncoder.setPosition(0);
 		mShooterLimitSwitch = new DigitalInput(kShooterLimitSwitchID);
-		mLeftShooterPIDConstraints = new Constraints(kConstraintsMaxVelocity,
-				mShooterConstraintsMaxAcceleration);
-		mLeftShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2],
-				mLeftShooterPIDConstraints);
-		mRightShooterPIDConstraints = new Constraints(kConstraintsMaxVelocity,
-				mShooterConstraintsMaxAcceleration);
-		mRightShooterPIDController = new ProfiledPIDController(mShooterGains[0], mShooterGains[1], mShooterGains[2],
-				mRightShooterPIDConstraints);
-		mShooterAnglePIDConstraints = new TrapezoidProfile.Constraints(kConstraintsMaxVelocity,
-				kAngleMaxAcceleration);
-		mShooterAnglePIDController = new ProfiledPIDController(mAngleGains[0], mAngleGains[1], mAngleGains[2],
-				mShooterAnglePIDConstraints);
-
-
-
 		
 	}
 
 	@Override
 	public void initialize() {
-
+		if (mShooterLimitSwitch.get()) {
+			setCurrentShooterAngleState(ShooterAngleState.eSpeaker);
+		}
 	}
 	
 
 	double jogAngle = ShooterAngleState.eSpeaker.getAngle();
 
-	public void manualJogShooter(double speed) {
-		mShooterAnglePIDController.calculate(speed);
-	}
+
 
 	/**
 	 * The positive direction fires notes upwards
@@ -117,13 +88,9 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	 * @param rightSpeed [-1.0, 1.0]
 	 */
 	public void setShooterMotorSpeed(double leftSpeed, double rightSpeed) {
-		// startRollerMotor method or something here
-		System.out.println("Called spin shooter motors");
-		// TODO pid not working, stuck at 0
-		// leftSpeed = mLeftShooterPIDController.calculate(mLeftShootMotor.getEncoder().getVelocity(), leftSpeed);
-		// rightSpeed = mRightShooterPIDController.calculate(mRightShootMotor.getEncoder().getVelocity(), rightSpeed);
+		// System.out.println("Called spin shooter motors");
 		mLeftShootMotor.set(-1.0 * leftSpeed);
-		mRightShootMotor.set(rightSpeed); // TODO: USE PID so that speed is consistent despite battery charge/weakness
+		mRightShootMotor.set(rightSpeed);
 	}
 
 	/**
@@ -132,23 +99,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	 * @param speed [-1.0, 1.0]. Positive input is outwards-facing.
 	 */
 	public void setAngleShooterMotorSpeed(double speed) {
-		// Internally, it expects that negative is back out from the robot.
-		System.out.println("Sent speed:	" + speed);
+		// Internally, it expects that a "negative" speed is back outward from the robot.
+		// System.out.println("Sent speed:	" + speed);
 		speed *= -1;
 		mAngleShootMotor.set(speed);
-		// System.out.println(speed);
-		// if (mShooterLimitSwitch.get()) {   // if pressed,
-			// System.out.println("mShooterLimitSwitch was pressed");
-			// mAngleShootMotor.set(0); // stop the motor
-			// mAngleEncoder.reset(); 		   // zero out the angle encoder (stop error accumulate)
-		// } else {                           // otherwise,
-			// mAngleShootMotor.set(speed);   // set speed as normal
-		// }
 	}
-	/**
-	 * Assume that we start in eSafeZone, which is all the way down
-	 */
-	private ShooterAngleState mCurrentShooterAngleState = ShooterAngleState.eSafeZone;
 	
 	/**
 	 * Update current shooter state when we reach our setpoint, dictated
@@ -156,11 +111,27 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	 * @param mCurrentShooterAngleState
 	 */
 	public void setCurrentShooterAngleState(ShooterAngleState mCurrentShooterAngleState) {
+		// if (showPrints)
+		// 	System.out.println("currentShooterAngleState := "+mCurrentShooterAngleState);
 		this.mCurrentShooterAngleState = mCurrentShooterAngleState;
 	}
 	
+	/**
+	 * Updates state based on angle, then returns reading
+	 * @return
+	 */
 	public ShooterAngleState getCurrentShooterAngleState() {
-	  return mCurrentShooterAngleState;
+		mAngleEncoderCurrentPositionDegrees = mAngleEncoder.getPosition().getValueAsDouble() * 360 * -1.0;
+		if (mShooterLimitSwitch.get()) {
+			setCurrentShooterAngleState(ShooterAngleState.eSpeaker);
+		} else if (Math.abs(mAngleEncoderCurrentPositionDegrees - ShooterAngleState.eAmp.getAngle()) < 3.0) { // within 3 degrees
+			setCurrentShooterAngleState(ShooterAngleState.eAmp);
+		} else {
+			setCurrentShooterAngleState(ShooterAngleState.eUnknown);
+		}
+		// if (showPrints)
+		// 	System.out.println("returned currentShooterAngleState as "+mCurrentShooterAngleState);
+	  	return mCurrentShooterAngleState;
 	}
 	
 	private ShooterAngleState mDesiredShooterAngleState = ShooterAngleState.eSafeZone;
@@ -170,36 +141,18 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	 * @param mDesiredShooterAngleState
 	 */
 	public void setDesiredShooterAngleState(ShooterAngleState mDesiredShooterAngleState) {
-		// System.out.println("Desired shooter state being called");
+		// if (showPrints)
+		// 	System.out.println("mDesiredShooterAngleState := "+mDesiredShooterAngleState);
 	  this.mDesiredShooterAngleState = mDesiredShooterAngleState;
 	}
   
 	public ShooterAngleState getDesiredShooterAngleState() {
+		// if (showPrints)
+			// System.out.println("returned desired as "+mDesiredShooterAngleState);
 	  return mDesiredShooterAngleState;
 	}
 
-	// Should be called continuously, returns true when error is less than a certain
-	// epsilon
-	// public boolean runShooterPID() {
-	// 	double mDesiredEncoderValueDegrees;
-	// 	// if (getControlState() != ControlState.eManualControl) {
-	// 		mDesiredEncoderValueDegrees = getDesiredShooterAngleState().getAngle();
-	// 	// } else {
-	// 	// 	mDesiredEncoderValueDegrees = jogAngle;
-	// 	// }
-	// 	double speed = mShooterAnglePIDController.calculate(mAngleEncoder.getDistance(), mDesiredEncoderValueDegrees);
-	// 	setAngleShooterMotorSpeed(speed);
-	// 	final double mArmAngleEpsilon = 0.001;
-	// 	if (Math.abs(mShooterAnglePIDController.getPositionError()) < mArmAngleEpsilon) {
-
-	// 		mShooterAnglePIDController.setP(kShooterAngleSetPWhenBelowEpsilon); // Test when we have access to robot arm
-	// 																			// and which values best
-	// 		// counteract gravity
-	// 		return true;
-	// 	}
-	// 	return false;
-	// }
-	private int counter = 0;
+	private int counter = 0; // delay prints
 
 	/**
 	 * Non-PID setpoint chaser :)
@@ -210,6 +163,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		 * The shooter is physically angled at 34 degrees relative to the ground (just look at the
 		 * smaller angle) --- we consider that as zero.
 		 */
+		counter++;
 
 		double mDesiredEncoderValueDegrees = mDesiredShooterAngleState.getAngle();
 
@@ -218,9 +172,8 @@ public class ShooterSubsystem extends AftershockSubsystem {
 			mAngleEncoder.setPosition(0);
 		}
 
-		double mAngleEncoderCurrentPositionDegrees = mAngleEncoder.getPosition().getValueAsDouble() * 360 * -1.0;
+		mAngleEncoderCurrentPositionDegrees = mAngleEncoder.getPosition().getValueAsDouble() * 360 * -1.0;
 		// Convert from rotations to degrees, then make the upward direction positive.
-		mShooterAnglePIDController.setGoal(mDesiredEncoderValueDegrees);
 
 		double desiredSpeed = 0;
 		switch (mDesiredShooterAngleState) {
@@ -230,16 +183,21 @@ public class ShooterSubsystem extends AftershockSubsystem {
 			case eSpeaker:
 				desiredSpeed = kSpeakerAngleSpeakerProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
 				break;
-			case eSafeZone: // eh
-				desiredSpeed = 0;
+			case eSafeZone: // TODO Are we using eSafeZone?
+				desiredSpeed = 0; // a default value
 				break;
+			// m DESIRED shooter angle state will never be unknown
 		}
 
 		
-		System.out.println("current deg: "+mAngleEncoderCurrentPositionDegrees);
-		System.out.println("wanted v: " + desiredSpeed);
+		// System.out.println("current deg: "+mAngleEncoderCurrentPositionDegrees);
+		// System.out.println("wanted v: " + desiredSpeed);
 		setAngleShooterMotorSpeed(desiredSpeed);
 
+	}
+
+	public boolean isShooterAtSpeed() {
+		return Math.abs(mLeftShootMotor.get() - kShootMotorShootingVelocity) < 0.1; 
 	}
 
     @Override
@@ -255,9 +213,9 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 
 
-	public ProfiledPIDController getShooterAnglePIDController() {
-		return mShooterAnglePIDController;
-	}
+	// public ProfiledPIDController getShooterAnglePIDController() {
+	// 	return mShooterAnglePIDController;
+	// }
 
 	@Override
 	public boolean checkSystem() {

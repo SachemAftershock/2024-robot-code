@@ -87,6 +87,9 @@ public final class Constants {
          */
         public static double kArmAmpRollerVelocity = 0.5;
 
+        // TODO are we going to make the left motor and right motors different?
+        public static double kShootMotorShootingVelocity = 1.0;
+
         // shooter angle arm position to velocity profiles
         public static PositionToVelocityProfiler kSpeakerAngleAmpProfiler = (new PositionToVelocityProfiler()
             .addProfileEntry(-2, 10, 0.15)
