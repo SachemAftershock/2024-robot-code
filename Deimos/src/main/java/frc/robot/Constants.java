@@ -27,8 +27,8 @@ public final class Constants {
         public static final int kIntakeArmMotorID = 21;
         public static final int kIntakeRollerMotorID = 20;
 
-        public static final int kExternalBeamBreakerID = 7; // FIXME change these ids pretty pls thx <3
-        public static final int kInternalBeamBreakerID = 2;// FIXME change these ids pretty pls thx <3
+        public static final int kExternalBeamBreakerID = 2; // FIXME change these ids pretty pls thx <3
+        public static final int kInternalBeamBreakerID = 7; // FIXME change these ids pretty pls thx <3
 
         public static final int kIntakeLimitSwitchID = 4;
 
@@ -92,20 +92,35 @@ public final class Constants {
 
         // shooter angle arm position to velocity profiles
         public static PositionToVelocityProfiler kSpeakerAngleAmpProfiler = (new PositionToVelocityProfiler()
-            .addProfileEntry(-2, 10, 0.15)
-            .addProfileEntry(10, 20, 0.35)
-            .addProfileEntry(20, 30, 0.5)
+            .addProfileEntry(-2, 10, 0.4)
+            .addProfileEntry(10, 15, 0.6)
+            .addProfileEntry(15, 20, 0.7)
+            .addProfileEntry(20, 25, 0.8)
+            .addProfileEntry(25, 30, 0.85)
+            .addProfileEntry(30, 35, 0.9)
+            .addProfileEntry(35, 40, 0.9)
+            .addProfileEntry(40, 45, 0.9)
+            .addProfileEntry(45, 50, 0.9)
 
-            .addProfileEntry(30, 60, 0.75)
+            .addProfileEntry(50, 55, 0.9)
             
-            .addProfileEntry(60, 70, 0.2)
-            .addProfileEntry(70, 80, 0.1)
-            .addProfileEntry(80, 100, 0.01)
+            .addProfileEntry(55, 60, 0.9)
+            .addProfileEntry(60, 65, 0.9)
+            .addProfileEntry(65, 70, 0.7)
+            .addProfileEntry(70, 75, 0.55)
+            .addProfileEntry(75, 85, 0.35)
+            .addProfileEntry(85, 95, 0.15)
+            .addProfileEntry(95, 100, 0.01)
+            // .addProfileEntry(90, 100, 0.01)
         );
         public static PositionToVelocityProfiler kSpeakerAngleSpeakerProfiler = (new PositionToVelocityProfiler()
             .addProfileEntry(-2, 2, 0)
-            .addProfileEntry(2, 50, -0.15)
-            .addProfileEntry(50, 100, -0.3)
+            .addProfileEntry(2, 10, -0.2)
+            .addProfileEntry(10, 20, -0.3)
+            .addProfileEntry(20, 40, -0.4)
+            .addProfileEntry(40, 60, -0.4)
+            .addProfileEntry(60, 100, -0.3)
+            .addProfileEntry(80, 100, -0.2)
         );
 
     }

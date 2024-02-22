@@ -47,6 +47,8 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	private DigitalInput mBeamBreakerEnter;
 	private DigitalInput mBeamBreakerLeave;
 
+	private boolean mEjectNoteIntoAmp;
+
 	private double mAngleEncoderCurrentPositionDegrees = 0;
 
 	boolean showPrints = true;
@@ -67,6 +69,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		mLeftShootEncoder.setPosition(0);
 		mRightShootEncoder.setPosition(0);
 		mShooterLimitSwitch = new DigitalInput(kShooterLimitSwitchID);
+		mEjectNoteIntoAmp = false;
 		
 	}
 
@@ -75,12 +78,20 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		if (mShooterLimitSwitch.get()) {
 			setCurrentShooterAngleState(ShooterAngleState.eSpeaker);
 		}
+
+		mEjectNoteIntoAmp = false;
 	}
 	
 
 	double jogAngle = ShooterAngleState.eSpeaker.getAngle();
 
+	public boolean canFireIntoAmp() {
+		return mEjectNoteIntoAmp;
+	}
 
+	public void setFireIntoAmp(boolean canFire) {
+		mEjectNoteIntoAmp = canFire;
+	}
 
 	/**
 	 * The positive direction fires notes upwards
@@ -121,6 +132,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	 * @return
 	 */
 	public ShooterAngleState getCurrentShooterAngleState() {
+		// invert to make positive the upwards direction
 		mAngleEncoderCurrentPositionDegrees = mAngleEncoder.getPosition().getValueAsDouble() * 360 * -1.0;
 		if (mShooterLimitSwitch.get()) {
 			setCurrentShooterAngleState(ShooterAngleState.eSpeaker);
@@ -157,7 +169,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	/**
 	 * Non-PID setpoint chaser :)
 	 */
-	public void runShooterAngleSetpointChaser() {
+	private void runShooterAngleSetpointChaser() {
 		/**
 		 * 3 Angles. Positive direction is inward towards the robot, negative direction is away.
 		 * The shooter is physically angled at 34 degrees relative to the ground (just look at the
@@ -190,7 +202,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		}
 
 		
-		// System.out.println("current deg: "+mAngleEncoderCurrentPositionDegrees);
+		//System.out.println("current deg: " + mAngleEncoderCurrentPositionDegrees + "wanted v: " + desiredSpeed);
 		// System.out.println("wanted v: " + desiredSpeed);
 		setAngleShooterMotorSpeed(desiredSpeed);
 
@@ -206,12 +218,13 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
     @Override
 	public void periodic(){
+		runShooterAngleSetpointChaser();
 		//call statecheck method, ... make statecheck call
 		//if(mIntakeRetractedLimitSwitch.get()){
 			//setCurrentIntakeState(IntakeState.eRetracted);
 			//mIntakeArmEncoder.setPosition(0.0);//   .reset();
 		// } TODO: FIX
-		//System.out.println();
+		//System.out.println(mEjectNoteIntoAmp);
 		//System.out.println("ACTUAL: " + mIntakeArmEncoder.getAbsolutePosition() + "-----Desired: " + mDesiredIntakeState.getDesiredPosition() + "-----Speed: " + mSpeed + "----error: " + mIntakeArmPidController.getPositionError() + "-----P*error: " + mIntakeArmPidController.getPositionError()* kIntakeArmGains[0]+ "LIMITSWITCH: " + mIntakeRetractedLimitSwitch.get());
 	}
 

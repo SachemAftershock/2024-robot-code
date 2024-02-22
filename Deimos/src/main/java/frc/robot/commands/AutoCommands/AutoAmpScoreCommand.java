@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.AutoCommands;
 
 import java.util.function.BooleanSupplier;
 
@@ -10,12 +10,12 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakeArmPositionEnum;
 
-public class ManualAmpScoreCommand extends Command{
+public class AutoAmpScoreCommand extends Command{
 
     private final IntakeSubsystem mIntake;
     private final ShooterSubsystem mShooterSubsystem;
 
-    public ManualAmpScoreCommand(IntakeSubsystem intake, ShooterSubsystem shooter) {
+    public AutoAmpScoreCommand(IntakeSubsystem intake, ShooterSubsystem shooter) {
         mIntake = intake;
         mShooterSubsystem = shooter;
     }
@@ -59,22 +59,6 @@ public class ManualAmpScoreCommand extends Command{
             mShooterSubsystem.setAngleShooterMotorSpeed(0.0);
         }
 
-        if (mShooterSubsystem.getCurrentShooterAngleState() == ShooterAngleState.eAmp) 
-        {
-            // //May need to invert this
-            // if (mShooterSubsystem.canFireIntoAmp()) 
-            // {
-            //     System.out.println("Scoring now");
-            //     shooterSpeed = 0.2;
-            // }
-        }
-
-        if (mShooterSubsystem.canFireIntoAmp()) 
-        {
-            System.out.println("Scoring now");
-            shooterSpeed = 0.5;
-        }
-
         mShooterSubsystem.setShooterMotorSpeed(shooterSpeed, shooterSpeed);
 
     }
@@ -86,6 +70,11 @@ public class ManualAmpScoreCommand extends Command{
         mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
         //This should be set to whatever "home" is for the shooter
         //mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
+    }
+
+    @Override
+    public boolean isFinished() {
+        return mShooterSubsystem.getCurrentShooterAngleState() == ShooterAngleState.eAmp;
     }
 
 }

@@ -42,6 +42,7 @@ import frc.robot.commands.ShooterMotorsOffCommand;
 import frc.robot.commands.ShooterMotorsToSpeakerSpeedCommand;
 import frc.robot.commands.ShooterStageToNoteLoadAngleCommand;
 import frc.robot.commands.ShooterStageToSpeakerAngleCommand;
+import frc.robot.commands.AutoCommands.AutoAmpScoreSequence;
 import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterAngleState;
 import frc.robot.commands.LinearDriveCommand;
@@ -198,12 +199,12 @@ public class RobotContainer {
     //   .onTrue(new InstantCommand(() -> { mIntakeSubsystem.RetractIntake(); } ));
 
     // Repurposing the A and Y buttons for auto AMP score sequence 
-    Trigger scoreTrigger = new Trigger(() -> mControllerTertiary.getLeftTriggerHeld());
-    scoreTrigger.onTrue(new InstantCommand(() -> {RobotContainer.triggerScoring(true);}));
-    scoreTrigger.onFalse(new InstantCommand(() -> {RobotContainer.triggerScoring(false);}));
+    Trigger scoreTrigger = new Trigger(() -> mControllerTertiary.getRightTriggerHeld());
+    scoreTrigger.onTrue(new InstantCommand(() -> {mShooterSubsystem.setFireIntoAmp(true);}));
+    scoreTrigger.onFalse(new InstantCommand(() -> {mShooterSubsystem.setFireIntoAmp(false);}));
 
     Trigger AmpScoreSequenceTrigger = new Trigger(() -> mControllerTertiary.getAButton());
-    AmpScoreSequenceTrigger.whileTrue(new ManualAmpScoreCommand(mIntakeSubsystem, mShooterSubsystem, RobotContainer::isScoreTriggered));
+    AmpScoreSequenceTrigger.whileTrue(new ManualAmpScoreCommand(mIntakeSubsystem, mShooterSubsystem));
 
     //INTAKE ARM & ROLLERS (Semi-Auto)
     Trigger IntakeDeployThenAutoIngestThenRetractTrigger 
@@ -303,10 +304,10 @@ public class RobotContainer {
       });
       AngleShootMotorPIDTrigger.whileTrue(new InstantCommand(()->{
         mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);
-        mShooterSubsystem.runShooterAngleSetpointChaser();
+        // mShooterSubsystem.runShooterAngleSetpointChaser();
       }).repeatedly()).whileFalse(new InstantCommand(()->{
         mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
-        mShooterSubsystem.runShooterAngleSetpointChaser();
+        // mShooterSubsystem.runShooterAngleSetpointChaser();
       }).repeatedly());
   
       // DPAD Down to activate shooter motors.
@@ -367,8 +368,7 @@ public class RobotContainer {
     (new LinearDriveCommand(mDriveSubsystem, 0.0, -2.5, 0.0)); //was 2.0**/
     
 
-    return sequenceDeployIngestRetractEject;
-
+    return new AutoAmpScoreSequence(mShooterSubsystem, mIntakeSubsystem);
 
     // return new DelayCommand(1.0).andThen
     // (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 360.0)).andThen

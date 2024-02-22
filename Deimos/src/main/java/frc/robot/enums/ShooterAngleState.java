@@ -14,8 +14,12 @@ public enum ShooterAngleState {
     eSpeaker(0),
     // safe zone is when you touch the pillar at the center and try to shoot
     eSafeZone(0), // maybe 10 degreesa bit lifted
-    eAmp(45); // should be 44-45 degrees
-    // 
+    eAmp(95); // should be 44-45 degrees
+    /* NOTE: you must also change the velocity profiler constant in Constants.java for shooter angle
+     */ 
+
+
+
     private double angle;
     
     ShooterAngleState(double angle) {

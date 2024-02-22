@@ -84,7 +84,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		final boolean showPrints = false;		
 		double mMaximumIntakeArmUpswingLiftMaxSpeed = 0;
 		double mMaximumIntakeArmDownswingBrakingMaxSpeed = 0;
-		double EncoderCountThresholdToReverseDirection = kDesiredIntakeArmEncoderSweep / 2.0;
+		double EncoderCountThresholdToReverseDirection = kDesiredIntakeArmEncoderSweep * 0.75;
 		double currentIntakeArmEncoderPosition = mIntakeArmEncoder.getPosition();
 		double intakeArmSpeed = 0;
 		double factor = 0;
