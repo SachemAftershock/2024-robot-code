@@ -55,8 +55,8 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	private ShooterSubsystem() {
 		mAngleShootMotor = new CANSparkMax(kAngleShootMotorID, MotorType.kBrushless);
-		//  mBeamBreakerEnter = new DigitalInput(kBeamBreakerEnterID); // TODO these were temporarily removed
-		//  mBeamBreakerLeave = new DigitalInput(kBeamBreakerLeaveID);
+		mBeamBreakerEnter = new DigitalInput(1); // TODO these were temporarily removed
+		mBeamBreakerLeave = new DigitalInput(8);
 		mLeftShootMotor = new CANSparkMax(kLeftShootMotorID, MotorType.kBrushless);
 		mRightShootMotor = new CANSparkMax(kRightShootMotorID, MotorType.kBrushless);
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
@@ -198,6 +198,10 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	public boolean isShooterAtSpeed() {
 		return Math.abs(mLeftShootMotor.get() - kShootMotorShootingVelocity) < 0.1; 
+	}
+
+	public boolean isNoteLoaded() {
+		return !(mBeamBreakerEnter.get());
 	}
 
     @Override

@@ -45,6 +45,7 @@ import frc.robot.commands.ShooterStageToSpeakerAngleCommand;
 import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterAngleState;
 import frc.robot.commands.LinearDriveCommand;
+import frc.robot.commands.ManualAmpScoreCommand;
 import frc.robot.commands.ManualDriveCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -55,7 +56,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-private boolean mIsMappedForShooterNotClimber = true;
+  private boolean mIsMappedForShooterNotClimber = true;
+  public static boolean isScoreTriggered = false;
 
   // The robot's subsystems and commands are defined here...
   private DriveSubsystem mDriveSubsystem = DriveSubsystem.getInstance();
@@ -185,15 +187,23 @@ private boolean mIsMappedForShooterNotClimber = true;
 
     //INTAKE ARM (Manual)
 
-    Trigger IntakeArmDeployTrigger 
-      = new Trigger(() -> mControllerTertiary.getYButton());
-    IntakeArmDeployTrigger
-      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.DeployIntake(); } ));
+    // Trigger IntakeArmDeployTrigger 
+    //   = new Trigger(() -> mControllerTertiary.getYButton());
+    // IntakeArmDeployTrigger
+    //   .onTrue(new InstantCommand(() -> { mIntakeSubsystem.DeployIntake(); } ));
 
-    Trigger IntakeArmRetractTrigger 
-      = new Trigger(() -> mControllerTertiary.getAButton());
-    IntakeArmRetractTrigger
-      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.RetractIntake(); } ));
+    // Trigger IntakeArmRetractTrigger 
+    //   = new Trigger(() -> mControllerTertiary.getAButton());
+    // IntakeArmRetractTrigger
+    //   .onTrue(new InstantCommand(() -> { mIntakeSubsystem.RetractIntake(); } ));
+
+    // Repurposing the A and Y buttons for auto AMP score sequence 
+    Trigger scoreTrigger = new Trigger(() -> mControllerTertiary.getLeftTriggerHeld());
+    scoreTrigger.onTrue(new InstantCommand(() -> {RobotContainer.triggerScoring(true);}));
+    scoreTrigger.onFalse(new InstantCommand(() -> {RobotContainer.triggerScoring(false);}));
+
+    Trigger AmpScoreSequenceTrigger = new Trigger(() -> mControllerTertiary.getAButton());
+    AmpScoreSequenceTrigger.whileTrue(new ManualAmpScoreCommand(mIntakeSubsystem, mShooterSubsystem, RobotContainer::isScoreTriggered));
 
     //INTAKE ARM & ROLLERS (Semi-Auto)
     Trigger IntakeDeployThenAutoIngestThenRetractTrigger 
@@ -416,6 +426,14 @@ private boolean mIsMappedForShooterNotClimber = true;
       
      );**/
      
+  }
+
+  public static void triggerScoring(boolean trigger) {
+    isScoreTriggered = trigger;
+  }
+
+  public static boolean isScoreTriggered() {
+    return isScoreTriggered;
   }
 
   private static double deadband(double value, double deadband) {
