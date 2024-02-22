@@ -84,6 +84,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    CommandScheduler.getInstance().cancelAll();
     //TODO: but a guard here, do not do again after auto mode if this is running on the real field managemeent system. 
   }
 

@@ -47,6 +47,7 @@ public class ManualAmpScoreCommand extends Command{
         // If a note is loaded angle the shooter to amp position
         if (mShooter.isNoteLoaded()) 
         {
+            System.out.println("Setting position to amp");
             mShooter.setDesiredShooterAngleState(ShooterAngleState.eAmp);
             mShooter.runShooterAngleSetpointChaser();
         }
