@@ -166,7 +166,8 @@ public class DriveSubsystem extends AftershockSubsystem {
 			new Pose2d()
 		);
 
-		mLimelight = new Limelight("limelight");
+		//mLimelight = new Limelight("limelight");
+		mLimelight = LimelightManagerSubsystem.getInstance().getShooterLimelight();
 
 	}
 

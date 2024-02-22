@@ -19,6 +19,12 @@ import frc.lib.PositionToVelocityProfiler;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    public static final class LimelightConstants {
+        public static final String kShooterTableName = "limelight";
+        //public static final String kIntakeTableName = "limelight-intake";
+    }
+
     public static class IntakeConstants {
         // public static final double kExampleVariable = 0.05;
         public static final double kIntakeConstraintsMaxVelocity = 1.0;

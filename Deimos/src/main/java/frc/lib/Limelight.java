@@ -26,6 +26,8 @@ public class Limelight {
 
 	private final String mTableName;
 
+	 
+
 	public final static double kDefaultValue = 9999.9;
 	
 	/**
@@ -74,6 +76,11 @@ public class Limelight {
 	 */
 	public double getTx() {
 		return getValue("tx").getDouble(kDefaultValue);
+	}
+
+	public double getTz() {
+		double[] pose = table.getEntry("camerapose_targetspace").getDoubleArray(new double[6]);
+		 return (pose[2]);
 	}
 
 	/**
@@ -242,12 +249,17 @@ public class Limelight {
 			table = NetworkTableInstance.getDefault();
 		}
 		return table.getTable(mTableName).getEntry(key);
+
+		
 	}
 
 	public void outputTelemetry() {
+		// AprilTag Family Classic 36h11
+		System.out.println(" is Target" + isTarget() + " tx" + getTx() + " ty" + getTy() + " tz" + getTz());
 		SmartDashboard.putBoolean(mTableName + " is Target", isTarget());
 		SmartDashboard.putNumber(mTableName + " tx", getTx());
 		SmartDashboard.putNumber(mTableName + " ty", getTy());
+		SmartDashboard.putNumber(mTableName + " tz", getTz());
 		SmartDashboard.putNumber(mTableName + " ta", getTa());
 		SmartDashboard.putNumber(mTableName + " ts", getTs());
 		SmartDashboard.putNumber(mTableName + " tl", getTl());
