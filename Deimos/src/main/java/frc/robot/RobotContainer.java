@@ -43,7 +43,6 @@ import frc.robot.commands.ShooterMotorsToSpeakerSpeedCommand;
 import frc.robot.commands.ShooterStageToNoteLoadAngleCommand;
 import frc.robot.commands.ShooterStageToSpeakerAngleCommand;
 import frc.robot.commands.AutoCommands.AutoAmpScoreSequence;
-import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterAngleState;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualAmpScoreCommand;

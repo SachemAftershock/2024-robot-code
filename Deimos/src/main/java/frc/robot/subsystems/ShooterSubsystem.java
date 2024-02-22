@@ -6,7 +6,6 @@ import frc.lib.PositionToVelocityProfiler;
 import frc.robot.RobotContainer;
 import static frc.robot.Constants.ShooterConstants.*;
 // import frc.robot.enums.ControlState;
-import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterAngleState;
 
 import com.ctre.phoenix6.StatusSignal;

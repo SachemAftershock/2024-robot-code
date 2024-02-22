@@ -25,10 +25,15 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	
 	public enum  IntakeArmPositionEnum { eUnknown, eDeployed, eRetracted };
 	private IntakeArmPositionEnum mDesiredIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
+	private IntakeArmPositionEnum currentIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
 
-	final private double kDesiredIntakeArmEncoderSweep = 7.4; //8.0;
+	/** 
+	 * The encoder reads 8 when it is all the way outwards. However, we set it to 7.4 to let gravity handle the rest
+	 */ 
+	private final double kDesiredIntakeArmEncoderSweep = 7.4; //8.0;
+	private final double epsilon = 0.1;
 
-	final private boolean kEnableMotors = true;
+	private final boolean kEnableMotors = true;
 
 	private IntakeSubsystem() {
 		
@@ -67,8 +72,6 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	}
 
 	public IntakeArmPositionEnum getIntakeArmState() {
-		double epsilon = 0.1;
-		IntakeArmPositionEnum currentIntakeArmPosition;
 		if(mIntakeRetractedLimitSwitch.get())
 			currentIntakeArmPosition = IntakeArmPositionEnum.eRetracted;
 		else if ((Math.abs(mIntakeArmEncoder.getPosition()) < epsilon) 
@@ -84,10 +87,16 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		final boolean showPrints = false;		
 		double mMaximumIntakeArmUpswingLiftMaxSpeed = 0;
 		double mMaximumIntakeArmDownswingBrakingMaxSpeed = 0;
+		/**
+		 * After we get past a certain threshold, we want to negate speed temporarily in order to fight gravity.
+		 */
 		double EncoderCountThresholdToReverseDirection = kDesiredIntakeArmEncoderSweep * 0.75;
 		double currentIntakeArmEncoderPosition = mIntakeArmEncoder.getPosition();
 		double intakeArmSpeed = 0;
 		double factor = 0;
+
+		System.out.print("C: "+Math.abs(currentIntakeArmEncoderPosition) + " T: "+EncoderCountThresholdToReverseDirection) ;
+					// from deployed position, start with maximum lift speed but then ramp it down prop
 
 		if (mDesiredIntakeArmPosition == IntakeArmPositionEnum.eRetracted) {
 
@@ -97,9 +106,9 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			} else {
 				mMaximumIntakeArmUpswingLiftMaxSpeed = 0.6;
 				mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.03;
-				EncoderCountThresholdToReverseDirection = 2.5;
+				EncoderCountThresholdToReverseDirection = 1;
 
-				if (Math.abs(currentIntakeArmEncoderPosition) > EncoderCountThresholdToReverseDirection) {
+				if (Math.abs(currentIntakeArmEncoderPosition) > (kDesiredIntakeArmEncoderSweep-EncoderCountThresholdToReverseDirection)) {
 					// from deployed position, start with maximum lift speed but then ramp it down propotionaly to zero
 					// along to apogee position.   Still a bit of momentum towards retracted position when at apogee.
 					factor = (Math.abs(currentIntakeArmEncoderPosition) - EncoderCountThresholdToReverseDirection) 
@@ -150,6 +159,9 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			intakeArmSpeed = 0.0;
 			if (showPrints) System.out.print("Phase U0: "); // eUnknown
 		}
+
+		System.out.print(" f: "+factor);
+
 		if (showPrints) System.out.println(	
 			"IntakeArm: ENCODER: " + mIntakeArmEncoder.getPosition() +  
 			" Desire: "+ mDesiredIntakeArmPosition +
