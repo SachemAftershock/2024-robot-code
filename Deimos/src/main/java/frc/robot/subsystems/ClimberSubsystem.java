@@ -18,19 +18,25 @@ public class ClimberSubsystem extends AftershockSubsystem {
         mRightClimberMotor = new CANSparkMax(kRightClimberMotorID, MotorType.kBrushless);
     }
 
+	public enum climberMotorToSpinEnum { right, left, both };
+
     @Override
     public void initialize() {
         
     }
 
-    public void setClimberMotorSpeed(double speed, String motorToSpin) {
-        if (motorToSpin.toLowerCase() == "right") {
-            mRightClimberMotor.set(speed);
-        } else if (motorToSpin.toLowerCase() == "left") {
-            mLeftClimberMotor.set(speed);
-        } else {
-            mLeftClimberMotor.set(speed);
-            mRightClimberMotor.set(speed);
+    public void setClimberMotorSpeed(double speed, climberMotorToSpinEnum motorToSpin) {
+        switch (motorToSpin) {
+            case right:
+                mRightClimberMotor.set(speed);
+                break;
+            case left:
+                mLeftClimberMotor.set(speed);
+                break;
+            case both:
+                mLeftClimberMotor.set(speed);
+                mRightClimberMotor.set(speed);
+                break;
         }
     }
 
