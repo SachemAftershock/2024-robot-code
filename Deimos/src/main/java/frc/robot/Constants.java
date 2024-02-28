@@ -100,7 +100,7 @@ public final class Constants {
         /**
          * 95 degrees. Move the shooter arm up to dump note into amp
          */
-        public static PositionToVelocityProfiler kSpeakerAngleAmpProfiler = (new PositionToVelocityProfiler()
+        public static PositionToVelocityProfiler kShooterAngleAmpProfiler = (new PositionToVelocityProfiler()
             .setGoal(95)
             .addProfileEntry(-2, 10, 0.4)
             .addProfileEntry(10 , 15 , 0.60)
@@ -127,7 +127,7 @@ public final class Constants {
         /**
          * 0 degrees. Puts the shooter arm back all the way down
          */
-        public static PositionToVelocityProfiler kSpeakerAngleSpeakerProfiler = (new PositionToVelocityProfiler()
+        public static PositionToVelocityProfiler kShooterAngleSpeakerProfiler = (new PositionToVelocityProfiler()
             .setGoal(0)
             .addProfileEntry(-2, 2, 0)
             .addProfileEntry(2  , 10 , -0.2)
@@ -135,32 +135,41 @@ public final class Constants {
             .addProfileEntry(20 , 40 , -0.4)
             .addProfileEntry(40 , 60 , -0.4)
             .addProfileEntry(60 , 100, -0.3)
-            .addProfileEntry(80 , 100, -0.2)
+            .addProfileEntry(80 , 200, -0.2) // just in case it goes past somehow
         );
 
         /**
-         * 120 degrees. When climbing on the chain, we lift the shooter arm all the way up to aim at the trap,
+         * 130 degrees. When climbing on the chain, we lift the shooter arm all the way up to aim at the trap,
          * then fire backwards.
          */
-        public static PositionToVelocityProfiler kSpeakerAngleTrapProfiler = (new PositionToVelocityProfiler()
-            .setGoal(120)
+        public static PositionToVelocityProfiler kShooterAngleTrapProfiler = (new PositionToVelocityProfiler()
+            .setGoal(150)
             .addProfileEntry(-2,10,0.1)
             .addProfileEntry(10 ,20 ,0.25)
             .addProfileEntry(20 ,30 ,0.40)
             .addProfileEntry(30 ,40 ,0.55)
             .addProfileEntry(40 ,50 ,0.60)
-            .addProfileEntry(50 ,60 ,0.60)
-            .addProfileEntry(60 ,70 ,0.60)
-            .addProfileEntry(70 ,80 ,0.45)
-            .addProfileEntry(80 ,90 ,0.30)
-            .addProfileEntry(90 ,100,0.15)
-            .addProfileEntry(100,110,0.01)
+            .addProfileEntry(50 ,60 ,0.70)
+            .addProfileEntry(60 ,70 ,0.70)
+            .addProfileEntry(70 ,80 ,0.70)
+            .addProfileEntry(80 ,90 ,0.70)
+            .addProfileEntry(90 ,100,0.70)
+            .addProfileEntry(100,110,0.70)
+            .addProfileEntry(110,120,0.60)
+            .addProfileEntry(120,130,0.50)
+            .addProfileEntry(120,130,0.40)
+            .addProfileEntry(130,140,0.25)
+            .addProfileEntry(140,147,0.10)
+            .addProfileEntry(147,155,0.01)
+            // if it overshoots (not possible since we will be trapping with our back to the wall), move back to normal spot
+            .addProfileEntry(155, 200, -0.10) 
         );
 
         /**
          * 10 degrees. A bit off, so that notes can be dropped in from the depository
+         * NOT INITIALIZED YET
          */
-        public static PositionToVelocityProfiler kSpeakerAngleSafeZoneProfiler = (new PositionToVelocityProfiler()
+        public static PositionToVelocityProfiler kShooterAngleSafeZoneProfiler = (new PositionToVelocityProfiler()
             .setGoal(10)
             .addProfileEntry(-2, 10, 0.10)
             .addProfileEntry(10, 20, 0.00)

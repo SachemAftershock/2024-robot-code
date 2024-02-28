@@ -170,11 +170,6 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	 * Non-PID setpoint chaser :)
 	 */
 	private void runShooterAngleSetpointChaser() {
-		/**
-		 * 3 Angles. Positive direction is inward towards the robot, negative direction is away.
-		 * The shooter is physically angled at 34 degrees relative to the ground (just look at the
-		 * smaller angle) --- we consider that as zero.
-		 */
 		counter++;
 
 		double mDesiredEncoderValueDegrees = mDesiredShooterAngleState.getAngle();
@@ -190,20 +185,21 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		double desiredSpeed = 0;
 		switch (mDesiredShooterAngleState) {
 			case eAmp:
-				desiredSpeed = kSpeakerAngleAmpProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
+				desiredSpeed = kShooterAngleAmpProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
 				break;
 			case eSpeaker:
-				desiredSpeed = kSpeakerAngleSpeakerProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
+				desiredSpeed = kShooterAngleSpeakerProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
 				break;
 			case eTrap:
-				desiredSpeed = kSpeakerAngleTrapProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
+				desiredSpeed = kShooterAngleTrapProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
 				break;
 			// case eSafeZone:
-			// 	desiredSpeed = kSpeakerAngleSafeZoneProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
+			// 	desiredSpeed = kShooterAngleSafeZoneProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
 			case eSafeZone: // TODO Are we using eSafeZone?
-				desiredSpeed = 0; // a default value
 				break;
-			// m DESIRED shooter angle state will never be unknown
+			// mDESIRED shooter angle state will never be unknown
+			case eUnknown:
+				break;
 		}
 
 		

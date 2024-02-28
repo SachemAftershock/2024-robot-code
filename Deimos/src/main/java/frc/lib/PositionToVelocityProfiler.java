@@ -24,8 +24,7 @@ import java.util.ArrayList;
 public class PositionToVelocityProfiler {
     private ArrayList<Double[]> intervalActionsList;
 
-    private Double positionGoal;
-    private boolean positionGoalInitialized = false;
+    private Double positionGoal; // needs to use wrapper class to compare to null
 
     public PositionToVelocityProfiler() {
         intervalActionsList = new ArrayList<Double[]>();

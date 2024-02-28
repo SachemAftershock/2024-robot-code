@@ -91,7 +91,7 @@ public class RobotContainer {
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.1)).andThen
     (new IngestNoteCommand(mIntakeSubsystem)).andThen
-    (new DelayCommand(0.35)).andThen
+    (new DelayCommand(0.70)).andThen
     //(new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     //(new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem))
