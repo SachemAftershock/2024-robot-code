@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.AftershockSubsystem;
@@ -61,6 +61,7 @@ private DriveSubsystem mDrive;
         setAngle = angle;
         
     }
+    
     public boolean hasTargetID(){
         if()
         if(targetID==table.getEntry("tid").getDouble(0.0)){
@@ -105,10 +106,7 @@ private DriveSubsystem mDrive;
         }
     }
 
-	@Override
-	public boolean checkSystem() {
-        
-	}
+
 
 	@Override
 	public void periodic() {
