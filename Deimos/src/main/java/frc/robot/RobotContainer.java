@@ -43,6 +43,7 @@ import frc.robot.commands.ShooterMotorsToSpeakerSpeedCommand;
 import frc.robot.commands.ShooterStageToNoteLoadAngleCommand;
 import frc.robot.commands.ShooterStageToSpeakerAngleCommand;
 import frc.robot.commands.AutoCommands.AutoAmpScoreSequence;
+import frc.robot.commands.AutoCommands.NullCommand;
 import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterAngleState;
 import frc.robot.commands.LinearDriveCommand;
@@ -371,8 +372,10 @@ public class RobotContainer {
     (new LinearDriveCommand(mDriveSubsystem, -2.5, 0.0, 0.0)).andThen
     (new LinearDriveCommand(mDriveSubsystem, 0.0, -2.5, 0.0)); //was 2.0**/
     
+    return new NullCommand();
 
-    return new AutoAmpScoreSequence(mShooterSubsystem, mIntakeSubsystem);
+
+    //return new AutoAmpScoreSequence(mShooterSubsystem, mIntakeSubsystem);
 
     // return new DelayCommand(1.0).andThen
     // (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 360.0)).andThen

@@ -20,6 +20,8 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
+  private LampController mLampController;
+
   private int count = 0; 
 
   /**
@@ -32,7 +34,8 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     m_robotContainer.initialize();
-
+    mLampController = LampController.getInstance();
+    mLampController.setPulse(3, 0.75, 0.25, 2.0);
   }
 
   /**
@@ -51,6 +54,8 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
  
     if ((count++ % 50) == 0){ LimelightManagerSubsystem.getInstance().outputTelemetry(); count = 0; }
+
+    mLampController.run();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -71,6 +76,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+  
+      mLampController.setPulse(3, 0.5, 0.5, 0.5);
   }
 
   /** This function is called periodically during autonomous. */
@@ -91,6 +98,9 @@ public class Robot extends TimedRobot {
     }
 
     CommandScheduler.getInstance().cancelAll();
+
+    mLampController.setPulse(3, 0.25, 0.75, 0.5);
+
     //TODO: but a guard here, do not do again after auto mode if this is running on the real field managemeent system. 
   }
 
