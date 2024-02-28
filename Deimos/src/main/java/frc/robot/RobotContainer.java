@@ -91,7 +91,7 @@ public class RobotContainer {
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.1)).andThen
     (new IngestNoteCommand(mIntakeSubsystem)).andThen
-    (new DelayCommand(0.70)).andThen
+    (new DelayCommand(0.45)).andThen
     //(new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     //(new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem))
@@ -129,7 +129,7 @@ public class RobotContainer {
   );
 
   private Command sequenceFireNote = new SequentialCommandGroup(
-    (new DelayCommand(0.1)).andThen
+    // (new DelayCommand(0.1)).andThen
     (new EjectNoteCommand(mIntakeSubsystem))  //.andThen
 //    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
 //    (new DelayCommand(0.2))
@@ -144,8 +144,8 @@ public class RobotContainer {
 
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
-            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 2.0,
+            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 2.0,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
             () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
