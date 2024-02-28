@@ -87,18 +87,18 @@ public class RobotContainer {
   ); 
 
   private Command sequenceDeployIngestRetract = new SequentialCommandGroup(
-    (new DelayCommand(0.1)).andThen
+    (new DelayCommand(0.05)).andThen
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
-    //(new DelayCommand(0.2)).andThen
+    (new DelayCommand(0.1)).andThen
     (new IngestNoteCommand(mIntakeSubsystem)).andThen
-    //(new DelayCommand(0.2)).andThen
+    (new DelayCommand(0.35)).andThen
     //(new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     //(new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem))
   ); 
 
   private Command sequenceStopRollersAndRetract = new SequentialCommandGroup(
-    (new DelayCommand(0.1)).andThen
+    // (new DelayCommand(0.1)).andThen
     (new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0))).andThen
     //(new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem))
@@ -225,7 +225,8 @@ public class RobotContainer {
     Trigger IntakeDeployThenAutoIngestThenRetractTrigger 
       = new Trigger(() -> mControllerTertiary.getBButton());
     IntakeDeployThenAutoIngestThenRetractTrigger
-      .onTrue(sequenceDeployIngestRetract);
+      .whileTrue(sequenceDeployIngestRetract);
+      //.whileFalse(sequenceStopRollersAndRetract);
 
     Trigger IntakeStopRollersAndRetractTrigger 
       = new Trigger(() -> mControllerTertiary.getXButton());
@@ -296,20 +297,31 @@ public class RobotContainer {
       mClimberSubsystem.setClimberMotorSpeed(0, climberMotorToSpinEnum.right);
     }));
 
-    //
+    // TRAP climb
+    upDPAD.onTrue(new InstantCommand(() -> {
+      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eTrap);
+    }));
+
+    downDPAD.onTrue(new InstantCommand(() -> {
+      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
+    }));
+
+    // INTAKE manual
     leftDPAD.onTrue(new InstantCommand(() -> {
+      mIntakeSubsystem.RetractIntake();
+      // intake in no spin
+    }));
+    
+    rightDPAD.onTrue(new InstantCommand(() -> {
       mIntakeSubsystem.DeployIntake();
       // intake out no spin
     }));
 
-    rightDPAD.onTrue(new InstantCommand(() -> {
-      mIntakeSubsystem.RetractIntake();
-      // intake in no spin
-    }));
-
+    // when climbing on the chain, the arm is lifted up at a high angle to balance the bot using the wall.
+    // to try and shoot into the trap, we must fire backwards while holding the note in the shooter arm.
     Trigger shootBackwards = new Trigger(() -> mControllerTertiary.getYButton());
     shootBackwards.onTrue(new InstantCommand(() -> {
-      mShooterSubsystem.setShooterMotorSpeed(-1, -1);
+      mShooterSubsystem.setShooterMotorSpeed(-1, -1); // yolo
     })).onFalse(new InstantCommand(() -> {
       mShooterSubsystem.setShooterMotorSpeed(0, 0);
     }));
@@ -369,6 +381,46 @@ public class RobotContainer {
 
   // }
 
+  private Command sequenceScoreSpeakerOnce = new SequentialCommandGroup(
+    (new DelayCommand(0.1)).andThen
+    (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    (new DelayCommand(0.1)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = false; }))
+
+    //  .andThen((sequenceDeployIngestRetract).andThen(new DelayCommand(0.35)).alongWith
+    //  (new LinearDriveCommand(mDriveSubsystem, -1.4, 0 ,0))).andThen
+   
+    // (new LinearDriveCommand(mDriveSubsystem, 1.4,0, 0)).andThen
+
+    // (new DelayCommand(0.1)).andThen
+    // (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    // (new DelayCommand(0.1)).andThen
+    // (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    // (new DelayCommand(0.1)).andThen
+    // (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new InstantCommand(() -> { mArmedToFire = false; })
+    );
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -413,7 +465,8 @@ public class RobotContainer {
     (new LinearDriveCommand(mDriveSubsystem, 0.0, -2.5, 0.0)); //was 2.0**/
     
 
-    return new AutoAmpScoreSequence(mShooterSubsystem, mIntakeSubsystem);
+    return sequenceScoreSpeakerOnce;
+    // return new AutoAmpScoreSequence(mShooterSubsystem, mIntakeSubsystem);
 
     // return new DelayCommand(1.0).andThen
     // (new LinearDriveCommand(mDriveSubsystem, 1.0, 1.0, 360.0)).andThen

@@ -255,7 +255,7 @@ public class Limelight {
 
 	public void outputTelemetry() {
 		// AprilTag Family Classic 36h11
-		System.out.println(" is Target" + isTarget() + " tx" + getTx() + " ty" + getTy() + " tz" + getTz());
+		// System.out.println(" is Target" + isTarget() + " tx" + getTx() + " ty" + getTy() + " tz" + getTz());
 		SmartDashboard.putBoolean(mTableName + " is Target", isTarget());
 		SmartDashboard.putNumber(mTableName + " tx", getTx());
 		SmartDashboard.putNumber(mTableName + " ty", getTy());

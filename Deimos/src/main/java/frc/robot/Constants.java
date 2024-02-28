@@ -96,37 +96,80 @@ public final class Constants {
         // TODO are we going to make the left motor and right motors different?
         public static double kShootMotorShootingVelocity = 1.0;
 
-        // shooter angle arm position to velocity profiles
+        // shooter angle arm position to velocity profiles (aka lookup tables)
+        /**
+         * 95 degrees. Move the shooter arm up to dump note into amp
+         */
         public static PositionToVelocityProfiler kSpeakerAngleAmpProfiler = (new PositionToVelocityProfiler()
+            .setGoal(95)
             .addProfileEntry(-2, 10, 0.4)
-            .addProfileEntry(10, 15, 0.6)
-            .addProfileEntry(15, 20, 0.7)
-            .addProfileEntry(20, 25, 0.8)
-            .addProfileEntry(25, 30, 0.85)
-            .addProfileEntry(30, 35, 0.9)
-            .addProfileEntry(35, 40, 0.9)
-            .addProfileEntry(40, 45, 0.9)
-            .addProfileEntry(45, 50, 0.9)
+            .addProfileEntry(10 , 15 , 0.60)
+            .addProfileEntry(15 , 20 , 0.70)
+            .addProfileEntry(20 , 25 , 0.80)
+            .addProfileEntry(25 , 30 , 0.85)
+            .addProfileEntry(30 , 35 , 0.90)
+            .addProfileEntry(35 , 40 , 0.90)
+            .addProfileEntry(40 , 45 , 0.90)
+            .addProfileEntry(45 , 50 , 0.90)
 
-            .addProfileEntry(50, 55, 0.9)
+            .addProfileEntry(50 , 55 , 0.90)
             
-            .addProfileEntry(55, 60, 0.9)
-            .addProfileEntry(60, 65, 0.9)
-            .addProfileEntry(65, 70, 0.7)
-            .addProfileEntry(70, 75, 0.55)
-            .addProfileEntry(75, 85, 0.35)
-            .addProfileEntry(85, 95, 0.15)
-            .addProfileEntry(95, 100, 0.01)
+            .addProfileEntry(55 , 60 , 0.90)
+            .addProfileEntry(60 , 65 , 0.90)
+            .addProfileEntry(65 , 70 , 0.70)
+            .addProfileEntry(70 , 75 , 0.55)
+            .addProfileEntry(75 , 85 , 0.35)
+            .addProfileEntry(85 , 95 , 0.15)
+            .addProfileEntry(95 , 100, 0.01)
             // .addProfileEntry(90, 100, 0.01)
         );
+
+        /**
+         * 0 degrees. Puts the shooter arm back all the way down
+         */
         public static PositionToVelocityProfiler kSpeakerAngleSpeakerProfiler = (new PositionToVelocityProfiler()
+            .setGoal(0)
             .addProfileEntry(-2, 2, 0)
-            .addProfileEntry(2, 10, -0.2)
-            .addProfileEntry(10, 20, -0.3)
-            .addProfileEntry(20, 40, -0.4)
-            .addProfileEntry(40, 60, -0.4)
-            .addProfileEntry(60, 100, -0.3)
-            .addProfileEntry(80, 100, -0.2)
+            .addProfileEntry(2  , 10 , -0.2)
+            .addProfileEntry(10 , 20 , -0.3)
+            .addProfileEntry(20 , 40 , -0.4)
+            .addProfileEntry(40 , 60 , -0.4)
+            .addProfileEntry(60 , 100, -0.3)
+            .addProfileEntry(80 , 100, -0.2)
+        );
+
+        /**
+         * 120 degrees. When climbing on the chain, we lift the shooter arm all the way up to aim at the trap,
+         * then fire backwards.
+         */
+        public static PositionToVelocityProfiler kSpeakerAngleTrapProfiler = (new PositionToVelocityProfiler()
+            .setGoal(120)
+            .addProfileEntry(-2,10,0.1)
+            .addProfileEntry(10 ,20 ,0.25)
+            .addProfileEntry(20 ,30 ,0.40)
+            .addProfileEntry(30 ,40 ,0.55)
+            .addProfileEntry(40 ,50 ,0.60)
+            .addProfileEntry(50 ,60 ,0.60)
+            .addProfileEntry(60 ,70 ,0.60)
+            .addProfileEntry(70 ,80 ,0.45)
+            .addProfileEntry(80 ,90 ,0.30)
+            .addProfileEntry(90 ,100,0.15)
+            .addProfileEntry(100,110,0.01)
+        );
+
+        /**
+         * 10 degrees. A bit off, so that notes can be dropped in from the depository
+         */
+        public static PositionToVelocityProfiler kSpeakerAngleSafeZoneProfiler = (new PositionToVelocityProfiler()
+            .setGoal(10)
+            .addProfileEntry(-2, 10, 0.10)
+            .addProfileEntry(10, 20, 0.00)
+            .addProfileEntry(20, 30, 0.00)
+            .addProfileEntry(30, 40, 0.00)
+            .addProfileEntry(40, 50, 0.00)
+            .addProfileEntry(50, 60, 0.00)
+            .addProfileEntry(60, 70, 0.00)
+            .addProfileEntry(70, 80, 0.00)
         );
 
     }

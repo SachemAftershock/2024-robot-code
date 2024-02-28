@@ -195,6 +195,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 			case eSpeaker:
 				desiredSpeed = kSpeakerAngleSpeakerProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
 				break;
+			case eTrap:
+				desiredSpeed = kSpeakerAngleTrapProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
+				break;
+			// case eSafeZone:
+			// 	desiredSpeed = kSpeakerAngleSafeZoneProfiler.calculate(mAngleEncoderCurrentPositionDegrees);
 			case eSafeZone: // TODO Are we using eSafeZone?
 				desiredSpeed = 0; // a default value
 				break;

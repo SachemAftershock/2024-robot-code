@@ -171,6 +171,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	
 	public void ingestNote() {
 		double speed = kIngestNoteSpeed;
+		// if (showPrints)
+			System.out.println(mExternalBeamBreaker.get());
 		if (!mExternalBeamBreaker.get()) {
 			if (!mInternalBeamBreaker.get()) {
 				speed = 0.0;
