@@ -38,8 +38,10 @@ public class LinearDriveCommand extends Command {
         this(drive,deltaX,0);
     }
 
-    // Field oriented command, X is down field, Y is crossfield, Z is clockwise Azimuth positive
-    //deltaAzimuth is degrees
+    /**
+     * Field oriented command, X is down field, Y is crossfield, Z is clockwise Azimuth positive.
+     * deltaAzimuth is degrees
+     */
     public LinearDriveCommand(DriveSubsystem drive, double deltaX, double deltaY, double deltaAzimuth) {
         mDrive = drive;
         mDeltaX = deltaX;

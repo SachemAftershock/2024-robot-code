@@ -229,6 +229,9 @@ public final class Constants {
                                                                                                                // * 1.0
         public static final double kMaxRotationalVelocityMetersPerSecond = 3.0;
 
+        /**
+         * 7.768981298515446
+         */
         public static final double kMaxAngularVelocityRadiansPerSecond = kMaxRotationalVelocityMetersPerSecond /
                 Math.hypot(kDrivetrainTrackwidthMeters / 2.0, kDrivetrainWheelbaseMeters / 2.0); // kMaxVelocityMetersPerSecond
                                                                                                  // /Math.hypot(kDrivetrainTrackwidthMeters

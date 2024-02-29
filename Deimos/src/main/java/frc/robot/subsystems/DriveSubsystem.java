@@ -180,6 +180,22 @@ public class DriveSubsystem extends AftershockSubsystem {
 		mNavx.zeroYaw();
 	}
 
+	/**
+     * Returns the total accumulated yaw angle (Z Axis, in degrees)
+     * reported by the sensor.
+     *<p>
+     * NOTE: The angle is continuous, meaning it's range is beyond 360 degrees.
+     * This ensures that algorithms that wouldn't want to see a discontinuity 
+     * in the gyro output as it sweeps past 0 on the second time around.
+     *<p>
+     * Note that the returned yaw value will be offset by a user-specified
+     * offset value; this user-specified offset value is set by 
+     * invoking the zeroYaw() method.
+     *<p>
+     * @return The current total accumulated yaw angle (Z axis) of the robot 
+     * in degrees. This heading is based on integration of the returned rate 
+     * from the Z-axis (yaw) gyro.
+     */
 	public double getNavxAngle() {
 		return mNavx.getAngle();
 	}

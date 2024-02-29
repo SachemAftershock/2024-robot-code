@@ -13,13 +13,15 @@ public class RotateDriveCommand extends Command {
     final boolean showPrints = false;		
 
     private DriveSubsystem mDrive;
-    private double mAngularSetpoint;
+    private double mSetpointDegrees;
     private PID mPid;
     
-    //Field Relative Rotation, downfield is 0deg
-    public RotateDriveCommand(DriveSubsystem drive, double setpoint) {
+    /**
+     * Field Relative Rotation, downfield is 0deg
+     */
+    public RotateDriveCommand(DriveSubsystem drive, double setpointDegrees) {
         mDrive = drive;
-        mAngularSetpoint = setpoint;
+        mSetpointDegrees = setpointDegrees;
         mPid = new PID();
         addRequirements(mDrive);
     }
@@ -27,13 +29,13 @@ public class RotateDriveCommand extends Command {
     @Override
     public void initialize() {
         mPid.start(DriveConstants.kDriveAngularGains);
-        if (showPrints) System.out.println("RotateDriveCommand started " + Double.toString(mAngularSetpoint) + " degrees.");
+        if (showPrints) System.out.println("RotateDriveCommand started " + Double.toString(mSetpointDegrees) + " degrees.");
     }
 
     @Override
     public void execute() {
         double currentAngle = Util.normalizeAngle(mDrive.getGyroscopeRotation().getDegrees());
-		double rotationSpeed = mPid.updateRotation(currentAngle, mAngularSetpoint)
+		double rotationSpeed = mPid.updateRotation(currentAngle, mSetpointDegrees)
 				* DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.5;
         
         mDrive.drive(new ChassisSpeeds(0, 0, rotationSpeed));

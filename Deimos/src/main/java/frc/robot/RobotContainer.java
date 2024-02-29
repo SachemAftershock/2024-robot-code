@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.util.PrimitiveArrayBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
@@ -246,6 +247,15 @@ public class RobotContainer {
     Trigger IntakeFireNoteTrigger 
       = new Trigger(() -> (Math.abs(mControllerTertiary.getRightTriggerAxis()) > 0.5) && mArmedToFire);
     IntakeFireNoteTrigger.onTrue(sequenceFireNote);
+
+    // teleop straighten for amp using the little nub on the joystick (west pov is 270 degrees)
+    Trigger cardinalizeBotLeftward = new Trigger(() -> {
+      int pov = mControllerPrimary.getPOV();
+      return (225 <= pov && pov <= 315);
+    });
+    cardinalizeBotLeftward
+    .whileTrue(new RotateDriveCommand(mDriveSubsystem, 270.0))
+    .onFalse(new InstantCommand(() -> mDriveSubsystem.drive(new ChassisSpeeds())));
     
     //togggle climber and shoooter ( default shooter; default false )
     // We are currently not using a multi-mode setup. These buttons are FREE.
