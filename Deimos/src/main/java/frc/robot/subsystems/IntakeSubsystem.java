@@ -164,22 +164,26 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 		if (kEnableMotors) mIntakeArmMotor.set(intakeArmSpeed);
 	}
-
+	/**
+	 * positive=outward
+	 * @param speed
+	 */
 	public void setRollerMotorSpeed(double speed){
 		mIntakeRollerMotor.set(speed); 
 	}
 	
 	public void ingestNote() {
-		double speed = kIngestNoteSpeed;
+		double speed = -0.5;
 		// if (showPrints)
 			System.out.println(mExternalBeamBreaker.get());
-		if (!mExternalBeamBreaker.get()) {
+		// if (!mExternalBeamBreaker.get()) { // commented out due to intake being weird
 			if (!mInternalBeamBreaker.get()) {
 				speed = 0.0;
-			} else {
-				speed *= 0.5;
 			}
-		}   
+			// } else {
+			// 	speed *= 0.5;
+			// }
+		// }   
 		setRollerMotorSpeed(speed);
 	}
 
