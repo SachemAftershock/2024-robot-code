@@ -20,7 +20,7 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private LampController mLampController;
+  private LampController mLampController = LampController.getInstance();
 
   private int count = 0; 
 
@@ -34,7 +34,6 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     m_robotContainer.initialize();
-    mLampController = LampController.getInstance();
     mLampController.setPulse(3, 0.75, 0.25, 2.0);
   }
 

@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import static frc.robot.Constants.LampConstants.*;
 
 public class LampController {
 
@@ -16,7 +17,7 @@ public class LampController {
     private int mPulseCounter = 0;
     private boolean mPulsePhase = false;
     private final Timer mTimer = new Timer();
-    private final PowerDistribution mPDH  = new PowerDistribution(0, ModuleType.kRev);
+    private final PowerDistribution mPDH  = new PowerDistribution(kPdhId, ModuleType.kRev);
 
     public void setPulse(int numPulses, double pulseDurationInSec, double delayBetweenPulsesInSec, double pulseTrainGapInSec){
         mNumPulses = numPulses;
