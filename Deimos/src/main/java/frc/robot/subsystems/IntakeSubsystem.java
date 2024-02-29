@@ -84,7 +84,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		final boolean showPrints = false;		
 		double mMaximumIntakeArmUpswingLiftMaxSpeed = 0;
 		double mMaximumIntakeArmDownswingBrakingMaxSpeed = 0;
-		double EncoderCountThresholdToReverseDirection = kDesiredIntakeArmEncoderSweep * 0.75;
+		double EncoderCountThresholdToReverseDirection;// = kDesiredIntakeArmEncoderSweep * 0.75;
 		double currentIntakeArmEncoderPosition = mIntakeArmEncoder.getPosition();
 		double intakeArmSpeed = 0;
 		double factor = 0;
@@ -97,7 +97,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			} else {
 				mMaximumIntakeArmUpswingLiftMaxSpeed = 0.6;
 				mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.03;
-				EncoderCountThresholdToReverseDirection = 2.5;
+				EncoderCountThresholdToReverseDirection = 1.5; // changeable TODO make constant?
 
 				if (Math.abs(currentIntakeArmEncoderPosition) > EncoderCountThresholdToReverseDirection) {
 					// from deployed position, start with maximum lift speed but then ramp it down propotionaly to zero
@@ -125,7 +125,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			} else {
 				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.4;
 				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.05;
-				EncoderCountThresholdToReverseDirection = 4.5;
+				EncoderCountThresholdToReverseDirection = 4.5; // changeable TODO make constant?
 
 				if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
 					// from retracted position, start with maximum lift speed but then ramp it down propotionaly to zero
@@ -164,20 +164,26 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 		if (kEnableMotors) mIntakeArmMotor.set(intakeArmSpeed);
 	}
-
+	/**
+	 * positive=outward
+	 * @param speed
+	 */
 	public void setRollerMotorSpeed(double speed){
 		mIntakeRollerMotor.set(speed); 
 	}
 	
 	public void ingestNote() {
-		double speed = kIngestNoteSpeed;
-		if (!mExternalBeamBreaker.get()) {
+		double speed = -0.5;
+		// if (showPrints)
+			System.out.println(mExternalBeamBreaker.get());
+		// if (!mExternalBeamBreaker.get()) { // commented out due to intake being weird
 			if (!mInternalBeamBreaker.get()) {
 				speed = 0.0;
-			} else {
-				speed *= 0.5;
 			}
-		}   
+			// } else {
+			// 	speed *= 0.5;
+			// }
+		// }   
 		setRollerMotorSpeed(speed);
 	}
 

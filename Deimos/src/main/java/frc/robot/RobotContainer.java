@@ -30,6 +30,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ClimberSubsystem.climberMotorToSpinEnum;
+import frc.robot.subsystems.IntakeSubsystem.IntakeArmPositionEnum;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.DelayCommand;
 import frc.robot.commands.DeployIntakeCommand;
@@ -86,18 +88,18 @@ public class RobotContainer {
   ); 
 
   private Command sequenceDeployIngestRetract = new SequentialCommandGroup(
-    (new DelayCommand(0.1)).andThen
+    (new DelayCommand(0.05)).andThen
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
-    //(new DelayCommand(0.2)).andThen
+    (new DelayCommand(0.1)).andThen
     (new IngestNoteCommand(mIntakeSubsystem)).andThen
-    //(new DelayCommand(0.2)).andThen
+    (new DelayCommand(0.45)).andThen
     //(new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     //(new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem))
   ); 
 
   private Command sequenceStopRollersAndRetract = new SequentialCommandGroup(
-    (new DelayCommand(0.1)).andThen
+    // (new DelayCommand(0.1)).andThen
     (new InstantCommand(() -> mIntakeSubsystem.setRollerMotorSpeed(0.0))).andThen
     //(new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem))
@@ -128,11 +130,14 @@ public class RobotContainer {
   );
 
   private Command sequenceFireNote = new SequentialCommandGroup(
-    (new DelayCommand(0.1)).andThen
-    (new EjectNoteCommand(mIntakeSubsystem))  //.andThen
-//    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)),
+    // (new DelayCommand(0.1)).andThen
+    (new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(-0.25); }))
+  );
+    
+    //.andThen
+  //  (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
 //    (new DelayCommand(0.2))
-  ); 
 
   private boolean mArmedToFire = false;
 
@@ -143,8 +148,8 @@ public class RobotContainer {
 
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
-            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 2.0,
+            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 2.0,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
             () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
@@ -203,6 +208,15 @@ public class RobotContainer {
     // IntakeArmRetractTrigger
     //   .onTrue(new InstantCommand(() -> { mIntakeSubsystem.RetractIntake(); } ));
 
+    // SHOOTER ARM (Manual)
+
+    // Trigger ShooterArmHoldToMoveUpwardTrigger = new Trigger(()-> mControllerTertiary.getYButton())
+    //   .onTrue(new InstantCommand(() -> {
+    //     mShooterSubsystem.setSpeed
+    //   })).onFalse(new InstantCommand(() -> {
+
+    //   }));
+
     // Repurposing the A and Y buttons for auto AMP score sequence 
     Trigger scoreTrigger = new Trigger(() -> mControllerTertiary.getRightTriggerHeld());
     scoreTrigger.onTrue(new InstantCommand(() -> {mShooterSubsystem.setFireIntoAmp(true);}));
@@ -215,7 +229,8 @@ public class RobotContainer {
     Trigger IntakeDeployThenAutoIngestThenRetractTrigger 
       = new Trigger(() -> mControllerTertiary.getBButton());
     IntakeDeployThenAutoIngestThenRetractTrigger
-      .onTrue(sequenceDeployIngestRetract);
+      .whileTrue(sequenceDeployIngestRetract);
+      //.whileFalse(sequenceStopRollersAndRetract);
 
     Trigger IntakeStopRollersAndRetractTrigger 
       = new Trigger(() -> mControllerTertiary.getXButton());
@@ -233,21 +248,22 @@ public class RobotContainer {
     IntakeFireNoteTrigger.onTrue(sequenceFireNote);
     
     //togggle climber and shoooter ( default shooter; default false )
+    // We are currently not using a multi-mode setup. These buttons are FREE.
     Trigger toggleToShooter = new Trigger(() -> {
       return mControllerTertiary.getStartButton();
       //Start maps Shooter
     });
-    toggleToShooter.onTrue(new InstantCommand(() -> {
-      setForShooterNotClimber(true);
-    }));
+    // toggleToShooter.onTrue(new InstantCommand(() -> {
+    //   setForShooterNotClimber(true);
+    // }));
 
     Trigger toggleToClimber = new Trigger(() -> {
       return mControllerTertiary.getBackButton();
       //Back maps climber
     });
-    toggleToClimber.onTrue(new InstantCommand(() -> {
-      setForShooterNotClimber(false);
-    }));
+    // toggleToClimber.onTrue(new InstantCommand(() -> {
+    //   setForShooterNotClimber(false);
+    // }));
     
     //DPAD TRIGGERS
     Trigger upDPAD = new Trigger(() -> {
@@ -268,67 +284,147 @@ public class RobotContainer {
     
     //checks if DPAD is in shooter(false) or climber(true) mode
     // default is shooter
-    if(!mIsMappedForShooterNotClimber){
-      upDPAD.onTrue(new InstantCommand(() -> {
-        mClimberSubsystem.setClimberMotorSpeed(-kClimberMotorSpeed, "both");
-      })).onFalse(new InstantCommand(() -> {
-        mClimberSubsystem.setClimberMotorSpeed(0, "both");
-      }));
+    // if(!mIsMappedForShooterNotClimber){
 
-      downDPAD.onTrue(new InstantCommand(() -> {
-        mClimberSubsystem.setClimberMotorSpeed(kClimberMotorSpeed, "both");
-      })).onFalse(new InstantCommand(() -> {
-        mClimberSubsystem.setClimberMotorSpeed(0, "both");
-      }));
+    // CLIMBER manual left joystick and right joystick y
+    Trigger ClimberTriggerLeft = new Trigger(() -> Math.abs(mControllerTertiary.getLeftDeadbandY()) > 0.15);
+    ClimberTriggerLeft.onTrue(new InstantCommand(() -> {
+      mClimberSubsystem.setClimberMotorSpeed(mControllerTertiary.getLeftDeadbandY(), climberMotorToSpinEnum.left);
+    })).onFalse(new InstantCommand(() -> {
+      mClimberSubsystem.setClimberMotorSpeed(0, climberMotorToSpinEnum.left);
+    }));
+    
+    Trigger ClimberTriggerRight = new Trigger(() -> Math.abs(mControllerTertiary.getRightDeadbandY()) > 0.15);
+    ClimberTriggerRight.onTrue(new InstantCommand(() -> {
+      mClimberSubsystem.setClimberMotorSpeed(mControllerTertiary.getRightDeadbandY(), climberMotorToSpinEnum.right);
+    })).onFalse(new InstantCommand(() -> {
+      mClimberSubsystem.setClimberMotorSpeed(0, climberMotorToSpinEnum.right);
+    }));
 
-      leftDPAD.onTrue(new InstantCommand(() -> {
-        double speed = kClimberMotorSpeed;
-        if (mControllerTertiary.getRightStickButtonPressed()) {
-          speed *= -1;
-        }
-        mClimberSubsystem.setClimberMotorSpeed(speed, "left");
-      })).onFalse(new InstantCommand(() -> {
-        mClimberSubsystem.setClimberMotorSpeed(0, "left");
-      }));
+    // TRAP climb
+    upDPAD.onTrue(new InstantCommand(() -> {
+      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eTrap);
+    }));
 
-      rightDPAD.onTrue(new InstantCommand(() -> {
-        double speed = kClimberMotorSpeed;
-        if (mControllerTertiary.getRightStickButtonPressed()) {
-          speed *= -1;
-        }
-        mClimberSubsystem.setClimberMotorSpeed(speed, "right");
-      })).onFalse(new InstantCommand(() -> {
-        mClimberSubsystem.setClimberMotorSpeed(0, "right");
-      })); 
+    downDPAD.onTrue(new InstantCommand(() -> {
+      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
+    }));
 
-    }
-    else{
+    // INTAKE manual
+    leftDPAD.onTrue(new InstantCommand(() -> {
+      mIntakeSubsystem.RetractIntake();
+      // intake in no spin
+    }));
+    
+    rightDPAD.onTrue(new InstantCommand(() -> {
+      mIntakeSubsystem.DeployIntake();
+      // intake out no spin
+    }));
+
+    // when climbing on the chain, the arm is lifted up at a high angle to balance the bot using the wall.
+    // to try and shoot into the trap, we must fire backwards while holding the note in the shooter arm.
+    Trigger shootBackwards = new Trigger(() -> mControllerTertiary.getYButton());
+    shootBackwards.onTrue(new InstantCommand(() -> {
+      mShooterSubsystem.setShooterMotorSpeed(-1, -1); // yolo
+    })).onFalse(new InstantCommand(() -> {
+      mShooterSubsystem.setShooterMotorSpeed(0, 0);
+    }));
+
+    // downDPAD.onTrue(new InstantCommand(() -> {
+    //   mClimberSubsystem.setClimberMotorSpeed(kClimberMotorSpeed, "both");
+    // })).onFalse(new InstantCommand(() -> {
+    //   mClimberSubsystem.setClimberMotorSpeed(0, "both");
+    // }));
+
+    // leftDPAD.onTrue(new InstantCommand(() -> {
+    //   double speed = kClimberMotorSpeed;
+    //   if (mControllerTertiary.getRightStickButtonPressed()) {
+    //     speed *= -1;
+    //   }
+    //   mClimberSubsystem.setClimberMotorSpeed(speed, "left");
+    // })).onFalse(new InstantCommand(() -> {
+    //   mClimberSubsystem.setClimberMotorSpeed(0, "left");
+    // }));
+
+    // rightDPAD.onTrue(new InstantCommand(() -> {
+    //   double speed = kClimberMotorSpeed;
+    //   if (mControllerTertiary.getRightStickButtonPressed()) {
+    //     speed *= -1;
+    //   }
+    //   mClimberSubsystem.setClimberMotorSpeed(speed, "right");
+    // })).onFalse(new InstantCommand(() -> {
+    //   mClimberSubsystem.setClimberMotorSpeed(0, "right");
+    // })); 
+
+    // }
+    // else{
       // DPAD Up (in correct mode) -> start to aim at amp
-      Trigger AngleShootMotorPIDTrigger = new Trigger(()->{
-        return mControllerTertiary.getDPadUp();
-      });
-      AngleShootMotorPIDTrigger.whileTrue(new InstantCommand(()->{
-        mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);
-        // mShooterSubsystem.runShooterAngleSetpointChaser();
-      }).repeatedly()).whileFalse(new InstantCommand(()->{
-        mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
-        // mShooterSubsystem.runShooterAngleSetpointChaser();
-      }).repeatedly());
+
+      // Trigger AngleShootMotorPIDTrigger = new Trigger(()->{
+      //   return mControllerTertiary.getDPadUp();
+      // });
+      // AngleShootMotorPIDTrigger.whileTrue(new InstantCommand(()->{
+      //   mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);
+      //   // mShooterSubsystem.runShooterAngleSetpointChaser();
+      // }).repeatedly()).whileFalse(new InstantCommand(()->{
+      //   mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eSpeaker);
+      //   // mShooterSubsystem.runShooterAngleSetpointChaser();
+      // }).repeatedly());
   
-      // DPAD Down to activate shooter motors.
-      Trigger ShooterMotorTrigger = new Trigger(() -> mControllerTertiary.getDPadDown());
-      ShooterMotorTrigger
-        .onTrue(new InstantCommand(() -> {
-            mShooterSubsystem.setShooterMotorSpeed(kShootMotorShootingVelocity, kShootMotorShootingVelocity);
-          })
-        ).onFalse(new InstantCommand(()-> {
-          mShooterSubsystem.setShooterMotorSpeed(0, 0);
-      }));
+      // // DPAD Down to activate shooter motors.
+      // Trigger ShooterMotorTrigger = new Trigger(() -> mControllerTertiary.getDPadDown());
+      // ShooterMotorTrigger
+      //   .onTrue(new InstantCommand(() -> {
+      //       mShooterSubsystem.setShooterMotorSpeed(kShootMotorShootingVelocity, kShootMotorShootingVelocity);
+      //     })
+      //   ).onFalse(new InstantCommand(()-> {
+      //     mShooterSubsystem.setShooterMotorSpeed(0, 0);
+      // }));
     }
 
 
-  }
+  // }
 
+  private Command sequenceScoreSpeakerOnce = new SequentialCommandGroup(
+    (new DelayCommand(0.1)).andThen
+    (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    (new DelayCommand(0.1)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = false; }))
+
+    //  .andThen((sequenceDeployIngestRetract).andThen(new DelayCommand(0.35)).alongWith
+    //  (new LinearDriveCommand(mDriveSubsystem, -1.4, 0 ,0))).andThen
+   
+    // (new LinearDriveCommand(mDriveSubsystem, 1.4,0, 0)).andThen
+
+    // (new DelayCommand(0.1)).andThen
+    // (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    // (new DelayCommand(0.1)).andThen
+    // (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    // (new DelayCommand(0.1)).andThen
+    // (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new InstantCommand(() -> { mArmedToFire = false; })
+    );
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -473,12 +569,13 @@ public class RobotContainer {
 
   /**
    * Reconfigures button bindings when start button and back button is pressed
+   * This causes a core dump fatal error. Commenting out for now
    * @param toggle
    */
-  public void setForShooterNotClimber(boolean toggle){
-    mIsMappedForShooterNotClimber = toggle;
-    configureButtonBindings();
-  }
+  // public void setForShooterNotClimber(boolean toggle){
+  //   mIsMappedForShooterNotClimber = toggle;
+  //   configureButtonBindings();
+  // }
 
 }
 
