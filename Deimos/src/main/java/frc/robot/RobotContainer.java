@@ -129,11 +129,14 @@ public class RobotContainer {
   );
 
   private Command sequenceFireNote = new SequentialCommandGroup(
+    (new EjectNoteCommand(mIntakeSubsystem)),
     // (new DelayCommand(0.1)).andThen
-    (new EjectNoteCommand(mIntakeSubsystem))  //.andThen
-//    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(-0.25); }))
+  );
+    
+    //.andThen
+  //  (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
 //    (new DelayCommand(0.2))
-  ); 
 
   private boolean mArmedToFire = false;
 
