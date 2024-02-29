@@ -38,6 +38,7 @@ import frc.robot.commands.DelayCommand;
 import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.IngestNoteCommand;
+import frc.robot.commands.LimelightTiltCommand;
 import frc.robot.commands.EjectNoteCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
@@ -190,7 +191,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     //INTAKE ROLLERS (Manual)
-
+    Trigger something = new Trigger(()-> mControllerPrimary.getRawButton(0));
+    something.onTrue(new LimelightTiltCommand(mDriveSubsystem));
     Trigger IntakeRollerIngestTrigger 
       = new Trigger(() -> mControllerTertiary.getRightBumperPressed());
     IntakeRollerIngestTrigger
@@ -275,7 +277,7 @@ public class RobotContainer {
     // We are currently not using a multi-mode setup. These buttons are FREE.
     Trigger safeZoneTrigger = new Trigger(() -> {
       return mControllerTertiary.getStartButton();
-      //Start maps Shooter
+      //Sttart maps Shooter
     });
     safeZoneTrigger.onTrue(new SafeZoneIntakeCommand(mIntakeSubsystem));
     // toggleToShooter.onTrue(new InstantCommand(() -> {
