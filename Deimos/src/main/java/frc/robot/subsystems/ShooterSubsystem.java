@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 
 import frc.lib.AftershockSubsystem;
 import frc.lib.PositionToVelocityProfiler;
+import frc.robot.LampController;
 import frc.robot.RobotContainer;
 import static frc.robot.Constants.ShooterConstants.*;
 // import frc.robot.enums.ControlState;
@@ -54,6 +55,10 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	boolean showPrints = true;
 	// states
 	private ShooterAngleState mCurrentShooterAngleState = ShooterAngleState.eUnknown;
+
+	private LampController mLampController = LampController.getInstance();
+
+	private boolean mLampTriggered = false;
 
 	private ShooterSubsystem() {
 		mAngleShootMotor = new CANSparkMax(kAngleShootMotorID, MotorType.kBrushless);
@@ -220,6 +225,15 @@ public class ShooterSubsystem extends AftershockSubsystem {
     @Override
 	public void periodic(){
 		runShooterAngleSetpointChaser();
+		if (isShooterAtSpeed())
+		{
+			mLampTriggered = true;
+			mLampController.setPulse(1, 3600, 0.5, 0.5);
+		} else if (mLampTriggered) {
+			mLampTriggered = false;
+			mLampController.setPulse(0, 0, 0, 0);
+		}
+
 		//call statecheck method, ... make statecheck call
 		//if(mIntakeRetractedLimitSwitch.get()){
 			//setCurrentIntakeState(IntakeState.eRetracted);

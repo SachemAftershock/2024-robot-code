@@ -20,6 +20,10 @@ import frc.lib.PositionToVelocityProfiler;
  */
 public final class Constants {
 
+    public static final class LampConstants {
+        public static int kPdhId = 3;        
+    }
+
     public static final class LimelightConstants {
         public static final String kShooterTableName = "limelight";
         //public static final String kIntakeTableName = "limelight-intake";
