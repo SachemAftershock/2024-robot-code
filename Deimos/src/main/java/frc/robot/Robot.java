@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     m_robotContainer.initialize();
-    mLampController.setPulse(3, 0.75, 0.25, 2.0);
+    //mLampController.setPulse(3, 0.75, 0.25, 2.0);
   }
 
   /**
@@ -76,7 +76,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.schedule();
     }
   
-      mLampController.setPulse(3, 0.5, 0.5, 0.5);
+      //mLampController.setPulse(3, 0.5, 0.5, 0.5);
   }
 
   /** This function is called periodically during autonomous. */
@@ -98,7 +98,7 @@ public class Robot extends TimedRobot {
 
     CommandScheduler.getInstance().cancelAll();
 
-    mLampController.setPulse(3, 0.25, 0.75, 0.5);
+    //mLampController.setPulse(3, 0.25, 0.75, 0.5);
 
     //TODO: but a guard here, do not do again after auto mode if this is running on the real field managemeent system. 
   }
