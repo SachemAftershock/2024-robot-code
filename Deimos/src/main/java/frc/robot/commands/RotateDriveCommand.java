@@ -10,7 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class RotateDriveCommand extends Command {
 
-    final boolean showPrints = false;		
+    final boolean showPrints = true;		
 
     private DriveSubsystem mDrive;
     private double mSetpointDegrees;
@@ -29,21 +29,25 @@ public class RotateDriveCommand extends Command {
     @Override
     public void initialize() {
         mPid.start(DriveConstants.kDriveAngularGains);
-        if (showPrints) System.out.println("RotateDriveCommand started " + Double.toString(mSetpointDegrees) + " degrees.");
+        // if (showPrints) System.out.println("RotateDriveCommand started " + Double.toString(mSetpointDegrees) + " degrees.");
     }
+
+    double mRotationSpeed;
 
     @Override
     public void execute() {
         double currentAngle = Util.normalizeAngle(mDrive.getGyroscopeRotation().getDegrees());
-		double rotationSpeed = mPid.updateRotation(currentAngle, mSetpointDegrees)
-				* DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.5;
+		double rotationSpeed = mPid.updateRotation(currentAngle, mSetpointDegrees);
+			//	* DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.5;
+        mRotationSpeed=rotationSpeed;
+        if (showPrints) System.out.println("current "+currentAngle + " setpoint "+mSetpointDegrees+" speed "+rotationSpeed);
         
         mDrive.drive(new ChassisSpeeds(0, 0, rotationSpeed));
     }
 
     @Override
     public boolean isFinished() {
-        return Math.abs(mPid.getError()) < DriveConstants.kAutoRotateEpsilon;
+        return Math.abs(mPid.getError()) < DriveConstants.kAutoRotateEpsilon && Math.abs(mRotationSpeed) < .5 && mRotationSpeed != 0;
     }
     @Override
     public void end(boolean interrupted) {
