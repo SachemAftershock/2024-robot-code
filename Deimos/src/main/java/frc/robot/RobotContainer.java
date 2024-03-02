@@ -161,6 +161,8 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
+    // Linear motion - left flight joystick
+    // Twist motion - right flight joystick (or left joystick hat if cardinalization alignment is desired -- see ManualDriveCommand.java)
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
             () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 1.0,
@@ -262,14 +264,21 @@ public class RobotContainer {
       = new Trigger(() -> (Math.abs(mControllerTertiary.getRightTriggerAxis()) > 0.5) && mArmedToFire);
     IntakeFireNoteTrigger.onTrue(sequenceFireNote);
 
-    // teleop straighten for amp using the little nub on the joystick (west pov is 270 degrees)
-    Trigger cardinalizeBotLeftward = new Trigger(() -> {
-      int pov = mControllerPrimary.getPOV();
-      return (225 <= pov && pov <= 315);
-    });
-    cardinalizeBotLeftward
-    .whileTrue(new RotateDriveCommand(mDriveSubsystem, 270.0))
-    .onFalse(new InstantCommand(() -> mDriveSubsystem.drive(new ChassisSpeeds())));
+    // teleop straighten for amp using joystick hat (the little nub on top)
+    Trigger cardinalizeBotTrigger = new Trigger(() -> mControllerPrimary.getPOV() != -1);
+    cardinalizeBotTrigger
+      .onTrue(new InstantCommand(() -> {
+        // [Angles reference for Joystick POV](https://docs.wpilib.org/en/stable/docs/software/basic-programming/joystick.html#pov)
+        double flightJoystickHatAngleDegrees = mControllerPrimary.getPOV();
+
+        if (225 <= flightJoystickHatAngleDegrees && flightJoystickHatAngleDegrees <= 315) { // cardinalize leftward
+          ManualDriveCommand.setShouldCardinalize(true, 270);
+        } else if (45 <= flightJoystickHatAngleDegrees && flightJoystickHatAngleDegrees <= 135) {// cardinalize rightward
+          ManualDriveCommand.setShouldCardinalize(true, 90);
+        }
+
+      })) // cancel when joystick hat (the nub) is no longer held
+      .onFalse(new InstantCommand(() -> ManualDriveCommand.setShouldCardinalize(false, 0)));
     
     //togggle climber and shoooter ( default shooter; default false )
     // We are currently not using a multi-mode setup. These buttons are FREE.

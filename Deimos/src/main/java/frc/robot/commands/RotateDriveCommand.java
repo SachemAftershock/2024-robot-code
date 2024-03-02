@@ -10,18 +10,16 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class RotateDriveCommand extends Command {
 
-    final boolean showPrints = true;		
+    final boolean showPrints = false;		
 
     private DriveSubsystem mDrive;
-    private double mSetpointDegrees;
+    private double mAngularSetpoint;
     private PID mPid;
     
-    /**
-     * Field Relative Rotation, downfield is 0deg
-     */
-    public RotateDriveCommand(DriveSubsystem drive, double setpointDegrees) {
+    //Field Relative Rotation, downfield is 0deg
+    public RotateDriveCommand(DriveSubsystem drive, double setpoint) {
         mDrive = drive;
-        mSetpointDegrees = setpointDegrees;
+        mAngularSetpoint = setpoint;
         mPid = new PID();
         addRequirements(mDrive);
     }
@@ -29,25 +27,21 @@ public class RotateDriveCommand extends Command {
     @Override
     public void initialize() {
         mPid.start(DriveConstants.kDriveAngularGains);
-        // if (showPrints) System.out.println("RotateDriveCommand started " + Double.toString(mSetpointDegrees) + " degrees.");
+        if (showPrints) System.out.println("RotateDriveCommand started " + Double.toString(mAngularSetpoint) + " degrees.");
     }
-
-    double mRotationSpeed;
 
     @Override
     public void execute() {
         double currentAngle = Util.normalizeAngle(mDrive.getGyroscopeRotation().getDegrees());
-		double rotationSpeed = mPid.updateRotation(currentAngle, mSetpointDegrees);
-			//	* DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.5;
-        mRotationSpeed=rotationSpeed;
-        if (showPrints) System.out.println("current "+currentAngle + " setpoint "+mSetpointDegrees+" speed "+rotationSpeed);
+		double rotationSpeed = mPid.updateRotation(currentAngle, mAngularSetpoint)
+				* DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.5;
         
         mDrive.drive(new ChassisSpeeds(0, 0, rotationSpeed));
     }
 
     @Override
     public boolean isFinished() {
-        return Math.abs(mPid.getError()) < DriveConstants.kAutoRotateEpsilon && Math.abs(mRotationSpeed) < .5 && mRotationSpeed != 0;
+        return Math.abs(mPid.getError()) < DriveConstants.kAutoRotateEpsilon;
     }
     @Override
     public void end(boolean interrupted) {
