@@ -91,7 +91,7 @@ public class RobotContainer {
     (new EjectNoteCommand(mIntakeSubsystem))
   ); 
 
-  private Command sequenceDeployIngestRetractONE = new SequentialCommandGroup(
+  private Command sequenceDeployIngestRetractAuto = new SequentialCommandGroup(
     (new DelayCommand(0.05)).andThen
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.1)).andThen
@@ -127,7 +127,7 @@ public class RobotContainer {
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem)).andThen
-    (new DelayCommand(0.2)).andThen
+    // (new DelayCommand(0.2)).andThen
     (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
 //    (new ShooterMotorsOffsetsPerLateralSpeakerAngleCommand(mShooterSubsystem)).andThen
@@ -166,7 +166,7 @@ public class RobotContainer {
             () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 1.0,
             () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 1.0,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
-            () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.65//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
+            () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.4//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
     // mIntakeSubsystem.setDefaultCommand(new ManualIntakeArm(
     //         mIntakeSubsystem,
@@ -244,8 +244,8 @@ public class RobotContainer {
     Trigger IntakeDeployThenAutoIngestThenRetractTrigger 
       = new Trigger(() -> mControllerTertiary.getBButton());
     IntakeDeployThenAutoIngestThenRetractTrigger
-      .whileTrue(sequenceDeployIngestRetract);
-      //.whileFalse(sequenceStopRollersAndRetract);
+      .whileTrue(sequenceDeployIngestRetract)
+      .whileFalse(sequenceStopRollersAndRetract);
 
     Trigger IntakeStopRollersAndRetractTrigger 
       = new Trigger(() -> mControllerTertiary.getXButton());
@@ -427,12 +427,12 @@ public class RobotContainer {
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; }))
 
-    //  .andThen((sequenceDeployIngestRetract).andThen(new DelayCommand(0.35)).alongWith
+    //  .andThen((sequenceDeployIngestRetractAuto).alongWith
     //  (new LinearDriveCommand(mDriveSubsystem, -1.4, 0 ,0))).andThen
-    //  (new LinearDriveCommand(mDriveSubsystem, -1.4, 0 , 45))).andThen
+    //  (new LinearDriveCommand(mDriveSubsystem, 1.4, 0 , 45))).andThen
    
-    // (new LinearDriveCommand(mDriveSubsystem, 1.4,0, 0)).andThen
-    // (new LinearDriveCommand(mDriveSubsystem, 1.4,0, -45)).andThen
+    // // (new LinearDriveCommand(mDriveSubsystem, 1.4,0, 0)).andThen
+    // // (new LinearDriveCommand(mDriveSubsystem, 1.4,0, -45)).andThen
 
     // (new DelayCommand(0.1)).andThen
     // (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
