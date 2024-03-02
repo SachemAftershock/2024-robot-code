@@ -20,15 +20,22 @@ public class LampController {
     private final PowerDistribution mPDH  = new PowerDistribution(kPdhId, ModuleType.kRev);
 
     public void setPulse(int numPulses, double pulseDurationInSec, double delayBetweenPulsesInSec, double pulseTrainGapInSec){
-        mNumPulses = numPulses;
-        mPulseDurationInSec = pulseDurationInSec;
-        mDelayBetweenPulsesInSec = delayBetweenPulsesInSec;
-        mPulseTrainGapInSec = pulseTrainGapInSec;
+    
+        if (!((mNumPulses == numPulses) &&
+            (mPulseDurationInSec == pulseDurationInSec) &&
+            (mDelayBetweenPulsesInSec == delayBetweenPulsesInSec) &&
+            (mPulseTrainGapInSec == pulseTrainGapInSec))) {
 
-        mPulseCounter = 0;
-        mPulsePhase = false;
-         mPDH.setSwitchableChannel(mPulsePhase);
-        mTimer.restart();
+            mNumPulses = numPulses;
+            mPulseDurationInSec = pulseDurationInSec;
+            mDelayBetweenPulsesInSec = delayBetweenPulsesInSec;
+            mPulseTrainGapInSec = pulseTrainGapInSec;
+
+            mPulseCounter = 0;
+            mPulsePhase = false;
+            mPDH.setSwitchableChannel(mPulsePhase);
+            mTimer.restart();
+     }
     }
 
     public void run() {

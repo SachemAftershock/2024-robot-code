@@ -215,7 +215,8 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	}
 
 	public boolean isShooterAtSpeed() {
-		return Math.abs(mLeftShootMotor.get() - kShootMotorShootingVelocity) < 0.1; 
+		System.out.println(mLeftShootMotor.get());
+		return Math.abs(mLeftShootMotor.get()) >= kShootMotorShootingVelocity * 0.90; 
 	}
 
 	public boolean isNoteLoaded() {
@@ -229,9 +230,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		{
 			mLampTriggered = true;
 			mLampController.setPulse(1, 3600, 0.5, 0.5);
+			System.out.println("LAMP ON____________");
 		} else if (mLampTriggered) {
 			mLampTriggered = false;
 			mLampController.setPulse(0, 0, 0, 0);
+			System.out.println("OFF____________");
 		}
 
 		//call statecheck method, ... make statecheck call

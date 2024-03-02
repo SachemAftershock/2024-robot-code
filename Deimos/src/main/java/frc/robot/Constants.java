@@ -37,8 +37,8 @@ public final class Constants {
         public static final int kIntakeArmMotorID = 21;
         public static final int kIntakeRollerMotorID = 20;
 
-        public static final int kExternalBeamBreakerID = 2; // FIXME change these ids pretty pls thx <3
-        public static final int kInternalBeamBreakerID = 7; // FIXME change these ids pretty pls thx <3
+        public static final int kExternalBeamBreakerID = 7; // FIXME change these ids pretty pls thx <3
+        public static final int kInternalBeamBreakerID = 2; // FIXME change these ids pretty pls thx <3
 
         public static final int kIntakeLimitSwitchID = 4;
 

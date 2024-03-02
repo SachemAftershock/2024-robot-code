@@ -41,8 +41,11 @@ import frc.robot.commands.IngestNoteCommand;
 import frc.robot.commands.EjectNoteCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
+import frc.robot.commands.SafeZoneIntakeCommand;
 import frc.robot.commands.ShooterMotorsOffCommand;
 import frc.robot.commands.ShooterMotorsToSpeakerSpeedCommand;
+import frc.robot.commands.SafeZoneIntakeCommand;
+
 import frc.robot.commands.ShooterStageToNoteLoadAngleCommand;
 import frc.robot.commands.ShooterStageToSpeakerAngleCommand;
 import frc.robot.commands.AutoCommands.AutoAmpScoreSequence;
@@ -86,6 +89,17 @@ public class RobotContainer {
     (new RetractIntakeCommand(mIntakeSubsystem)).andThen
     //(new DelayCommand(0.2)).andThen
     (new EjectNoteCommand(mIntakeSubsystem))
+  ); 
+
+  private Command sequenceDeployIngestRetractONE = new SequentialCommandGroup(
+    (new DelayCommand(0.05)).andThen
+    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new IngestNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.45)).andThen
+    //(new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    //(new DelayCommand(0.2)).andThen
+    (new RetractIntakeCommand(mIntakeSubsystem))
   ); 
 
   private Command sequenceDeployIngestRetract = new SequentialCommandGroup(
@@ -149,10 +163,10 @@ public class RobotContainer {
 
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 2.0,
-            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 2.0,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 1.0,
+            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 1.0,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
-            () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
+            () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.65//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
     // mIntakeSubsystem.setDefaultCommand(new ManualIntakeArm(
     //         mIntakeSubsystem,
@@ -180,7 +194,7 @@ public class RobotContainer {
     Trigger IntakeRollerIngestTrigger 
       = new Trigger(() -> mControllerTertiary.getRightBumperPressed());
     IntakeRollerIngestTrigger
-      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(-0.25); } ));
+      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(-0.3); } ));
 
     Trigger IntakeRollerStopIngestTrigger 
       = new Trigger(() -> mControllerTertiary.getRightBumperReleased());
@@ -190,7 +204,7 @@ public class RobotContainer {
     Trigger IntakeRollerEjectTrigger 
       = new Trigger(() -> mControllerTertiary.getLeftBumperPressed());
     IntakeRollerEjectTrigger
-      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.25); } ));
+      .onTrue(new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.3); } ));
 
     Trigger IntakeRollerStopEjectTrigger 
       = new Trigger(() -> mControllerTertiary.getLeftBumperReleased());
@@ -259,10 +273,11 @@ public class RobotContainer {
     
     //togggle climber and shoooter ( default shooter; default false )
     // We are currently not using a multi-mode setup. These buttons are FREE.
-    Trigger toggleToShooter = new Trigger(() -> {
+    Trigger safeZoneTrigger = new Trigger(() -> {
       return mControllerTertiary.getStartButton();
       //Start maps Shooter
     });
+    safeZoneTrigger.onTrue(new SafeZoneIntakeCommand(mIntakeSubsystem));
     // toggleToShooter.onTrue(new InstantCommand(() -> {
     //   setForShooterNotClimber(true);
     // }));
@@ -394,6 +409,91 @@ public class RobotContainer {
 
 
   // }
+  private Command sequenceScoreSpeakerOnceRight = new SequentialCommandGroup(
+    (new DelayCommand(0.1)).andThen
+    (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    (new DelayCommand(0.1)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = false; }))
+
+    //  .andThen((sequenceDeployIngestRetract).andThen(new DelayCommand(0.35)).alongWith
+    //  (new LinearDriveCommand(mDriveSubsystem, -1.4, 0 ,0))).andThen
+    //  (new LinearDriveCommand(mDriveSubsystem, -1.4, 0 , 45))).andThen
+   
+    // (new LinearDriveCommand(mDriveSubsystem, 1.4,0, 0)).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, 1.4,0, -45)).andThen
+
+    // (new DelayCommand(0.1)).andThen
+    // (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    // (new DelayCommand(0.1)).andThen
+    // (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    // (new DelayCommand(0.1)).andThen
+    // (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new InstantCommand(() -> { mArmedToFire = false; })
+    );
+
+    private Command sequenceScoreSpeakerOnceLeft = new SequentialCommandGroup(
+    (new DelayCommand(0.1)).andThen
+    (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    (new DelayCommand(0.1)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = false; }))
+
+    //  .andThen((sequenceDeployIngestRetract).andThen(new DelayCommand(0.35)).alongWith
+    //(new LinearDriveCommand(mDriveSubsystem, -1.4, 0 ,0))).andThen
+    //  (new LinearDriveCommand(mDriveSubsystem, -1.4, 0 , -45))).andThen
+   
+    // (new LinearDriveCommand(mDriveSubsystem, 1.4,0, 0)).andThen
+    // (new LinearDriveCommand(mDriveSubsystem, 1.4,0, 45)).andThen
+
+    // (new DelayCommand(0.1)).andThen
+    // (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    // (new DelayCommand(0.1)).andThen
+    // (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    // (new DelayCommand(0.1)).andThen
+    // (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
+    // (new InstantCommand(() -> { mArmedToFire = false; })
+    );
 
   private Command sequenceScoreSpeakerOnce = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
