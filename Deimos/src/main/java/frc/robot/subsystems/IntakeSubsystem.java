@@ -23,7 +23,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	private DigitalInput mInternalBeamBreaker;
 	private DigitalInput mIntakeRetractedLimitSwitch;
 	
-	public enum  IntakeArmPositionEnum { eUnknown, eDeployed, eRetracted };
+	public enum  IntakeArmPositionEnum { eUnknown, eDeployed, eRetracted, eSafeZone };
 	private IntakeArmPositionEnum mDesiredIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
 
 	final private double kDesiredIntakeArmEncoderSweep = 7.4; //8.0;
