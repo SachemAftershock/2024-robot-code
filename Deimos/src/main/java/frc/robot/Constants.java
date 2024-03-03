@@ -193,6 +193,8 @@ public final class Constants {
             eX, eY
         }
 
+        public static final int kReinitializeFieldOrientJoystickButton = 7;
+
         public static final double kDriveControllerDeadband = 0.05;
         public static final boolean kSquareAxis = true;
 

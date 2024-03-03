@@ -191,6 +191,10 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
+    // Emergency Reinitialize
+    Trigger fieldOrientTrigger = new Trigger(() -> mControllerPrimary.getRawButton(DriveConstants.kReinitializeFieldOrientJoystickButton));
+    fieldOrientTrigger.onTrue(new InstantCommand(() -> mDriveSubsystem.initialize()));
+
     //INTAKE ROLLERS (Manual)
 
     Trigger IntakeRollerIngestTrigger 
