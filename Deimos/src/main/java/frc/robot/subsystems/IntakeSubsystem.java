@@ -205,18 +205,24 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	@Override
 	public boolean checkSystem() {
-		final boolean showPrints = false;		
+		final boolean showPrints = true;		
 		if (showPrints) System.out.println(
 			"Intake ExternalBeamBreaker: " + 
 			mExternalBeamBreaker.get() + 
 			"  Intake InternalBeamBreaker: " + 
-			mInternalBeamBreaker.get());
+			mInternalBeamBreaker.get() + 
+			"  Intake LIMIT: " + mIntakeRetractedLimitSwitch.get());
 		return true;
 	}
 
 	@Override
 	public void periodic() {
+		checkSystem();
 		runControlIntakeArmPosition();
+		if(mIntakeRetractedLimitSwitch.get())
+		{
+			
+		}
 	}
 
 	//Add Shuffle board calls here
