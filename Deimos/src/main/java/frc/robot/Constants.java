@@ -206,6 +206,7 @@ public final class Constants {
         public static final double kAutoRotateEpsilon = 3.0;
         public static final double kLinearDriveTranslationEpsilon = 0.04;// .05
         public static final double kLinearDriveRotationEpsilon = 2.0;
+        public static final double kLinearDriveEpsilon = 0.5;
 
         public static final double kDrivetrainTrackwidthMeters = 0.5461;
         public static final double kDrivetrainWheelbaseMeters = 0.5461;

@@ -36,6 +36,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ClimberSubsystem.climberMotorToSpinEnum;
 import frc.robot.subsystems.IntakeSubsystem.IntakeArmPositionEnum;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.DelayCommand;
 import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
@@ -56,6 +57,7 @@ import frc.robot.enums.ShooterAngleState;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualAmpScoreCommand;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.OldLinearDriveCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.LimelightManagerSubsystem;
@@ -521,10 +523,10 @@ public class RobotContainer {
     ((new DeployIntakeCommand(mIntakeSubsystem)).andThen
       (new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
-    (new LinearDriveCommand(mDriveSubsystem, -1.4, 0 ,0))
+    (new OldLinearDriveCommand(mDriveSubsystem, -1.4, CardinalDirection.eX))
     ).andThen
-     (new LinearDriveCommand(mDriveSubsystem, 0, 0.1, 0)).andThen
-     (new LinearDriveCommand(mDriveSubsystem, 1.4, 0, 0)).andThen
+     //(new OldLinearDriveCommand(mDriveSubsystem, 0, 0.1, 0)).andThen
+     (new OldLinearDriveCommand(mDriveSubsystem, 1.4, CardinalDirection.eX)).andThen
 
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
@@ -543,9 +545,9 @@ public class RobotContainer {
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
     (new DelayCommand(0.2)).andThen
-    (new LinearDriveCommand(mDriveSubsystem, -0.5, 0.0, 0.0)).andThen
+    (new OldLinearDriveCommand(mDriveSubsystem, -0.5, CardinalDirection.eX)).andThen
     (new DelayCommand(0.2)).andThen
-    (new LinearDriveCommand(mDriveSubsystem, 0.0, 0.0, 179))
+    (new RotateDriveCommand(mDriveSubsystem,179))
     );
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
