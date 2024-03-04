@@ -26,6 +26,9 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	public enum  IntakeArmPositionEnum { eUnknown, eDeployed, eRetracted, eSafeZone };
 	private IntakeArmPositionEnum mDesiredIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
 
+	/**
+	 * Range from zero to this number
+	 */
 	final private double kDesiredIntakeArmEncoderSweep = 7.4; //8.0;
 
 	final private boolean kEnableMotors = true;
@@ -145,6 +148,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 				} 
 			}
 
+		} else if (mDesiredIntakeArmPosition == IntakeArmPositionEnum.eSafeZone) {
+			intakeArmSpeed = kIntakeSafeZoneAngleProfiler.calculate(currentIntakeArmEncoderPosition);
 		} else {
 			factor = 0.0;
 			intakeArmSpeed = 0.0;
