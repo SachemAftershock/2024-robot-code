@@ -44,10 +44,10 @@ import frc.robot.commands.IngestNoteCommand;
 import frc.robot.commands.EjectNoteCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
-import frc.robot.commands.SafeZoneIntakeCommand;
+import frc.robot.commands.SafeZoneCommand;
 import frc.robot.commands.ShooterMotorsOffCommand;
 import frc.robot.commands.ShooterMotorsToSpeakerSpeedCommand;
-import frc.robot.commands.SafeZoneIntakeCommand;
+import frc.robot.commands.SafeZoneCommand;
 
 import frc.robot.commands.ShooterStageToNoteLoadAngleCommand;
 import frc.robot.commands.ShooterStageToSpeakerAngleCommand;
@@ -276,13 +276,9 @@ public class RobotContainer {
     .whileTrue(new RotateDriveCommand(mDriveSubsystem, 270.0))
     .onFalse(new InstantCommand(() -> mDriveSubsystem.drive(new ChassisSpeeds())));
     
-    //togggle climber and shoooter ( default shooter; default false )
-    // We are currently not using a multi-mode setup. These buttons are FREE.
-    Trigger safeZoneTrigger = new Trigger(() -> {
-      return mControllerTertiary.getStartButton();
-      //Start maps Shooter
-    });
-    safeZoneTrigger.onTrue(new SafeZoneIntakeCommand(mIntakeSubsystem));
+    // go to safe zone
+    Trigger safeZoneTrigger = new Trigger(() -> mControllerTertiary.getStartButton());
+    safeZoneTrigger.onTrue(new SafeZoneCommand(mIntakeSubsystem, mShooterSubsystem));
     // toggleToShooter.onTrue(new InstantCommand(() -> {
     //   setForShooterNotClimber(true);
     // }));

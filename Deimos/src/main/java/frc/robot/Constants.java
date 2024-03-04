@@ -49,6 +49,15 @@ public final class Constants {
 
         public static double kIntakeArmMotorSpeed = 0.05;
         public static double kIntakeRollerMotorSpeed = 0.05;
+
+        public static PositionToVelocityProfiler kIntakeSafeZoneAngleProfiler = (new PositionToVelocityProfiler()
+            .setGoal(10)
+            .addProfileEntry(0.0 , 0.5, -.1)
+            .addProfileEntry(0.5, 3, -.1)
+            .addProfileEntry(3, 5, -.1)
+            .addProfileEntry(5, 8, .1)
+            .addProfileEntry(8, 8, .1)
+        );
     }
 
     public static class ClimberConstants {
@@ -174,15 +183,16 @@ public final class Constants {
          * NOT INITIALIZED YET
          */
         public static PositionToVelocityProfiler kShooterAngleSafeZoneProfiler = (new PositionToVelocityProfiler()
-            .setGoal(10)
+            .setGoal(51)
             .addProfileEntry(-2, 10, 0.10)
-            .addProfileEntry(10, 20, 0.00)
-            .addProfileEntry(20, 30, 0.00)
-            .addProfileEntry(30, 40, 0.00)
-            .addProfileEntry(40, 50, 0.00)
-            .addProfileEntry(50, 60, 0.00)
-            .addProfileEntry(60, 70, 0.00)
-            .addProfileEntry(70, 80, 0.00)
+            .addProfileEntry(10, 20, 0.20)
+            .addProfileEntry(20, 30, 0.30)
+            .addProfileEntry(30, 40, 0.20)
+            .addProfileEntry(40, 50, 0.10)
+            .addProfileEntry(50, 55, 0.01)
+            .addProfileEntry(55, 60, -0.1)
+            .addProfileEntry(60, 70, -0.20)
+            .addProfileEntry(70, 200, -0.30)
         );
 
     }
