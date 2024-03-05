@@ -41,6 +41,7 @@ import frc.robot.commands.DelayCommand;
 import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.IngestNoteCommand;
+import frc.robot.commands.LimelightTiltCommand;
 import frc.robot.commands.EjectNoteCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
@@ -160,7 +161,11 @@ public class RobotContainer {
 //    (new DelayCommand(0.2))
 
   private boolean mArmedToFire = false;
+  private boolean turboEnabled = false;
 
+  private double turboMultIfTrue() {
+    return turboEnabled ? 10000000 : 1;
+  }
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
@@ -168,8 +173,8 @@ public class RobotContainer {
 
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 2.0,
-            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 2.0,//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 2.0 * turboMultIfTrue(),
+            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 2.0 * turboMultIfTrue(),//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
             () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.4//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
@@ -195,8 +200,14 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(7));
-    limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem)).andThen(new LimelightTiltCommand(mDriveSubsystem));
+    limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem).andThen(new LimelightTiltCommand(mDriveSubsystem)));
 	
+    Trigger turboButton = new Trigger(()-> mControllerSecondary.getRawButton(1));
+    turboButton.onTrue(new InstantCommand(()->{
+      turboEnabled = true;
+    })).onFalse(new InstantCommand(()->{
+      turboEnabled = false;
+    }));
 	//INTAKE ROLLERS (Manual)
 
     Trigger IntakeRollerIngestTrigger 
