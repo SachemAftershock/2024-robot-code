@@ -31,23 +31,23 @@ public class LimelightTiltCommand extends Command {
     public void initialize() {
         //start pid
         mPidTilt = new ProfiledPIDController(.4,0,.1, constraints);
+        mPidTilt.setGoal(0);
+
 
     }
 
     @Override
     public void execute() {
         //run pid
-        double[] pose = table.getEntry("camerapose_targetspace").getDoubleArray(new double[6]);
+        //double[] pose = table.getEntry("camerapose_targetspace").getDoubleArray(new double[6]);
         if(table.getEntry("tid").getInteger(0)!=-1){
             double x  =  table.getEntry("tx").getDouble(0.0);
             double speed = -mPidTilt.calculate(x/20,0);
             System.out.println(speed);
-            mDrive.drive(new ChassisSpeeds(0,0,speed));
+            mDrive.drive(new ChassisSpeeds(0,0,-speed * Math.PI));
         }
-        mPidTilt.setGoal(0);
-
     }
-
+ 
     @Override
     public boolean isFinished() {
         
@@ -61,12 +61,12 @@ public class LimelightTiltCommand extends Command {
             mDrive.drive(new ChassisSpeeds());
             System.out.println("Tilt finished");
             
-            mLampTriggered = true;
-			mLampController.setPulse(1, 3600, 0.5, 0.5);
-            if (mLampTriggered) {
-                mLampTriggered = false;
-                mLampController.setPulse(0, 0, 0, 0);
-            }
+            //mLampTriggered = true;
+			mLampController.setPulse(1, 2, 0.5, 0.5);
+            // if (mLampTriggered) {
+            //     mLampTriggered = false;
+            //     mLampController.setPulse(0, 0, 0, 0);
+            // }
 
             return true;
 
