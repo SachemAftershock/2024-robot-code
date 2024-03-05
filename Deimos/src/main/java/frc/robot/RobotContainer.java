@@ -414,7 +414,7 @@ public class RobotContainer {
 
 
   // }
-  private Command sequenceScoreSpeakerOnceRight = new SequentialCommandGroup(
+  private Command sequenceScoreSpeakerAmpSide = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
@@ -430,7 +430,8 @@ public class RobotContainer {
     (new DelayCommand(0.1)).andThen
     (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
-    (new InstantCommand(() -> { mArmedToFire = false; }))
+    (new InstantCommand(() -> { mArmedToFire = false; })).andThen
+    (new LinearDriveCommand(mDriveSubsystem, -1.4, 0 ,0))
 
      .andThen((sequenceDeployIngestRetractAuto).alongWith
      (new LinearDriveCommand(mDriveSubsystem, -1.4, 0 ,0))).andThen
@@ -519,16 +520,16 @@ public class RobotContainer {
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
     //Driving back to shoot into speaker after driving out to get a piece
+    
+    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.5)).andThen
     (
-    ((new DeployIntakeCommand(mIntakeSubsystem)).andThen
-      (new IngestNoteCommand(mIntakeSubsystem)).andThen
+      ((new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
     (new OldLinearDriveCommand(mDriveSubsystem, -1.4, CardinalDirection.eX))
     ).andThen
      //(new OldLinearDriveCommand(mDriveSubsystem, 0, 0.1, 0)).andThen
-     (new OldLinearDriveCommand(mDriveSubsystem, 1.4, CardinalDirection.eX)).andThen
-
-    (new DelayCommand(0.1)).andThen
+     (new OldLinearDriveCommand(mDriveSubsystem, 1.3, CardinalDirection.eX)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem)).andThen
@@ -545,9 +546,9 @@ public class RobotContainer {
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
     (new DelayCommand(0.2)).andThen
-    (new OldLinearDriveCommand(mDriveSubsystem, -0.5, CardinalDirection.eX)).andThen
+    (new OldLinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eX)).andThen
     (new DelayCommand(0.2)).andThen
-    (new RotateDriveCommand(mDriveSubsystem,179))
+    (new RotateDriveCommand(mDriveSubsystem,175))
     );
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
