@@ -194,10 +194,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(7));
-    limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem)).andThen(new LimelightTiltCommand(mDriveSubsystem));
-	
-	//INTAKE ROLLERS (Manual)
+    //INTAKE ROLLERS (Manual)
 
     Trigger IntakeRollerIngestTrigger 
       = new Trigger(() -> mControllerTertiary.getRightBumperPressed());
