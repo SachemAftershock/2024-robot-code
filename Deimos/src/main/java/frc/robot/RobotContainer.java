@@ -292,6 +292,13 @@ public class RobotContainer {
     cardinalizeBotLeftward
     .whileTrue(new RotateDriveCommand(mDriveSubsystem, 270.0))
     .onFalse(new InstantCommand(() -> mDriveSubsystem.drive(new ChassisSpeeds())));
+    Trigger cardinalizeBotRightward = new Trigger(() -> {
+      int pov = mControllerPrimary.getPOV();
+      return (45 <= pov && pov <= 135);
+    });
+    cardinalizeBotRightward
+    .whileTrue(new RotateDriveCommand(mDriveSubsystem, 90.0))
+    .onFalse(new InstantCommand(() -> mDriveSubsystem.drive(new ChassisSpeeds())));
     
     //togggle climber and shoooter ( default shooter; default false )
     // We are currently not using a multi-mode setup. These buttons are FREE.
