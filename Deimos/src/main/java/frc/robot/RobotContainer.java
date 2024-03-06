@@ -202,7 +202,13 @@ public class RobotContainer {
     Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(7));
     limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem).andThen(new LimelightTiltCommand(mDriveSubsystem)));
 	
-    Trigger turboButton = new Trigger(()-> mControllerSecondary.getRawButton(1));
+    
+    // Emergency Reinitialize
+    Trigger fieldOrientTrigger = new Trigger(() -> mControllerPrimary.getRawButton(8)); // button 8 left joystick todo make constant
+    fieldOrientTrigger.onTrue(new InstantCommand(() -> mDriveSubsystem.initialize()));
+
+    // Multiply manual drive by a Large Number (blame Enzo)
+    Trigger turboButton = new Trigger(()-> mControllerSecondary.getRawButton(1)); // guntrigger button
     turboButton.onTrue(new InstantCommand(()->{
       turboEnabled = true;
     })).onFalse(new InstantCommand(()->{
