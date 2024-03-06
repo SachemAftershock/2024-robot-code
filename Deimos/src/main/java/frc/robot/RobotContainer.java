@@ -34,6 +34,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ClimberSubsystem.climberMotorToSpinEnum;
 import frc.robot.subsystems.IntakeSubsystem.IntakeArmPositionEnum;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.DelayCommand;
 import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
@@ -56,6 +57,7 @@ import frc.robot.enums.ShooterAngleState;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualAmpScoreCommand;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.OldLinearDriveCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.LimelightManagerSubsystem;
@@ -438,7 +440,7 @@ public class RobotContainer {
 
 
   // }
-  private Command sequenceScoreSpeakerOnceRight = new SequentialCommandGroup(
+  private Command sequenceScoreSpeakerAmpSide = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
