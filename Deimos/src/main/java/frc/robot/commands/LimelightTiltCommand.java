@@ -61,12 +61,9 @@ public class LimelightTiltCommand extends Command {
             mDrive.drive(new ChassisSpeeds());
             System.out.println("Tilt finished");
             
-            //mLampTriggered = true;
 			mLampController.setPulse(1, 2, 0.5, 0.5);
-            // if (mLampTriggered) {
-            //     mLampTriggered = false;
-            //     mLampController.setPulse(0, 0, 0, 0);
-            // }
+            Timer.delay(0.50);
+            mLampController.setPulse(0, 0, 0, 0);
 
             return true;
 
