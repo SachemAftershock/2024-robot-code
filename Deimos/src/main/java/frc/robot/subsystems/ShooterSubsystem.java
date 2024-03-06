@@ -222,9 +222,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	public boolean isNoteLoaded() {
 		return !(mBeamBreakerEnter.get());
 	}
+	
 
     @Override
 	public void periodic(){
+		checkSystem();
 		runShooterAngleSetpointChaser();
 		if (isShooterAtSpeed())
 		{
@@ -252,6 +254,14 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	@Override
 	public boolean checkSystem() {
+		
+		final boolean showPrints = false;		
+		if (showPrints) System.out.println(
+			"Intake EnterBeamBreaker: " + 
+			mBeamBreakerEnter.get() + 
+			"  Intake LeaveBeamBreaker: " + 
+			mBeamBreakerLeave.get());
+			//"  Intake LIMIT: " + mIntakeRetractedLimitSwitch.get());
 		return true;
 	}
 
