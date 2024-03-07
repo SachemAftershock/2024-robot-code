@@ -19,6 +19,43 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	private CANSparkMax mIntakeRollerMotor;
 
+	private static boolean mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = true;
+	private static boolean mInternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = true;
+
+	public static boolean IsBothBeamBreakersBeenBroken() {
+		return !mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit 
+				&& !mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit;
+	}
+
+
+
+	class ExternalBeamBreakerClass extends DigitalInput {
+		public ExternalBeamBreakerClass(int channel) {
+			super(channel);
+		}
+		@Override
+		public boolean get() {
+			boolean result = this.get();
+			if (!result) IntakeSubsystem.mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = false;
+			return result;
+		}
+
+	}
+
+	class InternalBeamBreakerClass extends DigitalInput {
+		public InternalBeamBreakerClass(int channel) {
+			super(channel);
+		}
+		@Override
+		public boolean get() {
+			boolean result = this.get();
+			if (!result) IntakeSubsystem.mInternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = false;
+			return result;
+		}
+
+	}
+		
+
 	private DigitalInput mExternalBeamBreaker;
 	private DigitalInput mInternalBeamBreaker;
 	private DigitalInput mIntakeRetractedLimitSwitch;
