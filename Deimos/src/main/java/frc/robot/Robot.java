@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-  
+    Constants.DriverStationConstants.updateAllianceColorAndLocation();
       //mLampController.setPulse(3, 0.5, 0.5, 0.5);
   }
 

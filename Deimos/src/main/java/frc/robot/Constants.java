@@ -4,7 +4,12 @@
 
 package frc.robot;
 
+import java.util.Optional;
+import java.util.OptionalInt;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.PositionToVelocityProfiler;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -19,6 +24,19 @@ import frc.lib.PositionToVelocityProfiler;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+        
+    public static final class DriverStationConstants {
+        public static DriverStation mDriverStation;
+        public static Optional<Alliance> kAllianceColor = DriverStation.getAlliance();
+        public static OptionalInt kLocationnumber = DriverStation.getLocation();
+        public static void updateAllianceColorAndLocation(){
+            kAllianceColor = DriverStation.getAlliance();
+            kLocationnumber = DriverStation.getLocation();
+        }
+    }
+
+
 
     public static final class LampConstants {
         public static int kPdhId = 3;        
