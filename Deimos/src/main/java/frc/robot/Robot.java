@@ -105,6 +105,7 @@ public class Robot extends TimedRobot {
       System.out.println("WARNING: Auto ended without both intake beem breakers being broken!!");
     }
 
+    Constants.DriverStationConstants.updateAllianceColorAndLocation();
 
     //mLampController.setPulse(3, 0.25, 0.75, 0.5);
 
