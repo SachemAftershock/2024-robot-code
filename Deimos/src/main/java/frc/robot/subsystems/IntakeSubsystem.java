@@ -242,7 +242,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	@Override
 	public boolean checkSystem() {
-		final boolean showPrints = false;		
+		final boolean showPrints = true;		
 		if (showPrints) System.out.println(
 			"Intake ExternalBeamBreaker: " + 
 			mExternalBeamBreaker.get() + 
@@ -256,6 +256,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	public void periodic() {
 		checkSystem();
 		runControlIntakeArmPosition();
+		System.out.println("intake state "+getIntakeArmState());
 		if(mIntakeRetractedLimitSwitch.get())
 		{
 			

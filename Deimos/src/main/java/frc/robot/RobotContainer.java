@@ -173,7 +173,7 @@ public class RobotContainer {
             () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * turboMultIfTrue(),
             () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * turboMultIfTrue(),//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
-            () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.6//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
+            () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.45//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
     // mIntakeSubsystem.setDefaultCommand(new ManualIntakeArm(
     //         mIntakeSubsystem,
@@ -194,6 +194,11 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+
+    // Trigger intakeIsScrewed = new Trigger(() -> mControllerTertiary.getBackButton());
+    // intakeIsScrewed.onTrue(new InstantCommand(() -> {
+    //   // mIntakeSubsystem.setIntakeArmState
+    // }));
 
     Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(7));
     limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem).andThen(new LimelightTiltCommand(mDriveSubsystem)));
@@ -369,7 +374,7 @@ public class RobotContainer {
 
     // shooter manual i think. other commands might also run setDesiredShooterAngleState so be careful
     upDPAD.onTrue(new InstantCommand(() -> {
-      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eAmp);
+      mShooterSubsystem.setDesiredShooterAngleState(ShooterAngleState.eTrap); // FIXME temporarily NOT AMP
     }));
 
     downDPAD.onTrue(new InstantCommand(() -> {
@@ -849,7 +854,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     //return sequenceScoreSpeakerAmpSideForBlue;
     //return sequenceScoreSpeakerAmpSideForRed;
-    return sequenceScoreCenterSide;
+    return sequenceScoreCenterSideSINGLE;
      //return sequenceHPSideShootOnceReorientateRED;
      //return sequenceScoreCenterSide
     // TrajectoryConfig config = new TrajectoryConfig(
@@ -992,7 +997,7 @@ public class RobotContainer {
 
   /**
    * Reconfigures button bindings when start button and back button is pressed
-   * This causes a core dump fatal error. Commenting out for now
+   * This causes a core dump fatal error. Comfting out for now
    * @param toggle
    */
   // public void setForShooterNotClimber(boolean toggle){

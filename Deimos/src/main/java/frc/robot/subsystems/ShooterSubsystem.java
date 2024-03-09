@@ -189,6 +189,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		}
 
 		mAngleEncoderCurrentPositionDegrees = mAngleEncoder.getPosition().getValueAsDouble() * 360 * -1.0;
+		// System.out.println("current shooter ang: "+mAngleEncoderCurrentPositionDegrees);
 		// Convert from rotations to degrees, then make the upward direction positive.
 
 		double desiredSpeed = 0;
