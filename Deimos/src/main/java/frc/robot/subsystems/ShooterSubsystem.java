@@ -47,6 +47,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	private DigitalInput mShooterLimitSwitch;
 	private DigitalInput mBeamBreakerEnter;
 	private DigitalInput mBeamBreakerLeave;
+	private DigitalInput mPanicLimitSwitch;
 
 	private boolean mEjectNoteIntoAmp;
 
@@ -62,8 +63,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	private ShooterSubsystem() {
 		mAngleShootMotor = new CANSparkMax(kAngleShootMotorID, MotorType.kBrushless);
-		mBeamBreakerEnter = new DigitalInput(1); // TODO these were temporarily removed
-		mBeamBreakerLeave = new DigitalInput(8);
+		mBeamBreakerEnter = new DigitalInput(1); // TODO temporarily removed a while ago
+		mBeamBreakerLeave = new DigitalInput(8); // TODO temporarily removed a while ago
+		
+		mPanicLimitSwitch = new DigitalInput(10);
+
 		mLeftShootMotor = new CANSparkMax(kLeftShootMotorID, MotorType.kBrushless);
 		mRightShootMotor = new CANSparkMax(kRightShootMotorID, MotorType.kBrushless);
 		mLeftShootEncoder = mLeftShootMotor.getEncoder();
@@ -223,27 +227,54 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		return !(mBeamBreakerEnter.get());
 	}
 	
+	public boolean mPanicManualReturn = false;
+
+	/**
+	 * If for some reason, the shooter arm goes way too far and out the back, move it
+	 * back until it hits the speaker angle limit switch
+	 * @param doPanic
+	 */
+	public void doPanicAndManuallyReturn(boolean doPanic) {
+		mPanicManualReturn = doPanic;
+	}
 
     @Override
 	public void periodic(){
-		checkSystem();
-		runShooterAngleSetpointChaser();
-		if (isShooterAtSpeed())
-		{
-			mLampTriggered = true;
-			mLampController.setPulse(1, 3600, 0.5, 0.5);
-		} else if (mLampTriggered) {
-			mLampTriggered = false;
-			mLampController.setPulse(0, 0, 0, 0);
-		}
+			checkSystem();
+			// panic hook
+			System.out.println("lim " + mPanicLimitSwitch.get());
+			if (mPanicLimitSwitch.get()) {
+				doPanicAndManuallyReturn(true);
+			}
+			System.out.println("panicking? "+ mPanicManualReturn);
+			if (mPanicManualReturn) {
+				// retract shooter arm to speaker, and ignore runShooterAngleSetpointChaser (since FRC Canivore is now untrusted)
+				double panicSpeed = -0.12; // low speed, avoid slamming without trusting canivore/encoder
+				if (mShooterLimitSwitch.get()) {
+					mPanicManualReturn = false;
+					panicSpeed = 0;
+				}
+				setAngleShooterMotorSpeed(panicSpeed);
+				return;
+			}
 
-		//call statecheck method, ... make statecheck call
-		//if(mIntakeRetractedLimitSwitch.get()){
-			//setCurrentIntakeState(IntakeState.eRetracted);
-			//mIntakeArmEncoder.setPosition(0.0);//   .reset();
-		// } TODO: FIX
-		//System.out.println(mEjectNoteIntoAmp);
-		//System.out.println("ACTUAL: " + mIntakeArmEncoder.getAbsolutePosition() + "-----Desired: " + mDesiredIntakeState.getDesiredPosition() + "-----Speed: " + mSpeed + "----error: " + mIntakeArmPidController.getPositionError() + "-----P*error: " + mIntakeArmPidController.getPositionError()* kIntakeArmGains[0]+ "LIMITSWITCH: " + mIntakeRetractedLimitSwitch.get());
+			runShooterAngleSetpointChaser();
+			if (isShooterAtSpeed())
+			{
+				mLampTriggered = true;
+				mLampController.setPulse(1, 3600, 0.5, 0.5);
+			} else if (mLampTriggered) {
+				mLampTriggered = false;
+				mLampController.setPulse(0, 0, 0, 0);
+			}
+
+			//call statecheck method, ... make statecheck call
+			//if(mIntakeRetractedLimitSwitch.get()){
+				//setCurrentIntakeState(IntakeState.eRetracted);
+				//mIntakeArmEncoder.setPosition(0.0);//   .reset();
+			// } TODO: FIX
+			//System.out.println(mEjectNoteIntoAmp);
+			//System.out.println("ACTUAL: " + mIntakeArmEncoder.getAbsolutePosition() + "-----Desired: " + mDesiredIntakeState.getDesiredPosition() + "-----Speed: " + mSpeed + "----error: " + mIntakeArmPidController.getPositionError() + "-----P*error: " + mIntakeArmPidController.getPositionError()* kIntakeArmGains[0]+ "LIMITSWITCH: " + mIntakeRetractedLimitSwitch.get());
 	}
 
 
@@ -255,12 +286,14 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	@Override
 	public boolean checkSystem() {
 		
-		final boolean showPrints = false;		
+		final boolean showPrints = true;		
 		if (showPrints) System.out.println(
-			"Intake EnterBeamBreaker: " + 
+			"Shooter EnterBeamBreaker: " + 
 			mBeamBreakerEnter.get() + 
-			"  Intake LeaveBeamBreaker: " + 
-			mBeamBreakerLeave.get());
+			" Shooter LeaveBeamBreaker: " + 
+			mBeamBreakerLeave.get() +
+			" Shooter LimitSwitch: " + 
+			mPanicLimitSwitch.get());
 			//"  Intake LIMIT: " + mIntakeRetractedLimitSwitch.get());
 		return true;
 	}

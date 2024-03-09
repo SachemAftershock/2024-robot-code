@@ -126,7 +126,7 @@ public final class Constants {
          * 95 degrees. Move the shooter arm up to dump note into amp
          */
         public static PositionToVelocityProfiler kShooterAngleAmpProfiler = (new PositionToVelocityProfiler()
-            .setGoal(95)
+            .setGoal(97)
             .addProfileEntry(-2, 10, 0.4)
             .addProfileEntry(10 , 15 , 0.60)
             .addProfileEntry(15 , 20 , 0.70)
@@ -144,9 +144,12 @@ public final class Constants {
             .addProfileEntry(65 , 70 , 0.70)
             .addProfileEntry(70 , 75 , 0.55)
             .addProfileEntry(75 , 85 , 0.35)
-            .addProfileEntry(85 , 95 , 0.15)
+            .addProfileEntry(85 , 95 , 0.07)
             .addProfileEntry(95 , 100, 0.01)
-            // .addProfileEntry(90, 100, 0.01)
+            .addProfileEntry(100, 105, -0.07)
+
+            // in case it goes too far somehow
+            .addProfileEntry(105, 240, -0.15)
         );
 
         /**
@@ -160,7 +163,7 @@ public final class Constants {
             .addProfileEntry(20 , 40 , -0.4)
             .addProfileEntry(40 , 60 , -0.4)
             .addProfileEntry(60 , 100, -0.3)
-            .addProfileEntry(80 , 200, -0.2) // just in case it goes past somehow
+            .addProfileEntry(80 , 240, -0.15) // just in case it goes past somehow
         );
 
         /**
@@ -187,7 +190,7 @@ public final class Constants {
             .addProfileEntry(140,147,0.10)
             .addProfileEntry(147,155,0.01)
             // if it overshoots (not possible since we will be trapping with our back to the wall), move back to normal spot
-            .addProfileEntry(155, 200, -0.10) 
+            .addProfileEntry(155, 240, -0.10)
         );
 
         /**
@@ -204,6 +207,8 @@ public final class Constants {
             .addProfileEntry(50, 60, 0.00)
             .addProfileEntry(60, 70, 0.00)
             .addProfileEntry(70, 80, 0.00)
+
+            .addProfileEntry(155, 240, -0.10) // if it goes too far somehow. tho safezone isnt used yet
         );
 
     }
@@ -227,7 +232,7 @@ public final class Constants {
         public static final double kAutoRotateEpsilon = 3.0;
         public static final double kLinearDriveTranslationEpsilon = 0.04;// .05
         public static final double kLinearDriveRotationEpsilon = 2.0;
-        public static final double kLinearDriveEpsilon = 0.5;
+        public static final double kLinearDriveEpsilon = 0.3;
 
         public static final double kDrivetrainTrackwidthMeters = 0.5461;
         public static final double kDrivetrainWheelbaseMeters = 0.5461;

@@ -242,7 +242,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	@Override
 	public boolean checkSystem() {
-		final boolean showPrints = true;		
+		final boolean showPrints = false;		
 		if (showPrints) System.out.println(
 			"Intake ExternalBeamBreaker: " + 
 			mExternalBeamBreaker.get() + 

@@ -229,12 +229,13 @@ public class DriveSubsystem extends AftershockSubsystem {
 		counter = 0;
 		mNavx.setAngleAdjustment(-4.0);
 	}
-
+	
 	@Override
 	public void periodic() {
+		SwerveModuleState[] states = mKinematics.toSwerveModuleStates(mChassisSpeeds);
 
 		//System.out.println("X-Pose" + mPoseEstimator.getEstimatedPosition().getX() + " Y Pose : " + mPoseEstimator.getEstimatedPosition().getY());
-
+		System.out.println("CHASSSIS SPEEDS : " + states[0].speedMetersPerSecond);
 		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
 		//delete
 		//System.out.println(poseInfo);
@@ -250,7 +251,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 		//mPoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
 
-		SwerveModuleState[] states = mKinematics.toSwerveModuleStates(mChassisSpeeds);
+		
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, kMaxVelocityMetersPerSecond);
 
 
