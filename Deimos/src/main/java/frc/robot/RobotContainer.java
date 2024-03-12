@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
+
 import static frc.robot.Constants.ClimberConstants.kClimberMotorSpeed;
 import static frc.robot.Constants.ShooterConstants.kShootMotorShootingVelocity;
 
@@ -872,16 +875,19 @@ public class RobotContainer {
     // (new DelayCommand(0.2)).andThen
     // (new InstantCommand(() -> { mArmedToFire = false; }))
     );
+  
+    ChoreoManager mChoreoManager = ChoreoManager.getInstance();
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    return mChoreoManager.getChoreoAutonomousCommand();
     //return sequenceScoreSpeakerAmpSideForBlue;
     //return sequenceScoreSpeakerAmpSideForRed;
     //return sequenceScoreCenterSide ;
-    return new OldLinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eX);
+    // return new OldLinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eX);
      //return sequenceHPSideShootOnceReorientateRED;
      //return sequenceScoreCenterSide
     // TrajectoryConfig config = new TrajectoryConfig(

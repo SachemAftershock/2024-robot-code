@@ -233,6 +233,7 @@ public final class Constants {
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;
+        public static final double kPTheta = 1; // FIXME made on-the-fly for choreo
 
         public static final double kAutoRotateEpsilon = 3.0;
         public static final double kLinearDriveTranslationEpsilon = 0.04;// .05

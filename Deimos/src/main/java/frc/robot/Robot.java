@@ -24,6 +24,7 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
 
   private LampController mLampController = LampController.getInstance();
+  private ChoreoManager mChoreoManager = ChoreoManager.getInstance();
 
   private int count = 0; 
 
@@ -59,6 +60,7 @@ public class Robot extends TimedRobot {
     if ((count++ % 50) == 0){ LimelightManagerSubsystem.getInstance().outputTelemetry(); count = 0; }
 
     mLampController.run();
+    mChoreoManager.updatePose();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
