@@ -82,31 +82,31 @@ public class LimelightTiltCommand extends Command {
             System.out.println("Location Number: Unknown");
         }
 
-        if(AllianceColor ==  Alliance.Red && LocationNumber == 1){
-            table.getEntry("priorityid").setInteger(4);
-            mPIDGoal = 45;
-        }
-        if(AllianceColor ==  Alliance.Red && LocationNumber == 2){
-            table.getEntry("priorityid").setInteger(4);
-            mPIDGoal = 0;
-        }
-        if(AllianceColor ==  Alliance.Red && LocationNumber == 3){
-            table.getEntry("priorityid").setInteger(4);
-            mPIDGoal = -45;
-        }
+        // if(AllianceColor ==  Alliance.Red && LocationNumber == 1){
+        //     table.getEntry("priorityid").setInteger(4);
+        //     mPIDGoal = 45;
+        // }
+        // if(AllianceColor ==  Alliance.Red && LocationNumber == 2){
+        //     table.getEntry("priorityid").setInteger(4);
+        //     mPIDGoal = 0;
+        // }
+        // if(AllianceColor ==  Alliance.Red && LocationNumber == 3){
+        //     table.getEntry("priorityid").setInteger(4);
+        //     mPIDGoal = -45;
+        // }
 
-        if(AllianceColor ==  Alliance.Blue && LocationNumber == 1){
-            table.getEntry("priorityid").setInteger(8);
-            mPIDGoal = 45;
-        }
-        if(AllianceColor ==  Alliance.Blue && LocationNumber == 2){
-            table.getEntry("priorityid").setInteger(8);
-            mPIDGoal = 0;
-        }
-        if(AllianceColor ==  Alliance.Blue && LocationNumber == 3){
-            table.getEntry("priorityid").setInteger(8);
-            mPIDGoal = -45;
-        }
+        // if(AllianceColor ==  Alliance.Blue && LocationNumber == 1){
+        //     table.getEntry("priorityid").setInteger(8);
+        //     mPIDGoal = 45;
+        // }
+        // if(AllianceColor ==  Alliance.Blue && LocationNumber == 2){
+        //     table.getEntry("priorityid").setInteger(8);
+        //     mPIDGoal = 0;
+        // }
+        // if(AllianceColor ==  Alliance.Blue && LocationNumber == 3){
+        //     table.getEntry("priorityid").setInteger(8);
+        //     mPIDGoal = -45;
+        // }
         
     }
 
@@ -114,7 +114,7 @@ public class LimelightTiltCommand extends Command {
     public void execute() {
         //run pid
         //double[] pose = table.getEntry("camerapose_targetspace").getDoubleArray(new double[6]);
-    
+            //table.getEntry("priorityid").setInteger(7);
         if(table.getEntry("tid").getInteger(0)!=-1){
             double x  =  table.getEntry("tx").getDouble(0.0);
             double speed = -mPidTilt.calculate(x/20, 0); //mPIDGoal);

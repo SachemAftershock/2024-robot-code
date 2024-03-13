@@ -228,7 +228,7 @@ public final class Constants {
         public static final boolean kSquareAxis = true;
 
         public static final double[] kDriveAngularGains = { 0.2, 0.0, 0.0 }; // dont use I it sucks - Shreyas
-        public static final double[] kDriveLinearGains = { 1.8, 0.03, 0.0 }; // {0.8, 0.02, 0.0}
+        public static final double[] kDriveLinearGains = { 0.95, 0.0, 0.0 }; // {0.8, 0.02, 0.0}
         public static final double kDt = 0.02;// 0.02;
 
         public static final double kPX = 1.25;
@@ -236,7 +236,7 @@ public final class Constants {
 
         public static final double kAutoRotateEpsilon = 3.0;
         public static final double kLinearDriveTranslationEpsilon = 0.04;// .05
-        public static final double kLinearDriveRotationEpsilon = 2.0;
+        public static final double kLinearDriveRotationEpsilon = 1.0;
         public static final double kLinearDriveEpsilon = 0.3;
 
         public static final double kDrivetrainTrackwidthMeters = 0.5461;

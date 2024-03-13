@@ -796,9 +796,35 @@ public class RobotContainer {
     (
       ((new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
-    (new OldLinearDriveCommand(mDriveSubsystem, -1.43, CardinalDirection.eX))
+    (new OldLinearDriveCommand(mDriveSubsystem, -1.7, CardinalDirection.eX))
     ).andThen
      //(new OldLinearDriveCommand(mDriveSubsystem, 0, 0.1, 0)).andThen
+     ((new OldLinearDriveCommand(mDriveSubsystem, 1.25, CardinalDirection.eX)).alongWith
+    (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem))).andThen
+    (new RotateDriveCommand(mDriveSubsystem, 0)).andThen //new
+    (new DelayCommand(0.2)).andThen
+    (new RetractIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    (new DelayCommand(0.1)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = false; })).andThen
+    (new OldLinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eY)).andThen
+    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
+    (
+      ((new IngestNoteCommand(mIntakeSubsystem)).andThen
+      (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
+    (new OldLinearDriveCommand(mDriveSubsystem, -1.4, CardinalDirection.eX))
+    ).andThen
+    (new OldLinearDriveCommand(mDriveSubsystem, 1.3, CardinalDirection.eY)).andThen
+    //(new RotateDriveCommand(mDriveSubsystem, 0)).andThen
      ((new OldLinearDriveCommand(mDriveSubsystem, 1.4, CardinalDirection.eX)).alongWith
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem))).andThen
     (new DelayCommand(0.2)).andThen
@@ -854,7 +880,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     //return sequenceScoreSpeakerAmpSideForBlue;
     //return sequenceScoreSpeakerAmpSideForRed;
-    return sequenceScoreCenterSideSINGLE;
+    //return sequenceScoreCenterSide ;
+    return new OldLinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eX);
      //return sequenceHPSideShootOnceReorientateRED;
      //return sequenceScoreCenterSide
     // TrajectoryConfig config = new TrajectoryConfig(

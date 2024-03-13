@@ -127,4 +127,19 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
+
+// @Override
+// public void autonomousExit(){
+//   mLampController.setPulse(0, 0, 0, 0);
+// }
+// @Override
+// public void teleopExit(){
+//   mLampController.setPulse(0, 0, 0, 0);
+// }
+// @Override
+// public void testExit(){
+//   mLampController.setPulse(0, 0, 0, 0);
+// }
 }
+
+

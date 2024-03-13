@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 
 
 import frc.lib.AftershockSubsystem;
+import frc.robot.LampController;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -21,10 +23,13 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	private static boolean mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = true;
 	private static boolean mInternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = true;
+	private boolean mLampTriggered = false;
+	private LampController mLampController = LampController.getInstance();
+
 
 	public static boolean IsBothBeamBreakersBeenBroken() {
 		return !mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit 
-				&& !mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit;
+				&& !mInternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit;
 	}
 
 
@@ -111,7 +116,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		else if ((Math.abs(mIntakeArmEncoder.getPosition()) < epsilon) 
 			  || (Math.abs(mIntakeArmEncoder.getPosition()) > kDesiredIntakeArmEncoderSweep - epsilon)) 
 			currentIntakeArmPosition = IntakeArmPositionEnum.eDeployed;
-		else
+		else	
 			currentIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
 		return currentIntakeArmPosition;
 	}
@@ -132,7 +137,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 				intakeArmSpeed = 0.1;  // Apply persisting parking pressure, to counter robot motion dynamics
 				if (showPrints) System.out.print("Phase R3: ");
 			} else {
-				mMaximumIntakeArmUpswingLiftMaxSpeed = 0.6;
+				mMaximumIntakeArmUpswingLiftMaxSpeed = 0.8;
 				mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.03;
 				EncoderCountThresholdToReverseDirection = 1.5; // changeable TODO make constant?
 
@@ -160,7 +165,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 				intakeArmSpeed = -0.1;  // Apply persisting parking pressure, to counter robot motion dynamics
 				if (showPrints) System.out.print("Phase D3: ");
 			} else {
-				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.4;
+				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.6;
 				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.05;
 				EncoderCountThresholdToReverseDirection = 4.5; // changeable TODO make constant?
 
@@ -257,10 +262,14 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		checkSystem();
 		runControlIntakeArmPosition();
 		System.out.println("intake state "+getIntakeArmState());
-		if(mIntakeRetractedLimitSwitch.get())
+		if(!mInternalBeamBreaker.get())
 		{
-			
-		}
+			mLampTriggered = true;
+				mLampController.setPulse(4, 0.1, 0.1, 0.7);
+			} else if (mLampTriggered) {
+				mLampTriggered = false;
+				mLampController.setPulse(0, 0, 0, 0);
+			}
 	}
 
 	//Add Shuffle board calls here
