@@ -1,25 +1,17 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
-import frc.robot.LampController;
-import frc.robot.subsystems.DriveSubsystem;
-
-
-import java.util.Optional;
-
-import org.opencv.core.Mat;
-
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
+import frc.robot.LampController;
+import frc.robot.subsystems.DriveSubsystem;
 
 public class LimelightTiltCommand extends Command {
     private DriveSubsystem mDrive;
@@ -107,6 +99,11 @@ public class LimelightTiltCommand extends Command {
         //     table.getEntry("priorityid").setInteger(8);
         //     mPIDGoal = -45;
         // }
+<<<<<<< Updated upstream
+=======
+        table.getEntry("priorityid").setInteger(7);
+         mPIDGoal = 0;
+>>>>>>> Stashed changes
         
     }
 
@@ -136,10 +133,8 @@ public class LimelightTiltCommand extends Command {
             mDrive.drive(new ChassisSpeeds());
             System.out.println("Tilt finished");
             
-			mLampController.setPulse(1, 2, 0.5, 0.5);
-            Timer.delay(0.50);
-            mLampController.setPulse(0, 0, 0, 0);
-
+			mLampController.setPulse(2, 0.2, 0.2, 0.8, true);
+          
             return true;
 
             

@@ -2,15 +2,30 @@
 package frc.robot.subsystems;
 
 
+<<<<<<< Updated upstream
 import frc.lib.AftershockSubsystem;
 import frc.robot.LampController;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+=======
+import static frc.robot.Constants.IntakeConstants.kEjectNoteSpeed;
+import static frc.robot.Constants.IntakeConstants.kExternalBeamBreakerID;
+import static frc.robot.Constants.IntakeConstants.kIntakeArmMotorID;
+import static frc.robot.Constants.IntakeConstants.kIntakeLimitSwitchID;
+import static frc.robot.Constants.IntakeConstants.kIntakeRollerMotorID;
+import static frc.robot.Constants.IntakeConstants.kInternalBeamBreakerID;
+
+>>>>>>> Stashed changes
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+
 import edu.wpi.first.wpilibj.DigitalInput;
-import static frc.robot.Constants.IntakeConstants.*;
+import edu.wpi.first.wpilibj.Timer;
+import frc.lib.AftershockSubsystem;
+import frc.robot.LampController;
 
 public class IntakeSubsystem extends AftershockSubsystem {
 
@@ -18,6 +33,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	
 	private CANSparkMax mIntakeArmMotor;
 	private RelativeEncoder mIntakeArmEncoder;
+	private LampController mLampController;
 
 	private CANSparkMax mIntakeRollerMotor;
 
@@ -79,7 +95,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		mIntakeArmEncoder = mIntakeArmMotor.getEncoder(); 
 		
 		mIntakeRollerMotor = new CANSparkMax(kIntakeRollerMotorID, MotorType.kBrushless);
-
+		mLampController = LampController.getInstance();
 		mExternalBeamBreaker = new DigitalInput(kExternalBeamBreakerID); //EXTERNAL B1
 		mInternalBeamBreaker = new DigitalInput(kInternalBeamBreakerID); //INTERNAL B2
 
