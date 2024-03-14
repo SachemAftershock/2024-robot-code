@@ -54,6 +54,7 @@ import frc.robot.commands.SafeZoneIntakeCommand;
 
 import frc.robot.commands.ShooterStageToNoteLoadAngleCommand;
 import frc.robot.commands.ShooterStageToSpeakerAngleCommand;
+import frc.robot.commands.TimedLinearDriveCommand;
 import frc.robot.commands.AutoCommands.AutoAmpScoreSequence;
 import frc.robot.commands.AutoCommands.NullCommand;
 import frc.robot.enums.IntakeState;

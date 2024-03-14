@@ -31,14 +31,13 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	
 	private CANSparkMax mIntakeArmMotor;
 	private RelativeEncoder mIntakeArmEncoder;
-	// private LampController mLampController;
+	private LampController mLampController = LampController.getInstance();
 
 	private CANSparkMax mIntakeRollerMotor;
 
 	private static boolean mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = true;
 	private static boolean mInternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = true;
 	private boolean mLampTriggered = false;
-	private LampController mLampController = LampController.getInstance();
 
 
 	public static boolean IsBothBeamBreakersBeenBroken() {
