@@ -2,13 +2,11 @@
 package frc.robot.subsystems;
 
 
-<<<<<<< Updated upstream
 import frc.lib.AftershockSubsystem;
 import frc.robot.LampController;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-=======
 import static frc.robot.Constants.IntakeConstants.kEjectNoteSpeed;
 import static frc.robot.Constants.IntakeConstants.kExternalBeamBreakerID;
 import static frc.robot.Constants.IntakeConstants.kIntakeArmMotorID;
@@ -16,7 +14,6 @@ import static frc.robot.Constants.IntakeConstants.kIntakeLimitSwitchID;
 import static frc.robot.Constants.IntakeConstants.kIntakeRollerMotorID;
 import static frc.robot.Constants.IntakeConstants.kInternalBeamBreakerID;
 
->>>>>>> Stashed changes
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
@@ -33,7 +30,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	
 	private CANSparkMax mIntakeArmMotor;
 	private RelativeEncoder mIntakeArmEncoder;
-	private LampController mLampController;
+	// private LampController mLampController;
 
 	private CANSparkMax mIntakeRollerMotor;
 
@@ -281,10 +278,10 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		if(!mInternalBeamBreaker.get())
 		{
 			mLampTriggered = true;
-				mLampController.setPulse(4, 0.1, 0.1, 0.7);
+				mLampController.setPulse(4, 0.1, 0.1, 0.7, true);
 			} else if (mLampTriggered) {
 				mLampTriggered = false;
-				mLampController.setPulse(0, 0, 0, 0);
+				mLampController.setPulse(0, 0, 0, 0, true);
 			}
 	}
 
