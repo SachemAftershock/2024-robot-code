@@ -19,89 +19,89 @@ import edu.wpi.first.wpilibj.Filesystem;
  * 
  * <b>Example of extended class:</b>
  * 
- * <pre>
- * public class Recorder extends RecorderBase {
- *     private static Recorder mInstance; // singleton
- *     private DriveSubsystem mDriveSubsystem;
- * 
- *     private Recorder() {
- *         super(); // Don't leave this out
- *         mDriveSubsystem = DriveSubsystem.getInstance();
- *         // Initialize your subsystems in the private constructor
- *     }
- * 
- *     // Define a logging function for use outside of the class,
- *     // according to your code needs. Pass its
- *     // arguments to internallyLogDoubles(double...)
- *     public void record(DriveSubsystem driveSubsystem) {
- *         ChassisSpeeds chassisSpeeds = driveSubsystem.getChassisSpeeds();
- * 
- *         internallyLogDoubles(
- *                 chassisSpeeds.vxMetersPerSecond,
- *                 chassisSpeeds.vyMetersPerSecond,
- *                 chassisSpeeds.omegaRadiansPerSecond);
- *     }
- * 
- *     // For use in autonomousPeriodic, after an auto file was loaded
- *     public void playNextFrame() {
- *         double[] actions = getNextDoubles(); // recorded data entries
- *         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(actions[0], actions[1], actions[2]);
- *         mDriveSubsystem.drive(chassisSpeeds);
- *     }
- * 
- *     // singleton
- *     public synchronized static Recorder getInstance() {
- *         if (mInstance == null) {
- *             mInstance = new Recorder();
- *         }
- *         return mInstance;
- *     }
- * }
- * </pre>
- * 
- * <b> Playing a recording in Robot.java </b>
- * 
- * <pre>
- * 
- * &#64;Override
- * public void autonomousInit() {
- *     mRecorder.loadFromFile("My file to save");
- *     Recorder.setIsPlaying(true);
- * }
- * 
- * &#64;Override
- * public void autonomousPeriodic() {
- *     mRecorder.playNextFrame();
- * }
- * 
- * @Override
- * public void autonomousExit() {
- *     Recorder.setIsPlaying(false);
- * }
- * </pre>
- * 
- * <b> Making a recording. (Command-based example) </b>
- * 
- * <pre>
- * private Command loggingCommand = new InstantCommand(
- *         () -> mRecorder.record(mDriveSubsystem, mShooterSubsystem, mIntakeSubsystem)).repeatedly();
- * 
- * private void configureButtonBindings() {
- * 
- *     Trigger beginRecording = new Trigger(() -> mControllerPrimary.getRawButton(10));
- *     beginRecording.onTrue(new InstantCommand(() -> {
- *         System.out.println("Recorder: began recording");
- *     }).andThen(loggingCommand));
- *     Trigger endRecording = new Trigger(() -> mControllerPrimary.getRawButton(11));
- *     endRecording.onTrue(new InstantCommand(() -> {
- *         System.out.println("Recorder: ended recording");
- *         loggingCommand.cancel();
- *     }));
- *     Trigger saveRecording = new Trigger(() -> mControllerPrimary.getRawButton(12));
- *     saveRecording
- *             .onTrue(new InstantCommand(() -> mRecorder.saveToFile(Recorder.AutonomousBeginningPosition.redCenter)));
- * }
- * </pre>
+<pre>
+public class Recorder extends RecorderBase {
+    private static Recorder mInstance; // singleton
+    private DriveSubsystem mDriveSubsystem;
+
+    private Recorder() {
+        super(); // Don't leave this out
+        mDriveSubsystem = DriveSubsystem.getInstance();
+        // Initialize your subsystems in the private constructor
+    }
+
+    // Define a logging function for use outside of the class,
+    // according to your code needs. Pass its
+    // arguments to internallyLogDoubles(double...)
+    public void record(DriveSubsystem driveSubsystem) {
+        ChassisSpeeds chassisSpeeds = driveSubsystem.getChassisSpeeds();
+
+        internallyLogDoubles(
+                chassisSpeeds.vxMetersPerSecond,
+                chassisSpeeds.vyMetersPerSecond,
+                chassisSpeeds.omegaRadiansPerSecond);
+    }
+
+    // For use in autonomousPeriodic, after an auto file was loaded
+    public void playNextFrame() {
+        double[] actions = getNextDoubles(); // recorded data entries
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(actions[0], actions[1], actions[2]);
+        mDriveSubsystem.drive(chassisSpeeds);
+    }
+
+    // singleton
+    public synchronized static Recorder getInstance() {
+        if (mInstance == null) {
+            mInstance = new Recorder();
+        }
+        return mInstance;
+    }
+}
+</pre>
+
+<b> Playing a recording in Robot.java </b>
+
+<pre>
+
+&#64;Override
+public void autonomousInit() {
+    mRecorder.loadFromFile("My file to save");
+    Recorder.setIsPlaying(true);
+}
+
+@Override
+public void autonomousPeriodic() {
+    mRecorder.playNextFrame();
+}
+
+@Override
+public void autonomousExit() {
+    Recorder.setIsPlaying(false);
+}
+</pre>
+
+<b> Making a recording. (Command-based example) </b>
+
+<pre>
+private Command loggingCommand = new InstantCommand(
+        () -> mRecorder.record(mDriveSubsystem, mShooterSubsystem, mIntakeSubsystem)).repeatedly();
+
+private void configureButtonBindings() {
+
+    Trigger beginRecording = new Trigger(() -> mControllerPrimary.getRawButton(10));
+    beginRecording.onTrue(new InstantCommand(() -> {
+        System.out.println("Recorder: began recording");
+    }).andThen(loggingCommand));
+    Trigger endRecording = new Trigger(() -> mControllerPrimary.getRawButton(11));
+    endRecording.onTrue(new InstantCommand(() -> {
+        System.out.println("Recorder: ended recording");
+        loggingCommand.cancel();
+    }));
+    Trigger saveRecording = new Trigger(() -> mControllerPrimary.getRawButton(12));
+    saveRecording
+            .onTrue(new InstantCommand(() -> mRecorder.saveToFile(Recorder.AutonomousBeginningPosition.redCenter)));
+}
+</pre>
  * 
  * @author Adrian Dayao
  */
