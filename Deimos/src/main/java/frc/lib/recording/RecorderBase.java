@@ -80,7 +80,7 @@ import edu.wpi.first.wpilibj.Filesystem;
  * }
  * </pre>
  * 
- * <b> Getting a recording. (Command-based example) </b>
+ * <b> Making a recording. (Command-based example) </b>
  * 
  * <pre>
  * private Command loggingCommand = new InstantCommand(
@@ -222,7 +222,8 @@ public abstract class RecorderBase {
      * }
      * </pre>
      * 
-     * Make sure to actually load an auto profile first (via {@code loadFile}), and
+     * Make sure to actually load an auto profile first (via {@code loadfromFile}),
+     * and
      * that the ordering of your arguments is consistent.
      */
     abstract public void playNextFrame();
@@ -232,7 +233,7 @@ public abstract class RecorderBase {
      * desired, you may want to <a href=
      * "https://docs.wpilib.org/en/stable/docs/software/roborio-info/roborio-ssh.html">
      * SSH</a> into the RoboRIO to keep a <a href="https://cheat.sh/scp">backup</a>
-     * of the filevia PowerShell.
+     * of the file via PowerShell.
      * <p>
      * {@code > ssh lvuser@10.TE.AM.2}
      * 
@@ -248,9 +249,6 @@ public abstract class RecorderBase {
             }
             autonomousDataFile.createNewFile();
             BufferedWriter mWriter = new BufferedWriter(new FileWriter(autonomousDataFile));
-            // CHANGE THE NAME OF THE TEXT FILE BASED OFF OF WHAT AUTON YOU ARE WRITING FOR
-
-            // Write all Doubles[]
             double[] autonomousDataEntry;
             while (true) {
                 autonomousDataEntry = autonomousLoggingQueue.poll();
@@ -295,16 +293,28 @@ public abstract class RecorderBase {
      * {@code autonomousInit}.
      * 
      * @param autonomousDataFileName
+     * @param fromDeployDirectory    Defaults to false. If true, load the file we
+     *                               sent to the RoboRIO during the deploy step,
+     *                               rather than the previous recording.
+     *                               This file would be stored in
+     *                               {@code src/main/deploy/AftershockAuto}
      * @see #saveToFile
      */
-    public final void loadFromFile(String autonomousDataFileName) {
-        System.out.printf("Recorder: Trying to load file %s.aftershockauto\n", autonomousDataFileName);
+    public final void loadFromFile(String autonomousDataFileName, boolean fromDeployDirectory) {
+
+        // Get file as /home/lvuser/deploy/%s.aftershockauto or
+        // /home/lvuser/%s.aftershockauto
+        File fileToRead = new File(fromDeployDirectory ? Filesystem.getDeployDirectory()
+                : Filesystem.getOperatingDirectory(), autonomousDataFileName + ".aftershockauto");
+
+        System.out.println("Recorder: Trying to load file " + fileToRead);
         autonomousPlaybackQueue.clear();
         try {
             BufferedReader reader = new BufferedReader(
-                    new FileReader(
-                            new File(Filesystem.getOperatingDirectory(), autonomousDataFileName + ".aftershockauto")));
+                    new FileReader(fileToRead));
+            System.out.println("Reading " + fileToRead.toString());
 
+            // Turn the file into a FIFO queue of double arrays
             String line = reader.readLine();
             while (line != null) {
                 // stringDoubles[i] like "421.2426,12601.9,612.6"
@@ -318,10 +328,22 @@ public abstract class RecorderBase {
 
             reader.close();
 
-            System.out.println("Recorder: Load auto's queue successfully");
+            System.out.println("Recorder: Loaded auto queue successfully");
         } catch (IOException e) {
-            System.out.printf("Recorder: Failed to find %s.aftershockauto\n", autonomousDataFileName);
+            System.out.println("Recorder: Failed to find " + fileToRead);
         }
+    }
+
+    /**
+     * Set the current autonomous playback queue to whatever file you have saved on
+     * the RoboRIO that goes by this name. This should be called in
+     * {@code autonomousInit}.
+     * 
+     * @param autonomousDataFileName
+     * @see #saveToFile
+     */
+    public final void loadFromFile(String autonomousDataFileName) {
+        loadFromFile(autonomousDataFileName, false);
     }
 
     /**
@@ -329,10 +351,32 @@ public abstract class RecorderBase {
      * the RoboRIO that goes by this <i>enum's</i> name. This should be called in
      * {@code autonomousInit}.
      * 
-     * @param autonomousDataFileName
+     * @param autonomousDataFileNameByPosition the enum in
+     *                                         RecorderBase.{@link AutonomousBeginningPosition}
      * @see #saveToFile
      */
     public final void loadFromFile(AutonomousBeginningPosition autonomousDataFileNameByPosition) {
-        loadFromFile(autonomousDataFileNameByPosition.toString());
+        loadFromFile(autonomousDataFileNameByPosition.toString(), false);
+    }
+
+    /**
+     * Set the current autonomous playback queue to whatever file you have saved on
+     * the RoboRIO that goes by this <i>enum's</i> name. This should be called in
+     * {@code autonomousInit}.
+     * 
+     * @param autonomousDataFileNameByPosition the enum in
+     *                                         RecorderBase.{@link AutonomousBeginningPosition}
+     * @param fromDeployDirectory              Defaults to false. If true, load the
+     *                                         file we
+     *                                         sent to the RoboRIO during the deploy
+     *                                         step,
+     *                                         rather than the previous recording.
+     *                                         This file would be stored in
+     *                                         {@code src/main/deploy/AftershockAuto}
+     * @see #saveToFile
+     */
+    public final void loadFromFile(AutonomousBeginningPosition autonomousDataFileNameByPosition,
+            boolean fromDeployDirectory) {
+        loadFromFile(autonomousDataFileNameByPosition.toString(), false);
     }
 }
