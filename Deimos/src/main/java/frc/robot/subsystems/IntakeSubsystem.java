@@ -4,6 +4,7 @@ package frc.robot.subsystems;
 
 import frc.lib.AftershockSubsystem;
 import frc.robot.LampController;
+import frc.robot.Recorder;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -226,6 +227,22 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	public void setRollerMotorSpeed(double speed){
 		mIntakeRollerMotor.set(speed); 
 	}
+
+	public double getRollerMotorSpeed() {
+		return mIntakeRollerMotor.get();
+	}
+
+	public double getIntakeArmMotorSpeed() {
+		return mIntakeArmMotor.get();
+	}
+	/**
+	 * Raw setter for intake arm motor speed, for auto
+	 * @param speed
+	 * @return
+	 */
+	public void setIntakeArmMotorSpeed(double speed) {
+		mIntakeArmMotor.set(speed);
+	}
 	
 	public void ingestNote() {
 		double speed = -0.5;
@@ -260,7 +277,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	@Override
 	public boolean checkSystem() {
-		final boolean showPrints = true;		
+		final boolean showPrints = false;		
 		if (showPrints) System.out.println(
 			"Intake ExternalBeamBreaker: " + 
 			mExternalBeamBreaker.get() + 
@@ -273,9 +290,10 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	@Override
 	public void periodic() {
 		checkSystem();
-		runControlIntakeArmPosition();
-		System.out.println("intake state "+getIntakeArmState());
-		if(!mInternalBeamBreaker.get())
+		if (!Recorder.getIsPlaying())
+			runControlIntakeArmPosition();
+		// System.out.println("intake state "+getIntakeArmState());
+		if(mIntakeRetractedLimitSwitch.get())
 		{
 			mLampTriggered = true;
 				mLampController.setPulse(4, 0.1, 0.1, 0.7, true);
@@ -296,4 +314,5 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		}
 		return mInstance;
 	}
+
 }

@@ -99,11 +99,8 @@ public class LimelightTiltCommand extends Command {
         //     table.getEntry("priorityid").setInteger(8);
         //     mPIDGoal = -45;
         // }
-<<<<<<< Updated upstream
-=======
         table.getEntry("priorityid").setInteger(7);
-         mPIDGoal = 0;
->>>>>>> Stashed changes
+        mPIDGoal = 0;
         
     }
 

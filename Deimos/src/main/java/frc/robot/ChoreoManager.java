@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.lib.AftershockChoreo.AftershockChoreo;
+import frc.lib.AftershockChoreo.AftershockChoreoTrajectory;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
@@ -17,12 +19,12 @@ public class ChoreoManager {
 
     private DriveSubsystem mDriveSubsystem;
     private Field2d mField;
-    private ChoreoTrajectory traj;
+    private AftershockChoreoTrajectory traj;
 
     private ChoreoManager() {
         mDriveSubsystem = DriveSubsystem.getInstance();
         mField = new Field2d();
-        traj = Choreo.getTrajectory("epic gaming");
+        traj = AftershockChoreo.getTrajectory("danke");
 
         mField.getObject("traj").setPoses(
                 traj.getInitialPose(), traj.getFinalPose());
@@ -45,7 +47,7 @@ public class ChoreoManager {
      * @return Choreo swerve trajectories command
      */
     public Command getChoreoAutonomousCommand() {
-        traj = Choreo.getTrajectory("epic gaming");
+        traj = AftershockChoreo.getTrajectory("danke");
 
         mField.getObject("traj").setPoses(
                 traj.getInitialPose(), traj.getFinalPose());
@@ -57,7 +59,7 @@ public class ChoreoManager {
 
         mDriveSubsystem.resetOdometry(traj.getInitialPose());
 
-        Command swerveCommand = Choreo.choreoSwerveCommand(
+        Command swerveCommand = AftershockChoreo.choreoSwerveCommand(
                 traj, // Choreo trajectory from above
                 mDriveSubsystem::getPose, // A function that returns the current field-relative pose of
                 // the robot: your
@@ -75,7 +77,7 @@ public class ChoreoManager {
                 thetaController, // PID constants to correct for rotation
                 // error
                 (ChassisSpeeds speeds) -> mDriveSubsystem.drive(speeds),
-                true, // Whether or not to mirror the path based on alliance (this assumes the path is
+                () -> true, // Whether or not to mirror the path based on alliance (this assumes the path is
                       // created for the blue alliance)
                 mDriveSubsystem // The subsystem(s) to require, typically your drive subsystem only
         );

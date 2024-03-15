@@ -89,7 +89,11 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 	private ChassisSpeeds mChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
-	private final Limelight mLimelight;
+	public ChassisSpeeds getChassisSpeeds() {
+    return mChassisSpeeds;
+  }
+
+  private final Limelight mLimelight;
 	private int counter = 0;
 
 	private DriveSubsystem() {
@@ -233,7 +237,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 		// System.out.println("X-Pose" + mPoseEstimator.getEstimatedPosition().getX() +
 		// " Y Pose : " + mPoseEstimator.getEstimatedPosition().getY());
-		System.out.println("CHASSSIS SPEEDS : " + states[0].speedMetersPerSecond);
+		// System.out.println("CHASSSIS SPEEDS : " + states[0].speedMetersPerSecond);
 		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
 		// delete
 		// System.out.println(poseInfo);

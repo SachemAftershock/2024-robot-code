@@ -4,8 +4,8 @@
 
 package frc.robot;
 
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
+// import com.choreo.lib.Choreo;
+// import com.choreo.lib.ChoreoTrajectory;
 
 import static frc.robot.Constants.ClimberConstants.kClimberMotorSpeed;
 import static frc.robot.Constants.ShooterConstants.kShootMotorShootingVelocity;
@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.AftershockXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -80,6 +81,7 @@ public class RobotContainer {
   private ClimberSubsystem mClimberSubsystem = ClimberSubsystem.getInstance();
   private IntakeSubsystem mIntakeSubsystem = IntakeSubsystem.getInstance();
   private ShooterSubsystem mShooterSubsystem = ShooterSubsystem.getInstance();
+  private Recorder mRecorder = Recorder.getInstance();
   
   private final AftershockXboxController mControllerTertiary = new AftershockXboxController(0);
   private final Joystick mControllerPrimary = new Joystick(1);
@@ -151,9 +153,9 @@ public class RobotContainer {
   );
 
   private Command sequenceFireNote = new SequentialCommandGroup(
-    (new EjectNoteCommand(mIntakeSubsystem)),
+    (new EjectNoteCommand(mIntakeSubsystem))
     // (new DelayCommand(0.1)).andThen
-    (new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(-0.25); }))
+    // (new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(kEjectNoteSpeed); }))
   );
     
     //.andThen
@@ -187,8 +189,7 @@ public class RobotContainer {
 
   public void initialize() {
     mDriveSubsystem.initialize();
-    LimelightManagerSubsystem.getInstance().initialize();;
-
+    LimelightManagerSubsystem.getInstance().initialize();
   }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
@@ -196,7 +197,26 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
+
+   private Command loggingCommand = new InstantCommand(() -> 
+      mRecorder.record(mDriveSubsystem, mShooterSubsystem, mIntakeSubsystem)
+    ).repeatedly();
   private void configureButtonBindings() {
+
+    Trigger beginRecording = new Trigger(() -> mControllerPrimary.getRawButton(10));
+    beginRecording.onTrue(new InstantCommand(() -> {
+      System.out.println("Recorder: began recording");
+    }).andThen(loggingCommand));
+
+    Trigger endRecording = new Trigger(() -> mControllerPrimary.getRawButton(11));
+    endRecording.onTrue(new InstantCommand(() -> {
+      System.out.println("Recorder: ended recording");  
+      loggingCommand.cancel();
+    }));
+
+    Trigger saveRecording = new Trigger(() -> mControllerPrimary.getRawButton(12));
+    saveRecording.onTrue(new InstantCommand(() -> mRecorder.saveToFile("TESTFILE"))); // TODO auto
+
 
     // Trigger intakeIsScrewed = new Trigger(() -> mControllerTertiary.getBackButton());
     // intakeIsScrewed.onTrue(new InstantCommand(() -> {
@@ -876,14 +896,17 @@ public class RobotContainer {
     // (new InstantCommand(() -> { mArmedToFire = false; }))
     );
   
-    ChoreoManager mChoreoManager = ChoreoManager.getInstance();
+    // ChoreoManager mChoreoManager = ChoreoManager.getInstance();
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return mChoreoManager.getChoreoAutonomousCommand();
+    return new InstantCommand(() -> {}); //blank command
+    // return mRecorder.getSequence(); // not implemented yet
+
+    // return mChoreoManager.getChoreoAutonomousCommand();
     //return sequenceScoreSpeakerAmpSideForBlue;
     //return sequenceScoreSpeakerAmpSideForRed;
     //return sequenceScoreCenterSide ;

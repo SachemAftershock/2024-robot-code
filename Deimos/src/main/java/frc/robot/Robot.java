@@ -24,7 +24,8 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
 
   private LampController mLampController = LampController.getInstance();
-  private ChoreoManager mChoreoManager = ChoreoManager.getInstance();
+  // private ChoreoManager mChoreoManager = ChoreoManager.getInstance();
+  private Recorder mRecorder = Recorder.getInstance();
 
   private int count = 0; 
 
@@ -60,7 +61,7 @@ public class Robot extends TimedRobot {
     if ((count++ % 50) == 0){ LimelightManagerSubsystem.getInstance().outputTelemetry(); count = 0; }
 
     mLampController.run();
-    mChoreoManager.updatePose();
+    // mChoreoManager.updatePose();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -75,19 +76,28 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_robotContainer.initialize();
   //  m_robotContainer.calibrateIntakeArm();
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    // if (m_autonomousCommand != null) {
+    //   m_autonomousCommand.schedule();
+    // }
     Constants.DriverStationConstants.updateAllianceColorAndLocation();
+    mRecorder.loadFromFile("TESTFILE"); // TODO auto
+    Recorder.setIsPlaying(true);
       //mLampController.setPulse(3, 0.5, 0.5, 0.5);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    mRecorder.playNextFrame();
+  }
+
+  @Override
+  public void autonomousExit() {
+    Recorder.setIsPlaying(false);
+  }
 
   @Override
   public void teleopInit() {

@@ -114,6 +114,16 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	}
 
 	/**
+	 * Gets shooter motor speeds so that passing it in as an argument to
+	 * setShooterMotorSpeed gets the same result.
+	 * @return [Left shooter speed * -1.0, right shooter speed];
+	 */
+	public double[] getShooterMotorSpeed() {
+		double[] d = {mLeftShootMotor.get() * -1.0, mRightShootMotor.get()};
+		return d;
+	}
+
+	/**
 	 * Sets rotational speed of the shooter. Recalibrates angle
 	 * shooter if limit switch is hit (when angle arm hits the body of the bot)
 	 * @param speed [-1.0, 1.0]. Positive input is outwards-facing.
@@ -243,11 +253,11 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	public void periodic(){
 			checkSystem();
 			// panic hook
-			System.out.println("lim " + mPanicLimitSwitch.get());
+			// System.out.println("lim " + mPanicLimitSwitch.get());
 			if (mPanicLimitSwitch.get()) {
 				doPanicAndManuallyReturn(true);
 			}
-			System.out.println("panicking? "+ mPanicManualReturn);
+			// System.out.println("panicking? "+ mPanicManualReturn);
 			if (mPanicManualReturn) {
 				// retract shooter arm to speaker, and ignore runShooterAngleSetpointChaser (since FRC Canivore is now untrusted)
 				double panicSpeed = -0.12; // low speed, avoid slamming without trusting canivore/encoder
@@ -287,7 +297,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	@Override
 	public boolean checkSystem() {
 		
-		final boolean showPrints = true;		
+		final boolean showPrints = false;		
 		if (showPrints) System.out.println(
 			"Shooter EnterBeamBreaker: " + 
 			mBeamBreakerEnter.get() + 

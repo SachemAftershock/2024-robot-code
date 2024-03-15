@@ -32,7 +32,7 @@ public class SubsystemManager {
     }
 
     /**
-     * Initializes all Subsystems
+     * Initializes all Subsystems using frc.lib.SubsystemManager
      */
     public void initialize() {
         mAllSubsystems.forEach(AftershockSubsystem::initialize);
