@@ -95,7 +95,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    mRecorder.loadFromFile("TESTFILE", false);
+    mRecorder.loadFromFile("CenterThreeNote", false);
     m_robotContainer.initialize();
     // m_robotContainer.calibrateIntakeArm();
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();

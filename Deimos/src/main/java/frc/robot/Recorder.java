@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.recording.RecorderBase;
 import frc.robot.subsystems.DriveSubsystem;
@@ -41,7 +42,8 @@ public class Recorder extends RecorderBase {
                 mIntakeSubsystem.getIntakeArmMotorSpeed(),
                 mIntakeSubsystem.getRollerMotorSpeed(),
                 mShooterSubsystem.getShooterMotorSpeed()[0],
-                mShooterSubsystem.getShooterMotorSpeed()[1]);
+                mShooterSubsystem.getShooterMotorSpeed()[1],
+                RobotController.getBatteryVoltage());
     }
 
     public void playNextFrame() {

@@ -203,6 +203,11 @@ public class RobotContainer {
     ).repeatedly();
   private void configureButtonBindings() {
 
+    // Trigger left45 = new Trigger(() -> mControllerPrimary.getRawButton(9));
+    // left45.onTrue(new InstantCommand(() -> {
+    //   mDriveSubsystem.resetOdometry(new Pose2d());
+    // }));
+
     Trigger beginRecording = new Trigger(() -> mControllerPrimary.getRawButton(10));
     beginRecording.onTrue(new InstantCommand(() -> {
       System.out.println("Recorder: began recording"); // TODO this does not clear the logging queue
@@ -216,7 +221,7 @@ public class RobotContainer {
     }));
 
     Trigger saveRecording = new Trigger(() -> mControllerPrimary.getRawButton(12));
-    saveRecording.onTrue(new InstantCommand(() -> mRecorder.saveToFile("TESTFILE"))); // TODO make this automatic.
+    saveRecording.onTrue(new InstantCommand(() -> mRecorder.saveToFile("MostRecent"))); // TODO make this automatic.
 
 
     // Trigger intakeIsScrewed = new Trigger(() -> mControllerTertiary.getBackButton());
