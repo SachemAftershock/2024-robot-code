@@ -199,30 +199,26 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
 
-   private Command loggingCommand = new InstantCommand(() -> 
-      mRecorder.record(mDriveSubsystem, mShooterSubsystem, mIntakeSubsystem)
-    ).repeatedly();
   private void configureButtonBindings() {
 
-    // Trigger left45 = new Trigger(() -> mControllerPrimary.getRawButton(9));
-    // left45.onTrue(new InstantCommand(() -> {
-    //   mDriveSubsystem.resetOdometry(new Pose2d());
-    // }));
-
-    Trigger beginRecording = new Trigger(() -> mControllerPrimary.getRawButton(10));
-    beginRecording.onTrue(new InstantCommand(() -> {
-      System.out.println("Recorder: began recording"); // TODO this does not clear the logging queue
-      mRecorder.clearAutonomousLoggingQueue();
-    }).andThen(loggingCommand));
-
-    Trigger endRecording = new Trigger(() -> mControllerPrimary.getRawButton(11));
-    endRecording.onTrue(new InstantCommand(() -> {
-      System.out.println("Recorder: ended recording");  
-      loggingCommand.cancel();
-    }));
-
-    Trigger saveRecording = new Trigger(() -> mControllerPrimary.getRawButton(12));
-    saveRecording.onTrue(new InstantCommand(() -> mRecorder.saveToFile("MostRecent"))); // TODO make this automatic.
+    // Start a clean recording
+    Trigger beginRecording = new Trigger(
+        () -> mControllerPrimary.getRawButton(10)
+    );
+    beginRecording.onTrue(mRecorder.beginRecording(
+        () -> mRecorder.record(mDriveSubsystem, mShooterSubsystem, mIntakeSubsystem)
+    ));
+    // End a recording, but don't save it yet
+    Trigger endRecording = new Trigger(
+        () -> mControllerPrimary.getRawButton(11)
+    );
+    // Save the recording to the file declared in
+    // mRecorder.initialize() in robotInit
+    endRecording.onTrue(mRecorder.endRecording());
+    Trigger saveRecording = new Trigger(
+        () -> mControllerPrimary.getRawButton(12)
+    );
+    saveRecording.onTrue(mRecorder.saveRecording());
 
 
     // Trigger intakeIsScrewed = new Trigger(() -> mControllerTertiary.getBackButton());
@@ -920,7 +916,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    //return new InstantCommand(() -> {}); //blank command
+    // return mRecorder.getRecordedAutonomousCommand();
     // return mRecorder.getSequence(); // not implemented yet
 
     // return mChoreoManager.getChoreoAutonomousCommand();

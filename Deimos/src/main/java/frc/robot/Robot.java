@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private RobotContainer m_robotContainer;
+  private RobotContainer mRobotContainer;
 
   private LampController mLampController = LampController.getInstance();
   // private ChoreoManager mChoreoManager = ChoreoManager.getInstance();
@@ -43,8 +43,14 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     CameraServer.startAutomaticCapture();
-    m_robotContainer = new RobotContainer();
-    m_robotContainer.initialize();
+    mRobotContainer = new RobotContainer();
+    mRobotContainer.initialize();
+    
+    mRecorder.initialize(
+      "TESTFILE", 
+      "TESTFILE", 
+      false
+    );
     // mLampController.setPulse(3, 0.75, 0.25, 2.0);
   }
 
@@ -95,10 +101,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    //mRecorder.loadFromFile("Center4note", false);
-    m_robotContainer.initialize();
+    mRobotContainer.initialize();
     // m_robotContainer.calibrateIntakeArm();
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = mRobotContainer.getAutonomousCommand();
 
     //schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -118,7 +123,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     System.out.println("teleopINIT");
-    m_robotContainer.initialize();
+    mRobotContainer.initialize();
 
     // m_robotContainer.calibrateIntakeArm();
     // This makes sure that the autonomous stops running when

@@ -8,127 +8,106 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 /**
  * <p>
  * The class extending this should be a singleton, and interacted with
  * during {@code autonomousInit}, {@code autonomousPeriodic}, and
  * {@code autonomousExit}.
- * </p>
+ * <p>
+ * It is recommended to read the HowToRecord.md docs before using.
  * 
+ * <p>
  * <b>Example of extended class:</b>
  * 
-<pre>
-public class Recorder extends RecorderBase {
-    private static Recorder mInstance; // singleton
-    private DriveSubsystem mDriveSubsystem;
-
-    private Recorder() {
-        super(); // Don't leave this out
-        mDriveSubsystem = DriveSubsystem.getInstance();
-        // Initialize your subsystems in the private constructor
-    }
-
-    // Define a logging function for use outside of the class,
-    // according to your code needs. Pass its
-    // arguments to internallyLogDoubles(double...)
-    public void record(DriveSubsystem driveSubsystem) {
-        ChassisSpeeds chassisSpeeds = driveSubsystem.getChassisSpeeds();
-
-        internallyLogDoubles(
-                chassisSpeeds.vxMetersPerSecond,
-                chassisSpeeds.vyMetersPerSecond,
-                chassisSpeeds.omegaRadiansPerSecond);
-    }
-
-    // For use in autonomousPeriodic, after an auto file was loaded
-    public void playNextFrame() {
-        double[] actions = getNextDoubles(); // recorded data entries
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(actions[0], actions[1], actions[2]);
-        mDriveSubsystem.drive(chassisSpeeds);
-    }
-
-    // singleton
-    public synchronized static Recorder getInstance() {
-        if (mInstance == null) {
-            mInstance = new Recorder();
-        }
-        return mInstance;
-    }
-}
-</pre>
-
-<b> Playing a recording in Robot.java </b>
-
-<pre>
-
-&#64;Override
-public void autonomousInit() {
-    mRecorder.loadFromFile("My file to save");
-    Recorder.setIsPlaying(true);
-}
-
-@Override
-public void autonomousPeriodic() {
-    mRecorder.playNextFrame();
-}
-
-@Override
-public void autonomousExit() {
-    Recorder.setIsPlaying(false);
-}
-</pre>
-
-<b> Making a recording. (Command-based example) </b>
-
-<pre>
-private Command loggingCommand = new InstantCommand(
-        () -> mRecorder.record(mDriveSubsystem, mShooterSubsystem, mIntakeSubsystem)).repeatedly();
-
-private void configureButtonBindings() {
-
-    Trigger beginRecording = new Trigger(() -> mControllerPrimary.getRawButton(10));
-    beginRecording.onTrue(new InstantCommand(() -> {
-        System.out.println("Recorder: began recording");
-    }).andThen(loggingCommand));
-    Trigger endRecording = new Trigger(() -> mControllerPrimary.getRawButton(11));
-    endRecording.onTrue(new InstantCommand(() -> {
-        System.out.println("Recorder: ended recording");
-        loggingCommand.cancel();
-    }));
-    Trigger saveRecording = new Trigger(() -> mControllerPrimary.getRawButton(12));
-    saveRecording
-            .onTrue(new InstantCommand(() -> mRecorder.saveToFile(Recorder.AutonomousBeginningPosition.redCenter)));
-}
-</pre>
+ * <pre>
+ * // Recorder.java
+ * package frc.robot;
+ * 
+ * public class Recorder extends RecorderBase {
+ *     private static Recorder mInstance; // singleton
+ *     private DriveSubsystem mDriveSubsystem;
+ * 
+ *     private Recorder() {
+ *         super(); // Don't leave this out
+ *         mDriveSubsystem = DriveSubsystem.getInstance();
+ *         // Initialize your subsystems in the
+ *         // private constructor
+ *     }
+ * 
+ *     // Define a logging function for use by others
+ *     // outside the class, and ensure consistency and
+ *     // readability. Pass its arguments to
+ *     // internallyLogDoubles(double...)
+ *     public void record(DriveSubsystem driveSubsystem) {
+ *         ChassisSpeeds chassisSpeeds = driveSubsystem.getChassisSpeeds();
+ * 
+ *         // The .aftershockauto file is just a
+ *         // list of doubles, so extract the doubles
+ *         // as necessary before passing them into the
+ *         // recorded values queue.
+ *         internallyLogDoubles(
+ *                 chassisSpeeds.vxMetersPerSecond,
+ *                 chassisSpeeds.vyMetersPerSecond,
+ *                 chassisSpeeds.omegaRadiansPerSecond);
+ *     }
+ * 
+ *     // Since our .aftershockauto file recorded our
+ *     // motor values every 20 milliseconds, this
+ *     // will play them back every 20 milliseconds when
+ *     // constantly called.
+ *     // It is recommended to use the command wrapper
+ *     // for this method, rather than publicizing it.
+ *     // mRecorder.getRecordedAutonomousCommand()
+ *     protected void playNextFrame() {
+ *         // Get next recorded data entries then
+ *         // remove head of queue
+ *         double[] actions = getNextDoubles();
+ * 
+ *         // Set voltages and stuff with the doubles
+ *         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
+ *                 actions[0], actions[1], actions[2]);
+ *         mDriveSubsystem.drive(chassisSpeeds);
+ *     }
+ * 
+ *     // singleton
+ *     public synchronized static Recorder getInstance() {
+ *         if (mInstance == null) {
+ *             mInstance = new Recorder();
+ *         }
+ *         return mInstance;
+ *     }
+ * }
+ * </pre>
  * 
  * @author Adrian Dayao
  */
 public abstract class RecorderBase {
-    /**
-     * <p>
-     * Used with {@link RecorderBase#loadFromFile(AutonomousBeginningPosition)} and
-     * {@link RecorderBase#saveToFile(AutonomousBeginningPosition)}
-     */
-    public static enum AutonomousBeginningPosition {
-        redLeft, redCenter, redRight, blueLeft, blueCenter, blueRight
-    }
 
+    // Queues are useful to put objects at the beginning and end of.
     private final ConcurrentLinkedQueue<double[]> autonomousLoggingQueue;
     private final ConcurrentLinkedQueue<double[]> autonomousPlaybackQueue;
     private static boolean isPlaying;
+    /**
+     * Whether {@link RecorderBase#initialize(String, String, boolean) initialize}
+     * was called
+     */
+    private boolean mInitialized;
+    private String mAutonomousLoggingFileName; // should be initialized via
+    private String mAutonomousPlaybackFileName; // initialize()
+    private boolean mLoadPlaybackFromDeployDirectory;
 
-    // /**
-    //  * This method shouldn't be here tbh. Breaks encapsulation. FIXME remove this and any need to reference it
-    //  */
-    // public void clearAutonomousLoggingQueue() {
-    //     autonomousLoggingQueue.clear();
-    // }
+    private FunctionalCommand mRecordingCreationCommand;
 
     /**
-     * This constructor must be inherited via super, or else the queues won't
-     * work. Intellisense doesn't catch that.
+     * This constructor <b>must</b> be inherited via super, or else saving
+     * the data into our queues won't work. Intellisense doesn't catch that.
      * 
      * <pre>
      *public class Recorder extends RecorderBase() {
@@ -142,14 +121,145 @@ public abstract class RecorderBase {
         autonomousLoggingQueue = new ConcurrentLinkedQueue<double[]>();
         autonomousPlaybackQueue = new ConcurrentLinkedQueue<double[]>();
         isPlaying = false;
+        mAutonomousLoggingFileName = "PLACEHOLDER_NAME";
+        mAutonomousPlaybackFileName = "PLACEHOLDER_NAME";
+
+        mRecordingCreationCommand = new InstantCommand(
+                () -> DriverStation.reportWarning("Recorder: recordingCreationCommand was not initialized", false));
+    }
+
+    /**
+     * Call this in Robot.java's {@code robotInit} to select which files to save and
+     * load your recorded auto sequence from
+     * 
+     * @param fileToSaveRecordingTo           the name of the
+     *                                        {@code .aftershockauto} file to save a
+     *                                        recording to
+     * @param fileToLoadRecordingFrom         the name of the
+     *                                        {@code .aftershockauto} file to load a
+     *                                        recording from
+     * @param loadPlaybackFromDeployDirectory Whether the recording to play back was
+     *                                        deployed from the computer into the
+     *                                        RoboRIO's {@code /home/lvuser/deploy}
+     *                                        directory (true), or the recording is
+     *                                        stored in the RoboRIO's default
+     *                                        {@code /home/lvuser} home directory
+     *                                        (false). Newly-saved auto sequence
+     *                                        files are initially stored in the
+     *                                        {@code /home/lvuser} directory.
+     */
+    public final void initialize(
+            String fileToSaveRecordingTo,
+            String fileToLoadRecordingFrom,
+            boolean loadPlaybackFromDeployDirectory) {
+        System.out.println("Recorder: Initialized.");
+        if (mInitialized) {
+            DriverStation.reportWarning("Recorder: Initialized a second time.", false);
+        }
+        mInitialized = true;
+        mAutonomousLoggingFileName = fileToSaveRecordingTo;
+        mAutonomousPlaybackFileName = fileToLoadRecordingFrom;
+        mLoadPlaybackFromDeployDirectory = loadPlaybackFromDeployDirectory;
+        System.out.println("Recorder: Savefile name = " + mAutonomousLoggingFileName);
+        System.out.println("Recorder: Playback file name = " + mAutonomousPlaybackFileName);
+        System.out.println("Recorder: Playback file is expected to be in /home/lvuser"
+                + (mLoadPlaybackFromDeployDirectory ? "/deploy" : ""));
+    }
+
+    /**
+     * Command to begin recording. Erases previous unsaved recordings.
+     * 
+     * <pre>
+     * // Start a clean recording
+     * Trigger beginRecording = new Trigger(
+     *         () -> mControllerPrimary.getRawButton(10));
+     * beginRecording.onTrue(
+     *         mRecorder.beginRecording(
+     *                 () -> mRecorder.record(mDriveSubsystem)));
+     * </pre>
+     * 
+     * Note that you need to implement your own {@code mRecorder.record(...)}.
+     * 
+     * @param recordFunctionLambda A runnable that you pass Record.java's
+     *                             {@code record()}
+     *                             method to.
+     * @return a command to begin recording
+     * @see endRecording
+     * @see saveRecording
+     */
+    public final Command beginRecording(Runnable recordFunctionLambda) {
+        mRecordingCreationCommand.end(true);
+
+        mRecordingCreationCommand = new FunctionalCommand(
+                () -> {
+                    System.out.println("Recorder: Began recording.");
+                    autonomousLoggingQueue.clear();
+                }, // init()
+                recordFunctionLambda,
+                (Boolean interrupted) -> {
+                    System.out.println("Recorder: Stopped recording. Interrupted = " + interrupted);
+                }, // end()
+                () -> false, // isFinished()
+                new Subsystem[0]); // subsystem requirements (none)
+
+        return mRecordingCreationCommand;
+    }
+
+    /**
+     * Command to end recording, whether it has started or not.
+     * 
+     * <pre>
+     * // End a recording, but don't save it yet
+     * Trigger endRecording = new Trigger(
+     *         () -> mControllerPrimary.getRawButton(11));
+     * endRecording.onTrue(mRecorder.endRecording());
+     * </pre>
+     * 
+     * @return a command to stop recording
+     * @see #beginRecording
+     * @see #saveRecording
+     */
+    public final Command endRecording() {
+        return new InstantCommand(() -> {
+            if (mRecordingCreationCommand.isFinished()) {
+                DriverStation.reportError(
+                        "Recorder: Tried to stop current recording, but it was already stopped.",
+                        false);
+            } else {
+                mRecordingCreationCommand.end(true);
+            }
+        });
+    }
+
+    /**
+     * Wraps {@link RecorderBase#saveToFile() saveToFile()} in an InstantCommand.
+     * The file name is determined by
+     * {@link RecorderBase#initialize(String, String, boolean) initialize}.
+     * 
+     * <pre>
+     * // Save the recording to the file declared in
+     * // mRecorder.initialize() in robotInit
+     * endRecording.onTrue(mRecorder.endRecording());
+     * Trigger saveRecording = new Trigger(
+     *         () -> mControllerPrimary.getRawButton(12));
+     * saveRecording.onTrue(mRecorder.saveRecording());
+     * </pre>
+     * 
+     * @return instant command to save to file.
+     * @see #beginRecording
+     * @see #saveRecording
+     */
+    public final Command saveRecording() {
+        return new InstantCommand(() -> saveToFile());
     }
 
     /**
      * <p>
-     * Check if the recorder is playing back. Note that the boolean claiming whether
-     * the recorder is playing back must be set <b>manually</b>
-     * via setIsPlaying(), which is typically done in the {@code autonomousInit}
-     * and {@code autonomousExit} override methods in Robot.java.
+     * Check if the recorder is playing back. If your robot does
+     * <i>not</i> use {@code getRecordedAutonomousCommand()} to
+     * play a recording, you'll need to set this manually in
+     * {@link frc.robot.Robot#autonomousInit() autonomousInit} and
+     * {@link frc.robot.Robot#autonomousExit() autonomousExit}.
      * </p>
      * 
      * @return Whether the boolean {@code isPlaying} was set to true or false
@@ -159,19 +269,27 @@ public abstract class RecorderBase {
     }
 
     /**
-     * Set this in Robot.java's autonomousInit and Robot.java's autonomousExit
+     * <p>
+     * Check if the recorder is playing back. If your robot does
+     * <i>not</i> use {@code getRecordedAutonomousCommand()} to
+     * play a recording, you'll need to set {@code isPlaying} manually in
+     * {@link frc.robot.Robot#autonomousInit() autonomousInit} and
+     * {@link frc.robot.Robot#autonomousExit() autonomousExit}.
+     * </p>
      * 
-     * @param recorderIsPlaying Static, but a Recorder should be a singleton anyway.
+     * @param recorderIsPlaying
+     * @see #getIsPlaying
      */
     public static final void setIsPlaying(boolean recorderIsPlaying) {
-        isPlaying = recorderIsPlaying;
+        isPlaying = recorderIsPlaying; // yes this is static, but it's a singleton anyway
     }
 
     /**
-     * Call this method within Recorder. The public logger, which talks to this,
+     * Call this method within Recorder.java. The public logger, which talks to
+     * this,
      * should have relevant, readable variable names, such as
      * <p>
-     * {@code record(double speedX, double speedY)} or
+     * {@code record(double driveSpeedX, double driveSpeedY)} or
      * <p>
      * {@code record(DriveSubsystem driveSubsystem, IntakeSubsystem intakeSubsystem)}
      * <p>
@@ -193,7 +311,7 @@ public abstract class RecorderBase {
      * }
      * </pre>
      * 
-     * @param doublesToLog
+     * @param doublesToLog the .aftershockauto file only knows how to save doubles
      */
     protected final void internallyLogDoubles(double... doublesToLog) {
         if (doublesToLog != null)
@@ -203,14 +321,17 @@ public abstract class RecorderBase {
     /**
      * <p>
      * An autonomous file is saved like:
+     * <p>
      * {@code 0.969161,0.531531,0.24219,9.593151} × 50 Hz × recording length.
      * <p>
      * Since the code only knows that the next entry in the queue of loaded
      * autonomous actions is a list of doubles, you'll have to implement what to do
-     * with them yourself in the class that extends {@code RecorderBase}.
+     * with said doubles yourself in the class that extends {@code RecorderBase}.
      * 
      * @return Retrieves the head of the actions queue if it exists, Otherwise,
-     *         return a 20-entry array of zeroes{@code [0.0, 0.0, 0.0...]}
+     *         return a 20-entry array of zeroes{@code [0.0, 0.0, 0.0...]}.
+     *         Defaulting to these zeroes should only happen <i>after</i>
+     *         the queue has finished reading.
      */
     protected final double[] getNextDoubles() {
         double[] next = autonomousPlaybackQueue.poll();
@@ -218,61 +339,117 @@ public abstract class RecorderBase {
     }
 
     /**
-     * This function, which should be called in {@code autonomousPeriodic}, should
-     * be structured as so:
+     * This function, which is composed into a command via
+     * {@link RecorderBase.getRecordedAutonomousCommand()}, should be
+     * structured as so.
      * 
      * <pre>
-     * public void playNextFrame() {
-     *     double actions = getNextDoubles(); // Read from next set of doubles in queue
+     * protected void playNextFrame() {
+     *     // Read from next set of doubles in queue
+     *     double actions = getNextDoubles();
+     *     // Use the doubles to set voltages
      *     driveSubsystem.setSpeed(actions[0], actions[1]);
      *     // etc...
      * }
      * </pre>
      * 
-     * Make sure to actually load an auto profile first (via {@code loadfromFile}),
-     * and
-     * that the ordering of your arguments is consistent.
+     * Make sure to actually load an auto profile first via {@code initialize()},
+     * and that the ordering of the array returned by getNextDoubles() is consistent
+     * with your public-facing {@code record(...)} method.
      */
-    abstract public void playNextFrame();
+    abstract protected void playNextFrame();
 
     /**
-     * Save the current data to a text file by this name, within the RoboRIO. If
-     * desired, you may want to <a href=
+     * Wraps {@link RecorderBase#loadFromFile()} and
+     * {@link RecorderBase#playNextFrame() playNextFrame()} in a repeated,
+     * cancellable command. Return this in RobotContainer's
+     * {@code getAutonomousCommand()}
+     * 
+     * <pre>
+     * public Command getAutonomousCommand() {
+     *     return mRecorder.getRecordedAutonomousCommand();
+     * }
+     * </pre>
+     * 
+     * @return constant (50Hz) repetition of {@code playNextFrame}, wrapped as a
+     *         command. Also keeps track of isPlaying
+     */
+    public final Command getRecordedAutonomousCommand() {
+        final class RecordedAutonomousCommand extends Command {
+
+            @Override
+            public void initialize() {
+                loadFromFile(); // load file into queue, with prints
+                setIsPlaying(true);
+            }
+
+            @Override
+            public void execute() {
+                // repeats in 50Hz, aka whenever
+                // CommandScheduler.getInstance().run() is called
+                playNextFrame();
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                setIsPlaying(false);
+            }
+        }
+        return new RecordedAutonomousCommand();
+    }
+
+    /**
+     * Save the current data to a .aftershockauto text file, as defined by
+     * {@link RecorderBase#initialize(String, String, boolean) initialize}, within
+     * the RoboRIO. If desired, you may want to <a href=
      * "https://docs.wpilib.org/en/stable/docs/software/roborio-info/roborio-ssh.html">
      * SSH</a> into the RoboRIO to keep a <a href="https://cheat.sh/scp">backup</a>
      * of the file via PowerShell.
      * <p>
      * {@code > ssh lvuser@10.TE.AM.2}
      * 
-     * @param autonomousDataFileName The path to the file to save the auton data to.
+     * @see #initialize(String, String, boolean) initialize
      * @see #loadFromFile
      */
-    public final void saveToFile(String autonomousDataFileName) {
+    public final void saveToFile() {
+        System.out.println(
+                "Recorder: Trying to save "
+                        + mAutonomousLoggingFileName
+                        + ".aftershockauto to /home/lvuser");
         try {
-            File autonomousDataFile = new File(Filesystem.getOperatingDirectory(),
-                    autonomousDataFileName + ".aftershockauto");
+            File autonomousDataFile = new File(
+                    Filesystem.getOperatingDirectory(),
+                    mAutonomousLoggingFileName + ".aftershockauto");
             if (autonomousDataFile.exists()) {
+                DriverStation.reportWarning(
+                        "Recorder: Deleted previous "
+                                + mAutonomousLoggingFileName
+                                + ".aftershockauto",
+                        false);
                 autonomousDataFile.delete();
             }
             autonomousDataFile.createNewFile();
-            BufferedWriter mWriter = new BufferedWriter(new FileWriter(autonomousDataFile));
+            BufferedWriter fileWriter = new BufferedWriter(new FileWriter(autonomousDataFile));
             double[] autonomousDataEntry;
             while (true) {
                 autonomousDataEntry = autonomousLoggingQueue.poll();
                 if (autonomousDataEntry == null)
                     break;
 
+                // .aftershockauto looks like
+                // 0.52195219,0.52585219,0.53935219
+                // 0.95225219,0.94295219,0.59995219
                 for (int i = 0; i < autonomousDataEntry.length; i++) {
-                    mWriter.write(String.valueOf(autonomousDataEntry[i]) + ",");
+                    fileWriter.write(String.valueOf(autonomousDataEntry[i]) + ",");
                     if (i == autonomousDataEntry.length - 1) {
-                        mWriter.write(String.valueOf(autonomousDataEntry[i]) + "\n");
+                        fileWriter.write(String.valueOf(autonomousDataEntry[i]) + "\n");
                     }
-                    mWriter.flush();
+                    fileWriter.flush(); // make sure everything is written
                 }
             }
-            mWriter.flush();
-            mWriter.close();
-            System.out.println("Recorder: Save auto queue data");
+            fileWriter.flush();
+            fileWriter.close();
+            System.out.println("Recorder: Saved auto queue data");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -280,42 +457,22 @@ public abstract class RecorderBase {
     }
 
     /**
-     * Save the current data to a text file by this <i>enum's</i> name,
-     * within the RoboRIO. If desired, you may want to <a href=
-     * "https://docs.wpilib.org/en/stable/docs/software/roborio-info/roborio-ssh.html">
-     * SSH</a> into the RoboRIO to keep a <a href="https://cheat.sh/scp">backup</a>
-     * of the filevia PowerShell.
-     * <p>
-     * {@code > ssh lvuser@10.TE.AM.2}
-     * 
-     * @param autonomousDataFileName The path to the file to save the auton data to.
-     */
-    public final void saveToFile(AutonomousBeginningPosition autonomousDataFileNameByPosition) {
-        saveToFile(autonomousDataFileNameByPosition.toString());
-    }
-
-    /**
      * Set the current autonomous playback queue to whatever file you have saved on
-     * the RoboRIO that goes by this name. This should be called in
-     * {@code autonomousInit}.
+     * the RoboRIO that goes by the name defined in
+     * {@link #initialize(String, String, boolean) initialize}.
      * 
-     * @param autonomousDataFileName
-     * @param fromDeployDirectory    Defaults to false. If true, load the file we
-     *                               sent to the RoboRIO during the deploy step,
-     *                               rather than the previous recording.
-     *                               This file would be stored in
-     *                               {@code src/main/deploy/AftershockAuto}
      * @see #saveToFile
+     * @see #initialize
      */
-    public final void loadFromFile(String autonomousDataFileName, boolean fromDeployDirectory) {
+    protected final void loadFromFile() {
 
         // Get file as /home/lvuser/deploy/%s.aftershockauto or
         // /home/lvuser/%s.aftershockauto
-        File fileToRead = new File(fromDeployDirectory ? Filesystem.getDeployDirectory()
-                : Filesystem.getOperatingDirectory(), autonomousDataFileName + ".aftershockauto");
+        File fileToRead = new File(mLoadPlaybackFromDeployDirectory ? Filesystem.getDeployDirectory()
+                : Filesystem.getOperatingDirectory(), mAutonomousPlaybackFileName + ".aftershockauto");
 
         System.out.println("Recorder: Trying to load file " + fileToRead);
-        autonomousPlaybackQueue.clear();
+        autonomousPlaybackQueue.clear(); // Don't load multiple files into a playback queue
         try {
             BufferedReader reader = new BufferedReader(
                     new FileReader(fileToRead));
@@ -337,60 +494,7 @@ public abstract class RecorderBase {
 
             System.out.println("Recorder: Loaded auto queue successfully");
         } catch (IOException e) {
-            System.out.println("Recorder: Failed to find " + fileToRead);
+            DriverStation.reportError("Recorder: Failed to find " + fileToRead, false);
         }
-    }
-
-    /**
-     * please dont use this method
-     */
-    public void clearAutonomousLoggingQueue() {
-        autonomousLoggingQueue.clear();
-    }
-
-    /**
-     * Set the current autonomous playback queue to whatever file you have saved on
-     * the RoboRIO that goes by this name. This should be called in
-     * {@code autonomousInit}.
-     * 
-     * @param autonomousDataFileName
-     * @see #saveToFile
-     */
-    public final void loadFromFile(String autonomousDataFileName) {
-        loadFromFile(autonomousDataFileName, false);
-    }
-
-    /**
-     * Set the current autonomous playback queue to whatever file you have saved on
-     * the RoboRIO that goes by this <i>enum's</i> name. This should be called in
-     * {@code autonomousInit}.
-     * 
-     * @param autonomousDataFileNameByPosition the enum in
-     *                                         RecorderBase.{@link AutonomousBeginningPosition}
-     * @see #saveToFile
-     */
-    public final void loadFromFile(AutonomousBeginningPosition autonomousDataFileNameByPosition) {
-        loadFromFile(autonomousDataFileNameByPosition.toString(), false);
-    }
-
-    /**
-     * Set the current autonomous playback queue to whatever file you have saved on
-     * the RoboRIO that goes by this <i>enum's</i> name. This should be called in
-     * {@code autonomousInit}.
-     * 
-     * @param autonomousDataFileNameByPosition the enum in
-     *                                         RecorderBase.{@link AutonomousBeginningPosition}
-     * @param fromDeployDirectory              Defaults to false. If true, load the
-     *                                         file we
-     *                                         sent to the RoboRIO during the deploy
-     *                                         step,
-     *                                         rather than the previous recording.
-     *                                         This file would be stored in
-     *                                         {@code src/main/deploy/AftershockAuto}
-     * @see #saveToFile
-     */
-    public final void loadFromFile(AutonomousBeginningPosition autonomousDataFileNameByPosition,
-            boolean fromDeployDirectory) {
-        loadFromFile(autonomousDataFileNameByPosition.toString(), false);
     }
 }
