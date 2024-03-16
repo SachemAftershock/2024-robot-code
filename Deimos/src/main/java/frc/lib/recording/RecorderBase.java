@@ -375,27 +375,21 @@ public abstract class RecorderBase {
      *         command. Also keeps track of isPlaying
      */
     public final Command getRecordedAutonomousCommand() {
-        final class RecordedAutonomousCommand extends Command {
-
-            @Override
-            public void initialize() {
-                loadFromFile(); // load file into queue, with prints
-                setIsPlaying(true);
-            }
-
-            @Override
-            public void execute() {
-                // repeats in 50Hz, aka whenever
-                // CommandScheduler.getInstance().run() is called
-                playNextFrame();
-            }
-
-            @Override
-            public void end(boolean interrupted) {
-                setIsPlaying(false);
-            }
-        }
-        return new RecordedAutonomousCommand();
+        return new FunctionalCommand(
+                () -> { // init()
+                    loadFromFile();
+                    setIsPlaying(true);
+                    System.out.println("Recorder: Started playing autonomous sequence " + mAutonomousPlaybackFileName);
+                },
+                () -> playNextFrame(), // execute()
+                (Boolean interrupted) -> { // end(interrupted)
+                    setIsPlaying(false);
+                    System.out.println(
+                            "Recorder: Stopped playback of autonomous sequence " + mAutonomousPlaybackFileName);
+                },
+                () -> false, // isFinished()
+                new Subsystem[0]); // no subsystems required. This may change in the future, to make required
+                                   // systems a varargs.
     }
 
     /**
@@ -492,7 +486,7 @@ public abstract class RecorderBase {
 
             reader.close();
 
-            System.out.println("Recorder: Loaded auto queue successfully");
+            System.out.println("Recorder: Loaded auto sequence " + fileToRead.toString() + " successfully");
         } catch (IOException e) {
             DriverStation.reportError("Recorder: Failed to find " + fileToRead, false);
         }
