@@ -920,7 +920,7 @@ public class RobotContainer {
     return new FunctionalCommand(
       () -> {
         // reads file into auto queue
-        mRecorder.loadFromFile("Center4note", false);
+        new Thread(() -> mRecorder.loadFromFile("Center4note", false)).start();
         Recorder.setIsPlaying(true);
       },
      () -> mRecorder.playNextFrame(), // never reached
