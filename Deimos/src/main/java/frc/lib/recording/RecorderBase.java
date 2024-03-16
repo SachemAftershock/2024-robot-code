@@ -160,6 +160,7 @@ public abstract class RecorderBase {
         mAutonomousLoggingFileName = fileToSaveRecordingTo;
         mAutonomousPlaybackFileName = fileToLoadRecordingFrom;
         mLoadPlaybackFromDeployDirectory = loadPlaybackFromDeployDirectory;
+        loadFromFile();
         System.out.println("Recorder: Savefile name = " + mAutonomousLoggingFileName);
         System.out.println("Recorder: Playback file name = " + mAutonomousPlaybackFileName);
         System.out.println("Recorder: Playback file is expected to be in /home/lvuser"
@@ -374,18 +375,19 @@ public abstract class RecorderBase {
      * @return constant (50Hz) repetition of {@code playNextFrame}, wrapped as a
      *         command. Also keeps track of isPlaying
      */
-    public final Command getRecordedAutonomousCommand() {
+     
+    public Command getRecordedAutonomousCommand() {
+        System.out.println("Recorder: Trying to start autonomous");
         return new FunctionalCommand(
                 () -> { // init()
-                    loadFromFile();
-                    setIsPlaying(true);
                     System.out.println("Recorder: Started playing autonomous sequence " + mAutonomousPlaybackFileName);
+                    setIsPlaying(true);
                 },
                 () -> playNextFrame(), // execute()
                 (Boolean interrupted) -> { // end(interrupted)
-                    setIsPlaying(false);
                     System.out.println(
                             "Recorder: Stopped playback of autonomous sequence " + mAutonomousPlaybackFileName);
+                    setIsPlaying(false);
                 },
                 () -> false, // isFinished()
                 new Subsystem[0]); // no subsystems required. This may change in the future, to make required

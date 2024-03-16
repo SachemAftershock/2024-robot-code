@@ -46,9 +46,10 @@ public class Robot extends TimedRobot {
     mRobotContainer = new RobotContainer();
     mRobotContainer.initialize();
     
+    System.out.println("robotInit");
     mRecorder.initialize(
       "TESTFILE", 
-      "TESTFILE", 
+      "SpeakerCenterSideTwoNoteVERIFIED", 
       false
     );
     // mLampController.setPulse(3, 0.75, 0.25, 2.0);
@@ -110,14 +111,12 @@ public class Robot extends TimedRobot {
     m_autonomousCommand.schedule();
     }
     Constants.DriverStationConstants.updateAllianceColorAndLocation();
-   // Recorder.setIsPlaying(true);
     // mLampController.setPulse(3, 0.5, 0.5, 0.5);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    //mRecorder.playNextFrame();
   }
 
   @Override
