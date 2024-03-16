@@ -25,8 +25,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.AftershockXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ClimberSubsystem;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -913,8 +915,21 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
+  Subsystem[] dummy = new Subsystem[0];
   public Command getAutonomousCommand() {
-    return new InstantCommand(() -> {}); //blank command
+    return new FunctionalCommand(
+      () -> {
+        // reads file into auto queue
+        mRecorder.loadFromFile("Center4note", false);
+        Recorder.setIsPlaying(true);
+      },
+     () -> mRecorder.playNextFrame(), // never reached
+     (Boolean interrupted) -> Recorder.setIsPlaying(false),
+     () -> false,
+     dummy // subsystem varargs throws error if I use null, so use an empty subsystem array
+     );
+
+    // return new InstantCommand(() -> {}); //blank command
     // return mRecorder.getSequence(); // not implemented yet
 
     // return mChoreoManager.getChoreoAutonomousCommand();
