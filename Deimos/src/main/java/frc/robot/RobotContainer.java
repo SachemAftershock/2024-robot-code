@@ -807,7 +807,7 @@ public class RobotContainer {
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; }))
    );
-  private Command sequenceScoreCenterSide = new SequentialCommandGroup(
+  private Command sequenceScoreCenterSide3x = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
@@ -831,10 +831,10 @@ public class RobotContainer {
     (
       ((new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
-    (new OldLinearDriveCommand(mDriveSubsystem, -1.7, CardinalDirection.eX))
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.5, CardinalDirection.eX))
     ).andThen
      //(new OldLinearDriveCommand(mDriveSubsystem, 0, 0.1, 0)).andThen
-     ((new OldLinearDriveCommand(mDriveSubsystem, 1.25, CardinalDirection.eX)).alongWith
+     ((new TimedLinearDriveCommand(mDriveSubsystem, 1.6, 1.5, CardinalDirection.eX)).alongWith
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem))).andThen
     (new RotateDriveCommand(mDriveSubsystem, 0)).andThen //new
     (new DelayCommand(0.2)).andThen
@@ -851,17 +851,19 @@ public class RobotContainer {
     (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
-    (new OldLinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eY)).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.4, 1.5, CardinalDirection.eY)).andThen
+    (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     (
       ((new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
-    (new OldLinearDriveCommand(mDriveSubsystem, -1.4, CardinalDirection.eX))
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.4, 1.5, CardinalDirection.eX))
     ).andThen
-    (new OldLinearDriveCommand(mDriveSubsystem, 1.3, CardinalDirection.eY)).andThen
-    //(new RotateDriveCommand(mDriveSubsystem, 0)).andThen
-     ((new OldLinearDriveCommand(mDriveSubsystem, 1.4, CardinalDirection.eX)).alongWith
+    (new TimedLinearDriveCommand(mDriveSubsystem, 1.4, 1.5, CardinalDirection.eY)).andThen
+    (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
+     ((new TimedLinearDriveCommand(mDriveSubsystem, 1.5, 1.5, CardinalDirection.eX)).alongWith
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem))).andThen
+    (new RotateDriveCommand(mDriveSubsystem, 0)).andThen //tilt
     (new DelayCommand(0.2)).andThen
     (new RetractIntakeCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.2)).andThen

@@ -21,13 +21,14 @@ public class TimedLinearDriveCommand extends Command {
     private boolean negative = false;
     private double setPointToTime;
     private double speedInMetersPerSecond,percentOfSlowTime,slowSpeedInMetersPerSecond;
-
+    private double sign;
     //Field Relative : Y direction is horizontal, X direction is downfield 
 
-    public TimedLinearDriveCommand(DriveSubsystem drive, double distanceInMeters, CardinalDirection direction) {
+    public TimedLinearDriveCommand(DriveSubsystem drive, double distanceInMeters, double speed, CardinalDirection direction) {
         mDrive = drive;
         mLinearSetpoint = distanceInMeters;
         mDirection = direction;
+        speedInMetersPerSecond=speed;
         mPid = new PID();
         addRequirements(mDrive);
         mTimer = new Timer();
@@ -35,14 +36,19 @@ public class TimedLinearDriveCommand extends Command {
 
     @Override
     public void initialize() {
-        speedInMetersPerSecond=1;
-        slowSpeedInMetersPerSecond=.5;
-        percentOfSlowTime = .2;
         negative = mLinearSetpoint<=0;
-        setPointToTime = 
-        (slowSpeedInMetersPerSecond/Math.abs(mLinearSetpoint)*percentOfSlowTime) +
-        (speedInMetersPerSecond/Math.abs(mLinearSetpoint)*(1-percentOfSlowTime));//amount of slow time plus amount of normal time
+        sign = negative ? -1 : 1;
+        //desiredtime = desiredmovement/(actual moveemnt/actual time)
+        double actualmovement=2.169; //85to86 incheas
+        //setPointToTime=mLinearSetpoint/(actualmovement/(Math.abs(mLinearSetpoint)/speedInMetersPerSecond));
+        //2/(2.169/(2/1))
+        
+        setPointToTime = (Math.abs(mLinearSetpoint)/speedInMetersPerSecond)/1.0845;
+        
         mTimer.start();
+        
+        
+        
         // mCurrentPose = 0.0;
 
         // if(mDirection == CardinalDirection.eY) {
@@ -75,24 +81,8 @@ public class TimedLinearDriveCommand extends Command {
         //catch before the isfinished if its done
         if(mTimer.get()>setPointToTime){
             mDrive.drive(new ChassisSpeeds());
-        }
-
-
-        //if time is later than settime at beginning and less than slow time at end 
-        if(mTimer.get()>(setPointToTime*(percentOfSlowTime/2))
-        &&
-        mTimer.get()<(setPointToTime-setPointToTime*(percentOfSlowTime/2))){
-            speed =speedInMetersPerSecond;
-        }
-
-        //if time is at slowtime at beginning
-        else if(mTimer.get()<=(setPointToTime*(percentOfSlowTime/2))){
-            speed = slowSpeedInMetersPerSecond;
-        }
-
-        //if time is at slowtime at end
-        else if(mTimer.get()>=(setPointToTime-setPointToTime*(percentOfSlowTime/2))){
-            speed=slowSpeedInMetersPerSecond;
+        }else{
+            speed = speedInMetersPerSecond;
         }
 
         if(negative){
@@ -100,9 +90,9 @@ public class TimedLinearDriveCommand extends Command {
         }
 
         if(yDirection) {
-            mDrive.drive(new ChassisSpeeds(0, speed, 0));
+            mDrive.drive(new ChassisSpeeds(0, speed,0));//,  Math.toRadians(7.0*sign)));
         } else {
-            mDrive.drive(new ChassisSpeeds(speed, 0, 0));
+            mDrive.drive(new ChassisSpeeds(speed, 0, negative?Math.toRadians(7.0):0));
         }
     }
 
