@@ -211,7 +211,7 @@ public class RobotContainer {
     Trigger beginRecording = new Trigger(() -> mControllerPrimary.getRawButton(10));
     beginRecording.onTrue(new InstantCommand(() -> {
       System.out.println("Recorder: began recording"); // TODO this does not clear the logging queue
-      // mRecorder.clearAutonomousLoggingQueue();
+      mRecorder.clearAutonomousLoggingQueue();
     }).andThen(loggingCommand));
 
     Trigger endRecording = new Trigger(() -> mControllerPrimary.getRawButton(11));

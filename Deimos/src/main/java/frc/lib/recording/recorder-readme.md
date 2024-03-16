@@ -11,6 +11,8 @@ Go to Robot.java --> RobotInit --> method `loadFromFile(filename)`
 | BlueSourceRedAmpTwoVALIDATED                         | when you face the speaker, this is left  |
 | SpeakerCenterSideTwoNoteVERIFIED                     | center duh                               |
 | SpeakerRightSideTwoNoteVERIFIED                      | when you face the speaker, this is right |
+| CenterThreeNoteVALIDATED                             | fetches third from right of speaker      |
+| Center4note                                          | breaks when battery is low               |
 | OneNote                                              | untested tbh try not to use this         |
 
 Note that you'll have to re-deploy the robot if you change the filename.

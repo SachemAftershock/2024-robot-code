@@ -342,6 +342,13 @@ public abstract class RecorderBase {
     }
 
     /**
+     * please dont use this method
+     */
+    public void clearAutonomousLoggingQueue() {
+        autonomousLoggingQueue.clear();
+    }
+
+    /**
      * Set the current autonomous playback queue to whatever file you have saved on
      * the RoboRIO that goes by this name. This should be called in
      * {@code autonomousInit}.
