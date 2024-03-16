@@ -179,8 +179,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 				intakeArmSpeed = -0.1;  // Apply persisting parking pressure, to counter robot motion dynamics
 				if (showPrints) System.out.print("Phase D3: ");
 			} else {
-				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.6;
-				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.05;
+				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.8;
+				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.08;
 				EncoderCountThresholdToReverseDirection = 4.5; // changeable TODO make constant?
 
 				if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
@@ -293,7 +293,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		if (!Recorder.getIsPlaying())
 			runControlIntakeArmPosition();
 		// System.out.println("intake state "+getIntakeArmState());
-		if(mIntakeRetractedLimitSwitch.get())
+		if(!mInternalBeamBreaker.get())
 		{
 			mLampTriggered = true;
 				mLampController.setPulse(4, 0.1, 0.1, 0.7, true);

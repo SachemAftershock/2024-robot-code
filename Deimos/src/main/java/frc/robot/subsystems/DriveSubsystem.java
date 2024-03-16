@@ -86,6 +86,7 @@ public class DriveSubsystem extends AftershockSubsystem {
 	private final SwerveModule mFrontRightModule;
 	private final SwerveModule mBackLeftModule;
 	private final SwerveModule mBackRightModule;
+	private boolean mWheelsLocked = false;
 
 	private ChassisSpeeds mChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
@@ -263,6 +264,13 @@ public class DriveSubsystem extends AftershockSubsystem {
 			// System.out.println(mNavx.getAngle());
 
 		}
+		if (mWheelsLocked) {
+			mFrontLeftModule.set(0,   	Math.toRadians(45));
+			mFrontRightModule.set(0,  	Math.toRadians(-45));
+			mBackLeftModule.set(0, 	Math.toRadians(-45));
+			mBackRightModule.set(0, 	Math.toRadians(45));
+			return;
+		}
 		mFrontLeftModule.set(states[0].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
 				states[0].angle.getRadians());
 		mFrontRightModule.set(states[1].speedMetersPerSecond / kMaxVelocityMetersPerSecond * MAX_VOLTAGE,
@@ -287,6 +295,13 @@ public class DriveSubsystem extends AftershockSubsystem {
 
 		// System.out.println(getPose());
 
+	}
+
+	/**
+	 * toggle wheel locking
+	 */
+	public void toggleHoldGround() {
+		mWheelsLocked = !mWheelsLocked;
 	}
 
 	public Pose2d getPose() {

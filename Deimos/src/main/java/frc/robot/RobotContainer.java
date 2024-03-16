@@ -131,9 +131,9 @@ public class RobotContainer {
   // B to suck a note, then retract, then LT to go to speaker position and spin motors
   // RT is ignored until ...
   private Command sequenceArmToFire = new SequentialCommandGroup(
-    (new DelayCommand(0.1)).andThen
-    (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
-    (new DelayCommand(0.2)).andThen
+    // (new DelayCommand(0.1)).andThen
+    // (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
+    // (new DelayCommand(0.2)).andThen
 //    (new RetractIntakeCommand(mIntakeSubsystem)).andThen
     // (new DelayCommand(0.2)).andThen
     (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
@@ -205,7 +205,8 @@ public class RobotContainer {
 
     Trigger beginRecording = new Trigger(() -> mControllerPrimary.getRawButton(10));
     beginRecording.onTrue(new InstantCommand(() -> {
-      System.out.println("Recorder: began recording");
+      System.out.println("Recorder: began recording"); // TODO this does not clear the logging queue
+      // mRecorder.clearAutonomousLoggingQueue();
     }).andThen(loggingCommand));
 
     Trigger endRecording = new Trigger(() -> mControllerPrimary.getRawButton(11));
@@ -215,7 +216,7 @@ public class RobotContainer {
     }));
 
     Trigger saveRecording = new Trigger(() -> mControllerPrimary.getRawButton(12));
-    saveRecording.onTrue(new InstantCommand(() -> mRecorder.saveToFile("TESTFILE"))); // TODO auto
+    saveRecording.onTrue(new InstantCommand(() -> mRecorder.saveToFile("TESTFILE"))); // TODO make this automatic.
 
 
     // Trigger intakeIsScrewed = new Trigger(() -> mControllerTertiary.getBackButton());
@@ -427,6 +428,11 @@ public class RobotContainer {
       mShooterSubsystem.setShooterMotorSpeed(0, 0);
         mIntakeSubsystem.setRollerMotorSpeed(0);
       
+    }));
+
+    Trigger toggleHoldGround = new Trigger(() -> mControllerPrimary.getRawButtonPressed(5));
+    toggleHoldGround.onTrue(new InstantCommand(() -> {
+      mDriveSubsystem.toggleHoldGround();
     }));
 
     // downDPAD.onTrue(new InstantCommand(() -> {

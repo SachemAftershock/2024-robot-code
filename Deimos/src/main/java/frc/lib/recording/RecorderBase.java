@@ -119,6 +119,13 @@ public abstract class RecorderBase {
     private final ConcurrentLinkedQueue<double[]> autonomousPlaybackQueue;
     private static boolean isPlaying;
 
+    // /**
+    //  * This method shouldn't be here tbh. Breaks encapsulation. FIXME remove this and any need to reference it
+    //  */
+    // public void clearAutonomousLoggingQueue() {
+    //     autonomousLoggingQueue.clear();
+    // }
+
     /**
      * This constructor must be inherited via super, or else the queues won't
      * work. Intellisense doesn't catch that.
