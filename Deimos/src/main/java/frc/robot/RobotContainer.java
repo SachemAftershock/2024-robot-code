@@ -202,23 +202,22 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     // Start a clean recording
-    Trigger beginRecording = new Trigger(
+    Trigger startRecording = new Trigger(
         () -> mControllerPrimary.getRawButton(10)
     );
-    beginRecording.onTrue(mRecorder.beginRecording(
+    startRecording.onTrue(mRecorder.startRecording(
         () -> mRecorder.record(mDriveSubsystem, mShooterSubsystem, mIntakeSubsystem)
     ));
     // End a recording, but don't save it yet
     Trigger endRecording = new Trigger(
         () -> mControllerPrimary.getRawButton(11)
     );
-    // Save the recording to the file declared in
-    // mRecorder.initialize() in robotInit
     endRecording.onTrue(mRecorder.endRecording());
     Trigger saveRecording = new Trigger(
         () -> mControllerPrimary.getRawButton(12)
     );
-    saveRecording.onTrue(mRecorder.saveRecording());
+    // BEWARE: If a file by this name preexists, it WILL be overwritten!
+    saveRecording.onTrue(mRecorder.saveRecording("MostRecent"));
 
 
     // Trigger intakeIsScrewed = new Trigger(() -> mControllerTertiary.getBackButton());
@@ -916,8 +915,25 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // return mRecorder.getRecordedAutonomousCommand();
-    // return mRecorder.getSequence(); // not implemented yet
+    // RECORDER AUTO COMMANDS -------------------------------------------------
+
+    // breaks when battery is low
+    return mRecorder.getRecordedAutonomousCommand("Center4note", false);
+    //      when you face the speaker, this is left
+    // return mRecorder.getRecordedAutonomousCommand("BlueSourceRedAmpTwoVALIDATED", false);
+    //      center duh
+    // return mRecorder.getRecordedAutonomousCommand("SpeakerCenterSideTwoNoteVERIFIED", false);
+    //      when you face the speaker, this is right
+    // return mRecorder.getRecordedAutonomousCommand("SpeakerRightSideTwoNoteVERIFIED", false);
+    //      fetches third from right of speaker
+    // return mRecorder.getRecordedAutonomousCommand("CenterThreeNoteVALIDATED", false);
+    //      breaks when battery is low
+    // return mRecorder.getRecordedAutonomousCommand("Center4note", false);
+    //      untested tbh try not to use this
+    // return mRecorder.getRecordedAutonomousCommand("OneNote", false);
+    
+    //  -----------------------------------------------------------------------
+
 
     // return mChoreoManager.getChoreoAutonomousCommand();
     //return sequenceScoreSpeakerAmpSideForBlue;

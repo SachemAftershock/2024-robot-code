@@ -28,7 +28,6 @@ public class Robot extends TimedRobot {
 
   private LampController mLampController = LampController.getInstance();
   // private ChoreoManager mChoreoManager = ChoreoManager.getInstance();
-  private Recorder mRecorder = Recorder.getInstance();
 
   private int count = 0;
 
@@ -44,14 +43,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     CameraServer.startAutomaticCapture();
     mRobotContainer = new RobotContainer();
-    mRobotContainer.initialize();
-    
-    System.out.println("robotInit");
-    mRecorder.initialize(
-      "TESTFILE", 
-      "SpeakerCenterSideTwoNoteVERIFIED", 
-      false
-    );
+    mRobotContainer.initialize();    
     // mLampController.setPulse(3, 0.75, 0.25, 2.0);
   }
 
@@ -106,9 +98,9 @@ public class Robot extends TimedRobot {
     // m_robotContainer.calibrateIntakeArm();
     m_autonomousCommand = mRobotContainer.getAutonomousCommand();
 
-    //schedule the autonomous command (example)
+    // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
-    m_autonomousCommand.schedule();
+      m_autonomousCommand.schedule();
     }
     Constants.DriverStationConstants.updateAllianceColorAndLocation();
     // mLampController.setPulse(3, 0.5, 0.5, 0.5);

@@ -12,7 +12,7 @@
     5. Follow the prompts that appear in your terminal.
 
 .NOTES
-    Version 2024-03-16
+    TODO implement SSH option, not just SCP
 
 .EXAMPLE
     .\syncRecordings.ps1
@@ -41,9 +41,6 @@ mkdir -Force "aftershockauto" # Make if it doesn't exist
 Set-Location "aftershockauto"
 
 # Begin SCP
-
-
-
 Write-Host "Beginning SCP file transfer from RoboRIO --> local computer."
 Write-Host "WARNING! Files may be overwritten with new ones." -ForegroundColor DarkYellow
 Read-Host    "Continue? (Control+C to stop.)"

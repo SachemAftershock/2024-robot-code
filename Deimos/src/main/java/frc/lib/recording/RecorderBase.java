@@ -17,9 +17,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 
 /**
  * <p>
- * The class extending this should be a singleton, and interacted with
- * during {@code autonomousInit}, {@code autonomousPeriodic}, and
- * {@code autonomousExit}.
+ * The class extending this should be a singleton.
  * <p>
  * It is recommended to read the HowToRecord.md docs before using.
  * 
@@ -63,7 +61,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
  *     // will play them back every 20 milliseconds when
  *     // constantly called.
  *     // It is recommended to use the command wrapper
- *     // for this method, rather than publicizing it.
+ *     // for this method, rather than publicizing it:
  *     // mRecorder.getRecordedAutonomousCommand()
  *     protected void playNextFrame() {
  *         // Get next recorded data entries then
@@ -91,23 +89,19 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 public abstract class RecorderBase {
 
     // Queues are useful to put objects at the beginning and end of.
-    private final ConcurrentLinkedQueue<double[]> autonomousLoggingQueue;
-    private final ConcurrentLinkedQueue<double[]> autonomousPlaybackQueue;
-    private static boolean isPlaying;
+    private final ConcurrentLinkedQueue<double[]> mAutonomousLoggingQueue;
+    private final ConcurrentLinkedQueue<double[]> mAutonomousPlaybackQueue;
     /**
-     * Whether {@link RecorderBase#initialize(String, String, boolean) initialize}
-     * was called
+     * Whether the recorder is playing. Use {@link RecorderBase#getIsPlaying()
+     * getIsPlaying} to access this. Useful for stopping {@code periodic()}
+     * functions in subsystems if they interfere with recorder playback.
      */
-    private boolean mInitialized;
-    private String mAutonomousLoggingFileName; // should be initialized via
-    private String mAutonomousPlaybackFileName; // initialize()
-    private boolean mLoadPlaybackFromDeployDirectory;
-
-    private FunctionalCommand mRecordingCreationCommand;
+    private static boolean mIsPlaying;
+    private Command mRecordingCreationCommand;
 
     /**
      * This constructor <b>must</b> be inherited via super, or else saving
-     * the data into our queues won't work. Intellisense doesn't catch that.
+     * recording data into our queues won't work. Intellisense doesn't catch that.
      * 
      * <pre>
      *public class Recorder extends RecorderBase() {
@@ -118,53 +112,13 @@ public abstract class RecorderBase {
      * </pre>
      */
     protected RecorderBase() {
-        autonomousLoggingQueue = new ConcurrentLinkedQueue<double[]>();
-        autonomousPlaybackQueue = new ConcurrentLinkedQueue<double[]>();
-        isPlaying = false;
-        mAutonomousLoggingFileName = "PLACEHOLDER_NAME";
-        mAutonomousPlaybackFileName = "PLACEHOLDER_NAME";
-
+        mAutonomousLoggingQueue = new ConcurrentLinkedQueue<double[]>();
+        mAutonomousPlaybackQueue = new ConcurrentLinkedQueue<double[]>();
+        mIsPlaying = false;
         mRecordingCreationCommand = new InstantCommand(
-                () -> DriverStation.reportWarning("Recorder: recordingCreationCommand was not initialized", false));
-    }
-
-    /**
-     * Call this in Robot.java's {@code robotInit} to select which files to save and
-     * load your recorded auto sequence from
-     * 
-     * @param fileToSaveRecordingTo           the name of the
-     *                                        {@code .aftershockauto} file to save a
-     *                                        recording to
-     * @param fileToLoadRecordingFrom         the name of the
-     *                                        {@code .aftershockauto} file to load a
-     *                                        recording from
-     * @param loadPlaybackFromDeployDirectory Whether the recording to play back was
-     *                                        deployed from the computer into the
-     *                                        RoboRIO's {@code /home/lvuser/deploy}
-     *                                        directory (true), or the recording is
-     *                                        stored in the RoboRIO's default
-     *                                        {@code /home/lvuser} home directory
-     *                                        (false). Newly-saved auto sequence
-     *                                        files are initially stored in the
-     *                                        {@code /home/lvuser} directory.
-     */
-    public final void initialize(
-            String fileToSaveRecordingTo,
-            String fileToLoadRecordingFrom,
-            boolean loadPlaybackFromDeployDirectory) {
-        System.out.println("Recorder: Initialized.");
-        if (mInitialized) {
-            DriverStation.reportWarning("Recorder: Initialized a second time.", false);
-        }
-        mInitialized = true;
-        mAutonomousLoggingFileName = fileToSaveRecordingTo;
-        mAutonomousPlaybackFileName = fileToLoadRecordingFrom;
-        mLoadPlaybackFromDeployDirectory = loadPlaybackFromDeployDirectory;
-        loadFromFile();
-        System.out.println("Recorder: Savefile name = " + mAutonomousLoggingFileName);
-        System.out.println("Recorder: Playback file name = " + mAutonomousPlaybackFileName);
-        System.out.println("Recorder: Playback file is expected to be in /home/lvuser"
-                + (mLoadPlaybackFromDeployDirectory ? "/deploy" : ""));
+                () -> DriverStation.reportWarning(
+                        "Recorder: recordingCreationCommand was not initialized via startRecording",
+                        false));
     }
 
     /**
@@ -172,34 +126,33 @@ public abstract class RecorderBase {
      * 
      * <pre>
      * // Start a clean recording
-     * Trigger beginRecording = new Trigger(
+     * Trigger startRecording = new Trigger(
      *         () -> mControllerPrimary.getRawButton(10));
-     * beginRecording.onTrue(
-     *         mRecorder.beginRecording(
+     * startRecording.onTrue(
+     *         mRecorder.startRecording(
      *                 () -> mRecorder.record(mDriveSubsystem)));
      * </pre>
      * 
      * Note that you need to implement your own {@code mRecorder.record(...)}.
      * 
-     * @param recordFunctionLambda A runnable that you pass Record.java's
-     *                             {@code record()}
-     *                             method to.
+     * @param recordFunctionLambda A runnable that you pass your Recorder.java's
+     *                             {@code record()} method to.
      * @return a command to begin recording
-     * @see endRecording
-     * @see saveRecording
+     * @see #endRecording
+     * @see #saveRecording
      */
-    public final Command beginRecording(Runnable recordFunctionLambda) {
+    public final Command startRecording(Runnable recordFunctionLambda) {
         mRecordingCreationCommand.end(true);
 
         mRecordingCreationCommand = new FunctionalCommand(
-                () -> {
-                    System.out.println("Recorder: Began recording.");
-                    autonomousLoggingQueue.clear();
-                }, // init()
-                recordFunctionLambda,
-                (Boolean interrupted) -> {
+                () -> { // init()
+                    System.out.println("Recorder: Started recording.");
+                    mAutonomousLoggingQueue.clear();
+                },
+                recordFunctionLambda, // execute()
+                (Boolean interrupted) -> { // end()
                     System.out.println("Recorder: Stopped recording. Interrupted = " + interrupted);
-                }, // end()
+                },
                 () -> false, // isFinished()
                 new Subsystem[0]); // subsystem requirements (none)
 
@@ -207,7 +160,7 @@ public abstract class RecorderBase {
     }
 
     /**
-     * Command to end recording, whether it has started or not.
+     * Command to end recording, whether one has started or not.
      * 
      * <pre>
      * // End a recording, but don't save it yet
@@ -217,56 +170,60 @@ public abstract class RecorderBase {
      * </pre>
      * 
      * @return a command to stop recording
-     * @see #beginRecording
+     * @see #startRecording
      * @see #saveRecording
      */
     public final Command endRecording() {
         return new InstantCommand(() -> {
             if (mRecordingCreationCommand.isFinished()) {
                 DriverStation.reportError(
-                        "Recorder: Tried to stop current recording, but it was already stopped.",
+                        "Recorder: Tried to stop recording, but recording was already stopped.",
                         false);
-            } else {
-                mRecordingCreationCommand.end(true);
             }
+            mRecordingCreationCommand.cancel();
         });
     }
 
     /**
-     * Wraps {@link RecorderBase#saveToFile() saveToFile()} in an InstantCommand.
-     * The file name is determined by
-     * {@link RecorderBase#initialize(String, String, boolean) initialize}.
+     * Wraps {@link RecorderBase#saveToFile(String) saveToFile} in an {@link
+     * edu.wpi.first.wpilibj2.command.InstantCommand#InstantCommand(Runnable, Subsystem...)
+     * InstantCommand}.
      * 
      * <pre>
-     * // Save the recording to the file declared in
-     * // mRecorder.initialize() in robotInit
+     * // Save recording to RoboRIO /home/lvuser/MostRecent.aftershockauto
      * endRecording.onTrue(mRecorder.endRecording());
      * Trigger saveRecording = new Trigger(
      *         () -> mControllerPrimary.getRawButton(12));
-     * saveRecording.onTrue(mRecorder.saveRecording());
+     * saveRecording.onTrue(mRecorder.saveRecording("MostRecent"));
+     * // BEWARE: If a file by this name preexists, it WILL be overwritten!
      * </pre>
      * 
+     * @param fileNameToSaveTo File name to save to. Do not include the file
+     *                         extension.
      * @return instant command to save to file.
-     * @see #beginRecording
-     * @see #saveRecording
+     * @see #startRecording
+     * @see #endRecording
      */
-    public final Command saveRecording() {
-        return new InstantCommand(() -> saveToFile());
+    public final Command saveRecording(String fileNameToSaveTo) {
+        return new InstantCommand(() -> saveToFile(fileNameToSaveTo));
     }
 
     /**
      * <p>
-     * Check if the recorder is playing back. If your robot does
-     * <i>not</i> use {@code getRecordedAutonomousCommand()} to
-     * play a recording, you'll need to set this manually in
-     * {@link frc.robot.Robot#autonomousInit() autonomousInit} and
-     * {@link frc.robot.Robot#autonomousExit() autonomousExit}.
+     * Check if the recorder is playing back.
+     * <p>
+     * If your robot does
+     * <i>not</i> use {@link #getRecordedAutonomousCommand(String, boolean)
+     * getRecordedAutonomousCommand} to play a recording, you'll need to set
+     * {@link #mIsPlaying isPlaying} manually
+     * in RobotContainer's {@link frc.robot.Robot#autonomousInit() autonomousInit}
+     * and {@link frc.robot.Robot#autonomousExit() autonomousExit}.
      * </p>
      * 
      * @return Whether the boolean {@code isPlaying} was set to true or false
      */
     public static final boolean getIsPlaying() {
-        return isPlaying;
+        return mIsPlaying;
     }
 
     /**
@@ -282,7 +239,7 @@ public abstract class RecorderBase {
      * @see #getIsPlaying
      */
     public static final void setIsPlaying(boolean recorderIsPlaying) {
-        isPlaying = recorderIsPlaying; // yes this is static, but it's a singleton anyway
+        mIsPlaying = recorderIsPlaying; // yes this is static, but it's a singleton anyway
     }
 
     /**
@@ -316,7 +273,7 @@ public abstract class RecorderBase {
      */
     protected final void internallyLogDoubles(double... doublesToLog) {
         if (doublesToLog != null)
-            autonomousLoggingQueue.add(doublesToLog);
+            mAutonomousLoggingQueue.add(doublesToLog);
     }
 
     /**
@@ -335,7 +292,7 @@ public abstract class RecorderBase {
      *         the queue has finished reading.
      */
     protected final double[] getNextDoubles() {
-        double[] next = autonomousPlaybackQueue.poll();
+        double[] next = mAutonomousPlaybackQueue.poll();
         return next != null ? next : new double[20];
     }
 
@@ -361,65 +318,134 @@ public abstract class RecorderBase {
     abstract protected void playNextFrame();
 
     /**
-     * Wraps {@link RecorderBase#loadFromFile()} and
-     * {@link RecorderBase#playNextFrame() playNextFrame()} in a repeated,
-     * cancellable command. Return this in RobotContainer's
-     * {@code getAutonomousCommand()}
+     * Wraps {@link RecorderBase#loadFromFile(String, boolean) loadFromFile},
+     * {@link RecorderBase#setIsPlaying(boolean) setIsPlaying}, and
+     * {@link RecorderBase#playNextFrame() playNextFrame} in a command that
+     * repeats until interrupted. Return this in RobotContainer's
+     * {@link frc.robot.RobotContainer#getAutonomousCommand() getAutonomousCommand}.
      * 
      * <pre>
      * public Command getAutonomousCommand() {
-     *     return mRecorder.getRecordedAutonomousCommand();
+     *     return mRecorder.getRecordedAutonomousCommand("MyAwesomeFile", false);
      * }
      * </pre>
      * 
+     * @param fileNameToLoadFrom  the name of the .aftershockauto file to load from
+     *                            the RoboRIO. Do not include a file extension.
+     * @param fromDeployDirectory
+     *                            <ul>
+     *                            <li>True: The file is stored in the RoboRIO's
+     *                            {@code /home/lvuser} directory, where recordings
+     *                            by default get saved.
+     *                            </li>
+     *                            <li>False: The file is saved in the RoboRIO's
+     *                            {@code /home/lvuser/deploy} directory. Files in
+     *                            <i>our</i> {@code src/main/deploy} directory are
+     *                            deployed onto the RoboRIO in said directory.
+     *                            </li>
+     *                            </ul>
+     * @param requirements        the subsystems required by this command
      * @return constant (50Hz) repetition of {@code playNextFrame}, wrapped as a
-     *         command. Also keeps track of isPlaying
+     *         command.
      */
-     
-    public Command getRecordedAutonomousCommand() {
+    public Command getRecordedAutonomousCommand(
+            String fileNameToLoadFrom,
+            boolean fromDeployDirectory,
+            Subsystem... requirements) {
+
+        // As of 2024-03-17, FunctionalCommand errors if null is passed as
+        // Subsystem... varargs
+        if (requirements == null)
+            requirements = new Subsystem[0];
         System.out.println("Recorder: Trying to start autonomous");
         return new FunctionalCommand(
-                () -> { // init()
-                    System.out.println("Recorder: Started playing autonomous sequence " + mAutonomousPlaybackFileName);
+                () -> { // initialize()
+                    // new Thread(() -> loadFromFile(fileNameToLoadFrom,
+                    // fromDeployDirectory)).start();
+                    loadFromFile(fileNameToLoadFrom, fromDeployDirectory);
+                    System.out.println("Recorder: Started playing autonomous sequence " + fileNameToLoadFrom);
                     setIsPlaying(true);
                 },
                 () -> playNextFrame(), // execute()
                 (Boolean interrupted) -> { // end(interrupted)
                     System.out.println(
-                            "Recorder: Stopped playback of autonomous sequence " + mAutonomousPlaybackFileName);
+                            "Recorder: Stopped playback of autonomous sequence " + fileNameToLoadFrom);
                     setIsPlaying(false);
                 },
                 () -> false, // isFinished()
-                new Subsystem[0]); // no subsystems required. This may change in the future, to make required
-                                   // systems a varargs.
+                requirements); // no subsystems required. I might add a varargs argmuent "Subsystem...
+                               // subsystems" to the getRecordedAutonomousCommand method instead of
+                               // leaving this spot an empty array.
     }
 
     /**
-     * Save the current data to a .aftershockauto text file, as defined by
-     * {@link RecorderBase#initialize(String, String, boolean) initialize}, within
-     * the RoboRIO. If desired, you may want to <a href=
-     * "https://docs.wpilib.org/en/stable/docs/software/roborio-info/roborio-ssh.html">
-     * SSH</a> into the RoboRIO to keep a <a href="https://cheat.sh/scp">backup</a>
-     * of the file via PowerShell.
-     * <p>
-     * {@code > ssh lvuser@10.TE.AM.2}
+     * Wraps {@link RecorderBase#loadFromFile(String, boolean) loadFromFile},
+     * {@link RecorderBase#setIsPlaying(boolean) setIsPlaying}, and
+     * {@link RecorderBase#playNextFrame() playNextFrame} in a command that
+     * repeats until interrupted. Return this in RobotContainer's
+     * {@link frc.robot.RobotContainer#getAutonomousCommand() getAutonomousCommand}.
      * 
+     * <pre>
+     * public Command getAutonomousCommand() {
+     *     return mRecorder.getRecordedAutonomousCommand("MyAwesomeFile", false);
+     * }
+     * </pre>
+     * 
+     * @param fileNameToLoadFrom  the name of the .aftershockauto file to load from
+     *                            the RoboRIO. Do not include a file extension.
+     * @param fromDeployDirectory
+     *                            <ul>
+     *                            <li>True: The file is stored in the RoboRIO's
+     *                            {@code /home/lvuser} directory, where recordings
+     *                            by default get saved.
+     *                            </li>
+     *                            <li>False: The file is saved in the RoboRIO's
+     *                            {@code /home/lvuser/deploy} directory. Files in
+     *                            <i>our</i> {@code src/main/deploy} directory are
+     *                            deployed onto the RoboRIO in said directory.
+     *                            </li>
+     *                            </ul>
+     * @return constant (50Hz) repetition of {@code playNextFrame}, wrapped as a
+     *         command.
+     */
+    public Command getRecordedAutonomousCommand(String fileNameToLoadFrom, boolean fromDeployDirectory) {
+        return getRecordedAutonomousCommand(fileNameToLoadFrom, fromDeployDirectory, new Subsystem[0]);
+    }
+
+    /**
+     * Save the current data to a .aftershockauto text file. If desired, you may
+     * want to use PowerShell to <a href=
+     * "https://docs.wpilib.org/en/stable/docs/software/roborio-info/roborio-ssh.html">
+     * SSH</a> into the RoboRIO, to either keep a
+     * <a href="https://cheat.sh/scp">SCP backup</a> of the file or to rename it
+     * (with {@code mv}) after it is saved.
+     * <p>
+     * {@code > ssh lvuser@10.TE.AM.2} Start a remote SSH session on the RoboRIO
+     * <p>
+     * {@code > mv MostRecent.aftershockauto AwesomeFile.aftershockauto} While SSHed
+     * into the RoboRIO, rename a file. Tab completion is recommended.
+     * <p>
+     * {@code > scp lvuser@10.TE.AM.2:AwesomeFile.aftershockauto .} Backup a file
+     * from the RoboRIO to the current computer's working directory.
+     * 
+     * @param fileNameToSaveTo The name of the file to save to. Beware: if a file by
+     *                         this name exists already, it <i>will</i> be deleted!
      * @see #initialize(String, String, boolean) initialize
      * @see #loadFromFile
      */
-    public final void saveToFile() {
+    public final void saveToFile(String fileNameToSaveTo) {
         System.out.println(
                 "Recorder: Trying to save "
-                        + mAutonomousLoggingFileName
+                        + fileNameToSaveTo
                         + ".aftershockauto to /home/lvuser");
         try {
             File autonomousDataFile = new File(
                     Filesystem.getOperatingDirectory(),
-                    mAutonomousLoggingFileName + ".aftershockauto");
+                    fileNameToSaveTo + ".aftershockauto");
             if (autonomousDataFile.exists()) {
                 DriverStation.reportWarning(
                         "Recorder: Deleted previous "
-                                + mAutonomousLoggingFileName
+                                + fileNameToSaveTo
                                 + ".aftershockauto",
                         false);
                 autonomousDataFile.delete();
@@ -428,7 +454,7 @@ public abstract class RecorderBase {
             BufferedWriter fileWriter = new BufferedWriter(new FileWriter(autonomousDataFile));
             double[] autonomousDataEntry;
             while (true) {
-                autonomousDataEntry = autonomousLoggingQueue.poll();
+                autonomousDataEntry = mAutonomousLoggingQueue.poll();
                 if (autonomousDataEntry == null)
                     break;
 
@@ -449,26 +475,47 @@ public abstract class RecorderBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        autonomousLoggingQueue.clear();
+        mAutonomousLoggingQueue.clear();
     }
 
     /**
-     * Set the current autonomous playback queue to whatever file you have saved on
-     * the RoboRIO that goes by the name defined in
-     * {@link #initialize(String, String, boolean) initialize}.
+     * Set the current autonomous playback queue to the doubles stored in either
+     * {@code /home/lvuser/fileNameToLoadFrom} or
+     * {@code /home/lvuser/deploy/fileNameToLoadFrom}. It is <b>highly
+     * recommended</b> to use the
+     * {@link RecorderBase#getRecordedAutonomousCommand(String) command wrapper} for
+     * this, instead of calling this method in {@code autonomousInit}.
      * 
-     * @see #saveToFile
-     * @see #initialize
+     * 
+     * @param fileNameToLoadFrom  the name of the .aftershockauto file to load from
+     *                            the RoboRIO. Do not include a file extension.
+     * @param fromDeployDirectory
+     *                            <ul>
+     *                            <li>True: The file is stored in the RoboRIO's
+     *                            {@code /home/lvuser} directory, where recordings
+     *                            get saved by default.
+     *                            </li>
+     *                            <li>False: The file is saved in the RoboRIO's
+     *                            {@code /home/lvuser/deploy} directory, where files
+     *                            in <i>our</i> {@code src/main/deploy} directory
+     *                            get sent to.
+     *                            </li>
+     *                            </ul>
      */
-    protected final void loadFromFile() {
+    public final void loadFromFile(String fileNameToLoadFrom, boolean fromDeployDirectory) {
 
-        // Get file as /home/lvuser/deploy/%s.aftershockauto or
+        // Get file as /home/lvuser/deploy/aftershockauto/%s.aftershockauto or
         // /home/lvuser/%s.aftershockauto
-        File fileToRead = new File(mLoadPlaybackFromDeployDirectory ? Filesystem.getDeployDirectory()
-                : Filesystem.getOperatingDirectory(), mAutonomousPlaybackFileName + ".aftershockauto");
+        File fileToRead;
+        if (fromDeployDirectory) {
+            fileToRead = new File(Filesystem.getDeployDirectory(), "aftershockauto");
+            fileToRead = new File(fileToRead, fileNameToLoadFrom + ".aftershockauto");
+        } else {
+            fileToRead = new File(Filesystem.getOperatingDirectory(), fileNameToLoadFrom + ".aftershockauto");
+        }
 
-        System.out.println("Recorder: Trying to load file " + fileToRead);
-        autonomousPlaybackQueue.clear(); // Don't load multiple files into a playback queue
+        System.out.println("Recorder: Trying to load file " + fileToRead.toString());
+        mAutonomousPlaybackQueue.clear(); // Don't load multiple files into a playback queue
         try {
             BufferedReader reader = new BufferedReader(
                     new FileReader(fileToRead));
@@ -482,7 +529,7 @@ public abstract class RecorderBase {
                 double[] doubles = new double[stringDoubles.length];
                 for (int i = 0; i < stringDoubles.length; i++)
                     doubles[i] = Double.parseDouble(stringDoubles[i]);
-                autonomousPlaybackQueue.add(doubles);
+                mAutonomousPlaybackQueue.add(doubles);
                 line = reader.readLine();
             }
 
@@ -490,7 +537,7 @@ public abstract class RecorderBase {
 
             System.out.println("Recorder: Loaded auto sequence " + fileToRead.toString() + " successfully");
         } catch (IOException e) {
-            DriverStation.reportError("Recorder: Failed to find " + fileToRead, false);
+            DriverStation.reportError("Recorder: Failed to find " + fileToRead.toString(), false);
         }
     }
 }
