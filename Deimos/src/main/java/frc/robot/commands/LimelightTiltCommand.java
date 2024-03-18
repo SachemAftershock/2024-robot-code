@@ -19,7 +19,7 @@ public class LimelightTiltCommand extends Command {
     private ProfiledPIDController mPidTilt;
     private NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     private TrapezoidProfile.Constraints constraints;
-    private double tiltEpsilon=.1;
+    private double tiltEpsilon = .1;
     private LampController mLampController = LampController.getInstance();
     private boolean mLampTriggered = false;
     private Alliance AllianceColor = null;
@@ -41,38 +41,38 @@ public class LimelightTiltCommand extends Command {
         //start pid
         mPidTilt = new ProfiledPIDController(.4,0,.1, constraints);
         
-        if (Constants.DriverStationConstants.kAllianceColor.isPresent()){
-            if (Constants.DriverStationConstants.kAllianceColor.get() == Alliance.Red) {
-                  AllianceColor = Alliance.Red;
-                  System.out.println("Match Color: Red ");
-            }
-            else{
-                   AllianceColor = Alliance.Blue;
-                   System.out.println("Match Color: Blue");
-            }
-        } 
-        else{
-            System.out.println("Match Color: Unknown");
+        // if (Constants.DriverStationConstants.kAllianceColor.isPresent()){
+        //     if (Constants.DriverStationConstants.kAllianceColor.get() == Alliance.Red) {
+        //           AllianceColor = Alliance.Red;
+        //           System.out.println("Match Color: Red ");
+        //     }
+        //     else{
+        //            AllianceColor = Alliance.Blue;
+        //            System.out.println("Match Color: Blue");
+        //     }
+        // } 
+        // else{
+        //     System.out.println("Match Color: Unknown");
     
-        }
+        // }
 
-        if (Constants.DriverStationConstants.kLocationnumber.isPresent()){
-            if (Constants.DriverStationConstants.kLocationnumber.getAsInt() == 1) {
-                  LocationNumber = 1;
-                  System.out.println("Location Number: 1");
-            }
-            else if (Constants.DriverStationConstants.kLocationnumber.getAsInt() == 2) {
-                  LocationNumber = 2;
-                  System.out.println("Location Number: 2");
-            }
-            else if (Constants.DriverStationConstants.kLocationnumber.getAsInt() == 3) {
-                  LocationNumber = 3;
-                  System.out.println("Location Number: 3");
-            }
-        }
-        else {
-            System.out.println("Location Number: Unknown");
-        }
+        // if (Constants.DriverStationConstants.kLocationnumber.isPresent()){
+        //     if (Constants.DriverStationConstants.kLocationnumber.getAsInt() == 1) {
+        //           LocationNumber = 1;
+        //           System.out.println("Location Number: 1");
+        //     }
+        //     else if (Constants.DriverStationConstants.kLocationnumber.getAsInt() == 2) {
+        //           LocationNumber = 2;
+        //           System.out.println("Location Number: 2");
+        //     }
+        //     else if (Constants.DriverStationConstants.kLocationnumber.getAsInt() == 3) {
+        //           LocationNumber = 3;
+        //           System.out.println("Location Number: 3");
+        //     }
+        // }
+        // else {
+        //     System.out.println("Location Number: Unknown");
+        // }
 
         // if(AllianceColor ==  Alliance.Red && LocationNumber == 1){
         //     table.getEntry("priorityid").setInteger(4);
@@ -99,8 +99,8 @@ public class LimelightTiltCommand extends Command {
         //     table.getEntry("priorityid").setInteger(8);
         //     mPIDGoal = -45;
         // }
-        table.getEntry("priorityid").setInteger(7);
-        mPIDGoal = 0;
+        //table.getEntry("priorityid").setInteger(7);
+       // mPIDGoal = 0;
         
     }
 
