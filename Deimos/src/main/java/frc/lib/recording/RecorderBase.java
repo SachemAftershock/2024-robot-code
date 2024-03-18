@@ -373,9 +373,7 @@ public abstract class RecorderBase {
                     setIsPlaying(false);
                 },
                 () -> false, // isFinished()
-                requirements); // no subsystems required. I might add a varargs argmuent "Subsystem...
-                               // subsystems" to the getRecordedAutonomousCommand method instead of
-                               // leaving this spot an empty array.
+                requirements);
     }
 
     /**

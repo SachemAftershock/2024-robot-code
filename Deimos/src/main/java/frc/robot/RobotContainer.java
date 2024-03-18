@@ -918,19 +918,19 @@ public class RobotContainer {
     // RECORDER AUTO COMMANDS -------------------------------------------------
 
     // breaks when battery is low
-    return mRecorder.getRecordedAutonomousCommand("Center4note", false);
+  // return mRecorder.getRecordedAutonomousCommand("Center4noteREDO", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      when you face the speaker, this is left
-    // return mRecorder.getRecordedAutonomousCommand("BlueSourceRedAmpTwoVALIDATED", false);
+    // return mRecorder.getRecordedAutonomousCommand("BlueSourceRedAmpTwoVALIDATED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      center duh
-    // return mRecorder.getRecordedAutonomousCommand("SpeakerCenterSideTwoNoteVERIFIED", false);
+    // return mRecorder.getRecordedAutonomousCommand("SpeakerCenterSideTwoNoteVERIFIED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      when you face the speaker, this is right
-    // return mRecorder.getRecordedAutonomousCommand("SpeakerRightSideTwoNoteVERIFIED", false);
+    // return mRecorder.getRecordedAutonomousCommand("SpeakerRightSideTwoNoteVERIFIED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      fetches third from right of speaker
-    // return mRecorder.getRecordedAutonomousCommand("CenterThreeNoteVALIDATED", false);
+    return mRecorder.getRecordedAutonomousCommand("CenterThreeNoteVALIDATED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      breaks when battery is low
-    // return mRecorder.getRecordedAutonomousCommand("Center4note", false);
+    // return mRecorder.getRecordedAutonomousCommand("Center4note", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      untested tbh try not to use this
-    // return mRecorder.getRecordedAutonomousCommand("OneNote", false);
+    // return mRecorder.getRecordedAutonomousCommand("OneNote", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     
     //  -----------------------------------------------------------------------
 
