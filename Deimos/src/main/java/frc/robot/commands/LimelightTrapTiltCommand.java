@@ -13,19 +13,24 @@ import frc.robot.Constants;
 import frc.robot.LampController;
 import frc.robot.subsystems.DriveSubsystem;
 
-public class LimelightTiltCommand extends Command {
+public class LimelightTrapTiltCommand extends Command {
     private DriveSubsystem mDrive;
     private DriverStation mDriverStation;
     private ProfiledPIDController mPidTilt;
+     private ProfiledPIDController mPidLeftRight;
     private NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     private TrapezoidProfile.Constraints constraints;
-    private double tiltEpsilon = .1;
+    private double horTiltEpsilon = .1;
+    private double verTiltEpsilon = .1;
+    private double distanceEpsilon = .1;
     private LampController mLampController = LampController.getInstance();
-    private double mPIDGoal;
+    private double mPIDHorAngleGoal;
+    private double mPIDDistanceGoal;
+    private double mPIDVertAngleGoal;
     
 
     
-    public LimelightTiltCommand(DriveSubsystem mDriveSubsystem) {
+    public LimelightTrapTiltCommand(DriveSubsystem mDriveSubsystem) {
         constraints = new TrapezoidProfile.Constraints(1, 1);
         this.mDrive = mDriveSubsystem;
     }   
@@ -37,19 +42,30 @@ public class LimelightTiltCommand extends Command {
     public void initialize() {
         //start pid
         mPidTilt = new ProfiledPIDController(.4,0,.1, constraints);
-        table.getEntry("priorityid").setInteger(7);
-        mPIDGoal = 0;
-        
+        mPidLeftRight = new ProfiledPIDController(4,0, .1, constraints);
+        table.getEntry("priorityid").setInteger(11);
+        mPIDDistanceGoal = 0;
+        mPIDHorAngleGoal = 0;
+        mPIDVertAngleGoal = 0;//get from limelight
     }
 
     @Override
     public void execute() {
         //run pid
         if(table.getEntry("tid").getInteger(0)!=-1){
-            double x  =  table.getEntry("tx").getDouble(0.0);
-            double speed = -mPidTilt.calculate(x/20, mPIDGoal);
-            System.out.println(speed);
-            mDrive.drive(new ChassisSpeeds(0,0,-speed * Math.PI));
+            double horizontalDistance = table.getEntry("txnc").getDouble(0);
+            double horizontalAngle  =  table.getEntry("tx").getDouble(0.0);
+            double verticalAngle  =  table.getEntry("ty").getDouble(0.0);
+
+            double vertAngleSpeed = -mPidTilt.calculate(verticalAngle/20, mPIDVertAngleGoal);
+            double horAngleSpeed = -mPidTilt.calculate(horizontalAngle/20, mPIDHorAngleGoal);
+            double distanceSpeed = mPidLeftRight.calculate(horizontalDistance, mPIDDistanceGoal);
+            
+
+
+            System.out.println("Angle Speed: " + vertAngleSpeed);
+            System.out.println("Distance Speed: " + distanceSpeed);
+            mDrive.drive(new ChassisSpeeds(distanceSpeed, horAngleSpeed,-vertAngleSpeed * Math.PI));
         }
     }
  
@@ -59,15 +75,15 @@ public class LimelightTiltCommand extends Command {
         if (table.getEntry("tid").getInteger(0)==-1) {
             mDrive.drive(new ChassisSpeeds());
 
-            System.out.println("Tilt Cancelled, no tag found ");
+            System.out.println("Tilt/Drive Cancelled, no tag found ");
             return true;
         }
-        if(Math.abs(mPidTilt.getPositionError())<tiltEpsilon){
+        if(Math.abs(mPidTilt.getPositionError()) < horTiltEpsilon && Math.abs(mPidLeftRight.getPositionError()) < distanceEpsilon){
             mDrive.drive(new ChassisSpeeds());
-            System.out.println("Tilt finished");
+            System.out.println("Tilt/Drive finished");
             
 			mLampController.setPulse(2, 0.2, 0.2, 0.8, true);
-          
+
             return true;
 
             
@@ -81,10 +97,3 @@ public class LimelightTiltCommand extends Command {
         System.out.println("end");
     }
 }
-
-
-
-
-
-
-

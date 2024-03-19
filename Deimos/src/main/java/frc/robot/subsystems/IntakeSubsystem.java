@@ -3,12 +3,27 @@ package frc.robot.subsystems;
 
 
 import frc.lib.AftershockSubsystem;
+import frc.robot.LampController;
+import frc.robot.Recorder;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import static frc.robot.Constants.IntakeConstants.kEjectNoteSpeed;
+import static frc.robot.Constants.IntakeConstants.kExternalBeamBreakerID;
+import static frc.robot.Constants.IntakeConstants.kIntakeArmMotorID;
+import static frc.robot.Constants.IntakeConstants.kIntakeLimitSwitchID;
+import static frc.robot.Constants.IntakeConstants.kIntakeRollerMotorID;
+import static frc.robot.Constants.IntakeConstants.kInternalBeamBreakerID;
+
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+
 import edu.wpi.first.wpilibj.DigitalInput;
-import static frc.robot.Constants.IntakeConstants.*;
+import edu.wpi.first.wpilibj.Timer;
+import frc.lib.AftershockSubsystem;
+import frc.robot.LampController;
 
 public class IntakeSubsystem extends AftershockSubsystem {
 
@@ -16,8 +31,48 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	
 	private CANSparkMax mIntakeArmMotor;
 	private RelativeEncoder mIntakeArmEncoder;
+	private LampController mLampController = LampController.getInstance();
 
 	private CANSparkMax mIntakeRollerMotor;
+
+	private static boolean mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = true;
+	private static boolean mInternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = true;
+	private boolean mLampTriggered = false;
+
+
+	public static boolean IsBothBeamBreakersBeenBroken() {
+		return !mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit 
+				&& !mInternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit;
+	}
+
+
+
+	class ExternalBeamBreakerClass extends DigitalInput {
+		public ExternalBeamBreakerClass(int channel) {
+			super(channel);
+		}
+		@Override
+		public boolean get() {
+			boolean result = this.get();
+			if (!result) IntakeSubsystem.mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = false;
+			return result;
+		}
+
+	}
+
+	class InternalBeamBreakerClass extends DigitalInput {
+		public InternalBeamBreakerClass(int channel) {
+			super(channel);
+		}
+		@Override
+		public boolean get() {
+			boolean result = this.get();
+			if (!result) IntakeSubsystem.mInternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = false;
+			return result;
+		}
+
+	}
+		
 
 	private DigitalInput mExternalBeamBreaker;
 	private DigitalInput mInternalBeamBreaker;
@@ -37,7 +92,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		mIntakeArmEncoder = mIntakeArmMotor.getEncoder(); 
 		
 		mIntakeRollerMotor = new CANSparkMax(kIntakeRollerMotorID, MotorType.kBrushless);
-
+		mLampController = LampController.getInstance();
 		mExternalBeamBreaker = new DigitalInput(kExternalBeamBreakerID); //EXTERNAL B1
 		mInternalBeamBreaker = new DigitalInput(kInternalBeamBreakerID); //INTERNAL B2
 
@@ -74,7 +129,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		else if ((Math.abs(mIntakeArmEncoder.getPosition()) < epsilon) 
 			  || (Math.abs(mIntakeArmEncoder.getPosition()) > kDesiredIntakeArmEncoderSweep - epsilon)) 
 			currentIntakeArmPosition = IntakeArmPositionEnum.eDeployed;
-		else
+		else	
 			currentIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
 		return currentIntakeArmPosition;
 	}
@@ -95,7 +150,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 				intakeArmSpeed = 0.1;  // Apply persisting parking pressure, to counter robot motion dynamics
 				if (showPrints) System.out.print("Phase R3: ");
 			} else {
-				mMaximumIntakeArmUpswingLiftMaxSpeed = 0.6;
+				mMaximumIntakeArmUpswingLiftMaxSpeed = 0.8;
 				mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.03;
 				EncoderCountThresholdToReverseDirection = 1.5; // changeable TODO make constant?
 
@@ -123,8 +178,8 @@ public class IntakeSubsystem extends AftershockSubsystem {
 				intakeArmSpeed = -0.1;  // Apply persisting parking pressure, to counter robot motion dynamics
 				if (showPrints) System.out.print("Phase D3: ");
 			} else {
-				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.4;
-				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.05;
+				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.8;
+				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.08;
 				EncoderCountThresholdToReverseDirection = 4.5; // changeable TODO make constant?
 
 				if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
@@ -171,6 +226,22 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	public void setRollerMotorSpeed(double speed){
 		mIntakeRollerMotor.set(speed); 
 	}
+
+	public double getRollerMotorSpeed() {
+		return mIntakeRollerMotor.get();
+	}
+
+	public double getIntakeArmMotorSpeed() {
+		return mIntakeArmMotor.get();
+	}
+	/**
+	 * Raw setter for intake arm motor speed, for auto
+	 * @param speed
+	 * @return
+	 */
+	public void setIntakeArmMotorSpeed(double speed) {
+		mIntakeArmMotor.set(speed);
+	}
 	
 	public void ingestNote() {
 		double speed = -0.5;
@@ -210,13 +281,25 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			"Intake ExternalBeamBreaker: " + 
 			mExternalBeamBreaker.get() + 
 			"  Intake InternalBeamBreaker: " + 
-			mInternalBeamBreaker.get());
+			mInternalBeamBreaker.get() + 
+			"  Intake LIMIT: " + mIntakeRetractedLimitSwitch.get());
 		return true;
 	}
 
 	@Override
 	public void periodic() {
-		runControlIntakeArmPosition();
+		checkSystem();
+		if (!Recorder.getIsPlaying())
+			runControlIntakeArmPosition();
+		// System.out.println("intake state "+getIntakeArmState());
+		if(!mInternalBeamBreaker.get())
+		{
+			mLampTriggered = true;
+				mLampController.setPulse(4, 0.1, 0.1, 0.7, true);
+			} else if (mLampTriggered) {
+				mLampTriggered = false;
+				mLampController.setPulse(0, 0, 0, 0, true);
+			}
 	}
 
 	//Add Shuffle board calls here
@@ -230,4 +313,5 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		}
 		return mInstance;
 	}
+
 }

@@ -4,7 +4,12 @@
 
 package frc.robot;
 
+import java.util.Optional;
+import java.util.OptionalInt;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.PositionToVelocityProfiler;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -19,6 +24,19 @@ import frc.lib.PositionToVelocityProfiler;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+        
+    public static final class DriverStationConstants {
+        public static DriverStation mDriverStation;
+        public static Optional<Alliance> kAllianceColor = DriverStation.getAlliance();
+        public static OptionalInt kLocationnumber = DriverStation.getLocation();
+        public static void updateAllianceColorAndLocation(){
+            kAllianceColor = DriverStation.getAlliance();
+            kLocationnumber = DriverStation.getLocation();
+        }
+    }
+
+
 
     public static final class LampConstants {
         public static int kPdhId = 3;        
@@ -52,8 +70,11 @@ public final class Constants {
     }
 
     public static class ClimberConstants {
-        public static final int kLeftClimberMotorID = 25;
-        public static final int kRightClimberMotorID = 26;
+        public static final int kLeftClimberMotorID = 26;
+        public static final int kRightClimberMotorID = 25;
+
+        public static final int kLeftLimitSwitchID = 6;
+        public static final int kRightLimitSwitchID = 9;
 
         public static final double kClimberMotorSpeed = 0.4;
     }
@@ -105,7 +126,7 @@ public final class Constants {
          * 95 degrees. Move the shooter arm up to dump note into amp
          */
         public static PositionToVelocityProfiler kShooterAngleAmpProfiler = (new PositionToVelocityProfiler()
-            .setGoal(95)
+            .setGoal(97)
             .addProfileEntry(-2, 10, 0.4)
             .addProfileEntry(10 , 15 , 0.60)
             .addProfileEntry(15 , 20 , 0.70)
@@ -123,9 +144,12 @@ public final class Constants {
             .addProfileEntry(65 , 70 , 0.70)
             .addProfileEntry(70 , 75 , 0.55)
             .addProfileEntry(75 , 85 , 0.35)
-            .addProfileEntry(85 , 95 , 0.15)
+            .addProfileEntry(85 , 95 , 0.07)
             .addProfileEntry(95 , 100, 0.01)
-            // .addProfileEntry(90, 100, 0.01)
+            .addProfileEntry(100, 105, -0.07)
+
+            // in case it goes too far somehow
+            .addProfileEntry(105, 240, -0.15)
         );
 
         /**
@@ -139,7 +163,7 @@ public final class Constants {
             .addProfileEntry(20 , 40 , -0.4)
             .addProfileEntry(40 , 60 , -0.4)
             .addProfileEntry(60 , 100, -0.3)
-            .addProfileEntry(80 , 200, -0.2) // just in case it goes past somehow
+            .addProfileEntry(80 , 240, -0.15) // just in case it goes past somehow
         );
 
         /**
@@ -147,26 +171,31 @@ public final class Constants {
          * then fire backwards.
          */
         public static PositionToVelocityProfiler kShooterAngleTrapProfiler = (new PositionToVelocityProfiler()
-            .setGoal(150)
-            .addProfileEntry(-2,10,0.1)
-            .addProfileEntry(10 ,20 ,0.25)
-            .addProfileEntry(20 ,30 ,0.40)
-            .addProfileEntry(30 ,40 ,0.55)
-            .addProfileEntry(40 ,50 ,0.60)
-            .addProfileEntry(50 ,60 ,0.70)
-            .addProfileEntry(60 ,70 ,0.70)
-            .addProfileEntry(70 ,80 ,0.70)
-            .addProfileEntry(80 ,90 ,0.70)
-            .addProfileEntry(90 ,100,0.70)
-            .addProfileEntry(100,110,0.70)
-            .addProfileEntry(110,120,0.60)
-            .addProfileEntry(120,130,0.50)
-            .addProfileEntry(120,130,0.40)
-            .addProfileEntry(130,140,0.25)
-            .addProfileEntry(140,147,0.10)
-            .addProfileEntry(147,155,0.01)
-            // if it overshoots (not possible since we will be trapping with our back to the wall), move back to normal spot
-            .addProfileEntry(155, 200, -0.10) 
+            .setGoal(127)
+            .addProfileEntry(-2, 10, 0.4)
+            .addProfileEntry(10 , 15 , 0.60)
+            .addProfileEntry(15 , 20 , 0.70)
+            .addProfileEntry(20 , 25 , 0.80)
+            .addProfileEntry(25 , 30 , 0.85)
+            .addProfileEntry(30 , 35 , 0.90)
+            .addProfileEntry(35 , 40 , 0.90)
+            .addProfileEntry(40 , 45 , 0.90)
+            .addProfileEntry(45 , 50 , 0.90)
+
+            .addProfileEntry(50 , 55 , 0.90)
+            
+            .addProfileEntry(55 , 60 , 0.90)
+            .addProfileEntry(60 , 65 , 0.90)
+            .addProfileEntry(65 , 70 , 0.70)
+            .addProfileEntry(70 , 75 , 0.55)
+            .addProfileEntry(75 , 90 , 0.35)
+            .addProfileEntry(90 , 115 , 0.20)
+            .addProfileEntry(115 , 125, 0.1)
+            .addProfileEntry(125, 130, .01)
+            .addProfileEntry(130, 135, -0.01)
+            .addProfileEntry(135, 140, -0.07)
+            // in case it goes too far somehow
+            .addProfileEntry(130, 240, -0.15)
         );
 
         /**
@@ -183,6 +212,8 @@ public final class Constants {
             .addProfileEntry(50, 60, 0.00)
             .addProfileEntry(60, 70, 0.00)
             .addProfileEntry(70, 80, 0.00)
+
+            .addProfileEntry(155, 240, -0.10) // if it goes too far somehow. tho safezone isnt used yet
         );
 
     }
@@ -197,15 +228,17 @@ public final class Constants {
         public static final boolean kSquareAxis = true;
 
         public static final double[] kDriveAngularGains = { 0.2, 0.0, 0.0 }; // dont use I it sucks - Shreyas
-        public static final double[] kDriveLinearGains = { 1.8, 0.03, 0.0 }; // {0.8, 0.02, 0.0}
+        public static final double[] kDriveLinearGains = { 0.95, 0.0, 0.0 }; // {0.8, 0.02, 0.0}
         public static final double kDt = 0.02;// 0.02;
 
         public static final double kPX = 1.25;
         public static final double kPY = 1.25;
+        public static final double kPTheta = 1; // FIXME made on-the-fly for choreo
 
         public static final double kAutoRotateEpsilon = 3.0;
         public static final double kLinearDriveTranslationEpsilon = 0.04;// .05
-        public static final double kLinearDriveRotationEpsilon = 2.0;
+        public static final double kLinearDriveRotationEpsilon = 1.0;
+        public static final double kLinearDriveEpsilon = 0.3;
 
         public static final double kDrivetrainTrackwidthMeters = 0.5461;
         public static final double kDrivetrainWheelbaseMeters = 0.5461;

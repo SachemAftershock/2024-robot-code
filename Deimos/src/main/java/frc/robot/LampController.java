@@ -13,23 +13,26 @@ public class LampController {
     private double mPulseDurationInSec = 0;
     private double mDelayBetweenPulsesInSec = 0;
     private double mPulseTrainGapInSec = 0; 
+    private boolean mOnceOnly = true;
 
     private int mPulseCounter = 0;
     private boolean mPulsePhase = false;
     private final Timer mTimer = new Timer();
     private final PowerDistribution mPDH  = new PowerDistribution(kPdhId, ModuleType.kRev);
 
-    public void setPulse(int numPulses, double pulseDurationInSec, double delayBetweenPulsesInSec, double pulseTrainGapInSec){
+    public void setPulse(int numPulses, double pulseDurationInSec, double delayBetweenPulsesInSec, double pulseTrainGapInSec, boolean onceOnly){
     
         if (!((mNumPulses == numPulses) &&
             (mPulseDurationInSec == pulseDurationInSec) &&
             (mDelayBetweenPulsesInSec == delayBetweenPulsesInSec) &&
-            (mPulseTrainGapInSec == pulseTrainGapInSec))) {
+            (mPulseTrainGapInSec == pulseTrainGapInSec) && 
+            (mOnceOnly = onceOnly))) {
 
             mNumPulses = numPulses;
             mPulseDurationInSec = pulseDurationInSec;
             mDelayBetweenPulsesInSec = delayBetweenPulsesInSec;
             mPulseTrainGapInSec = pulseTrainGapInSec;
+            mOnceOnly = onceOnly;
 
             mPulseCounter = 0;
             mPulsePhase = false;
@@ -63,8 +66,12 @@ public class LampController {
             mPulsePhase = false;
             mPDH.setSwitchableChannel(mPulsePhase);
             if (mTimer.advanceIfElapsed(mPulseTrainGapInSec)) {
-                mPulseCounter = 0;
-                mTimer.restart(); 
+                if (mOnceOnly) {
+                    mNumPulses = 0;
+                } else {
+                    mPulseCounter = 0;
+                    mTimer.restart(); 
+                }
             }
         }  
     }

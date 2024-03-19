@@ -94,10 +94,6 @@ public class Limelight {
 		return getValue("ty").getDouble(kDefaultValue);
 	}
 
-	
-
-
-
 	/**
 	 * Area that the detected target takes up in total camera FOV (0% to 100%).
 	 * <p>
