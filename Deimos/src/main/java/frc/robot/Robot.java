@@ -70,6 +70,7 @@ public class Robot extends TimedRobot {
       LimelightManagerSubsystem.getInstance().outputTelemetry();
       count = 0;
     }
+    mLampController.setPulse(0, 0, 0, 0,0);
     mLampController.run();
     // mChoreoManager.updatePose();
   }
