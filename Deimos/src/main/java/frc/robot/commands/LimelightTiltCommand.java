@@ -21,6 +21,9 @@ public class LimelightTiltCommand extends Command {
     private TrapezoidProfile.Constraints constraints;
     private double tiltEpsilon = .1;
     private LampController mLampController = LampController.getInstance();
+    private boolean mLampTriggered = false;
+    private Alliance AllianceColor = null;
+    private int LocationNumber = 0;
     private double mPIDGoal;
     
 
@@ -38,9 +41,8 @@ public class LimelightTiltCommand extends Command {
     public void initialize() {
         //start pid
         mPidTilt = new ProfiledPIDController(.4,0,.1, constraints);
-        //table.getEntry("priorityid").setInteger(7);
-        mPIDGoal = 0;
-        
+                table.getEntry("priorityid").setInteger(7);
+
     }
 
     @Override
@@ -48,9 +50,9 @@ public class LimelightTiltCommand extends Command {
         //run pid
         if(table.getEntry("tid").getInteger(0)!=-1){
             double x  =  table.getEntry("tx").getDouble(0.0);
-            double speed = mPidTilt.calculate(x/20, mPIDGoal);
+            double speed = -mPidTilt.calculate(x/20, 0); //mPIDGoal);
             System.out.println(speed);
-            mDrive.drive(new ChassisSpeeds(0,0,speed * Math.PI));
+            mDrive.drive(new ChassisSpeeds(0,0,-speed * Math.PI));
         }
     }
  
