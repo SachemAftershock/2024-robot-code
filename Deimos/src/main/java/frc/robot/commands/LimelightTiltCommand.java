@@ -34,7 +34,7 @@ public class LimelightTiltCommand extends Command {
     
     public LimelightTiltCommand(DriveSubsystem mDriveSubsystem, int Tag, double Angle) {
         mTag = Tag;
-        mAngle = Angle;
+        mAngle = Angle; //-1.35 is trap
         constraints = new TrapezoidProfile.Constraints(1, 1);
         this.mDrive = mDriveSubsystem;
         mStartTime = Timer.getFPGATimestamp();
