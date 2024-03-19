@@ -54,10 +54,16 @@ public class Recorder extends RecorderBase {
         //         actions[i] *= (wantedBatteryVoltage / RobotController.getBatteryVoltage());
         //     }
         // }
+
+        // magic math to increase motor voltages because they keep
+        // coming up too low
         actions[0] *= 1.05; // chassis
         actions[1] *= 1.05;
         actions[2] *= 1.05;
         actions[3] *= 1.08; // intake arm
+
+        if (Math.abs(actions[3]) <= .5) actions[3] *= 1.1;
+
         actions[4] *= 1.08; // intake roller
         actions[5] *= 1.05; // shooter
         actions[6] *= 1.05;
