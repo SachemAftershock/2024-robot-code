@@ -44,6 +44,7 @@ import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.IngestNoteCommand;
 import frc.robot.commands.LimelightTiltCommand;
+import frc.robot.commands.LimelightTrapTiltCommand;
 import frc.robot.commands.EjectNoteCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
@@ -231,7 +232,10 @@ public class RobotContainer {
     // }));
 
     Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(7));
-    limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem).andThen(new LimelightTiltCommand(mDriveSubsystem)));
+    limelightTilt.whileTrue(new LimelightTiltCommand(mDriveSubsystem));//.andThen(new LimelightTiltCommand(mDriveSubsystem)));
+
+    Trigger limelightTrapTilt = new Trigger(()-> mControllerPrimary.getRawButton(16)); //I dont think thats a real # for the flightstick (but what do I know)
+    limelightTilt.whileTrue(new LimelightTrapTiltCommand(mDriveSubsystem));
 	
     
     // Emergency Reinitialize

@@ -6,27 +6,32 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.LampController;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class LimelightTrapTiltCommand extends Command {
     private DriveSubsystem mDrive;
     private DriverStation mDriverStation;
-    private ProfiledPIDController mPidTilt;
-     private ProfiledPIDController mPidLeftRight;
+
+    private ProfiledPIDController mPidHorizontalTilt;
+    private ProfiledPIDController mPidHorizontalDrive;
+    private ProfiledPIDController mPidVerticalDrive;
+
+
     private NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     private TrapezoidProfile.Constraints constraints;
-    private double horTiltEpsilon = .1;
-    private double verTiltEpsilon = .1;
-    private double distanceEpsilon = .1;
+
+    private double horizontalTiltEpsilon = .1;
+    private double horizontalDriveEpsilon = .1;
+    private double verticalDriveEpsilon = .1;
+
     private LampController mLampController = LampController.getInstance();
-    private double mPIDHorAngleGoal;
-    private double mPIDDistanceGoal;
-    private double mPIDVertAngleGoal;
+
+
+    private double mPidHorizontalTiltGoal;
+    private double mPidHorizontalDriveGoal;
+    private double mPidVerticalDriveGoal;
     
 
     
@@ -41,31 +46,42 @@ public class LimelightTrapTiltCommand extends Command {
     @Override
     public void initialize() {
         //start pid
-        mPidTilt = new ProfiledPIDController(.4,0,.1, constraints);
-        mPidLeftRight = new ProfiledPIDController(4,0, .1, constraints);
-        table.getEntry("priorityid").setInteger(11);
-        mPIDDistanceGoal = 0;
-        mPIDHorAngleGoal = 0;
-        mPIDVertAngleGoal = 0;//get from limelight
+        mPidHorizontalTilt = new ProfiledPIDController(.4,0,.1, constraints);
+        mPidHorizontalDrive = new ProfiledPIDController(.4,0,.1, constraints);
+        mPidVerticalDrive = new ProfiledPIDController(.4,0,.1, constraints);
+
+        table.getEntry("priorityid").setInteger(7);
+
+        mPidHorizontalTiltGoal = 0; //angle
+        mPidHorizontalDriveGoal = 0; //not an angle
+        mPidVerticalDriveGoal = 0; //change to what the value actually is when the limelight measures it (angle)
+        
     }
 
     @Override
     public void execute() {
         //run pid
         if(table.getEntry("tid").getInteger(0)!=-1){
-            double horizontalDistance = table.getEntry("txnc").getDouble(0);
-            double horizontalAngle  =  table.getEntry("tx").getDouble(0.0);
-            double verticalAngle  =  table.getEntry("ty").getDouble(0.0);
-
-            double vertAngleSpeed = -mPidTilt.calculate(verticalAngle/20, mPIDVertAngleGoal);
-            double horAngleSpeed = -mPidTilt.calculate(horizontalAngle/20, mPIDHorAngleGoal);
-            double distanceSpeed = mPidLeftRight.calculate(horizontalDistance, mPIDDistanceGoal);
-            
 
 
-            System.out.println("Angle Speed: " + vertAngleSpeed);
-            System.out.println("Distance Speed: " + distanceSpeed);
-            mDrive.drive(new ChassisSpeeds(distanceSpeed, horAngleSpeed,-vertAngleSpeed * Math.PI));
+
+            double xTilt  =  table.getEntry("tx").getDouble(0.0); //Angle measurement
+            double horizontalTiltSpeed = -mPidHorizontalTilt.calculate(xTilt/20, mPidHorizontalTiltGoal);
+
+            double xDrive  =  table.getEntry("txnc").getDouble(0.0); //it's measured by pixels not meters or angle so might need to be converted
+            double horizontalDriveSpeed = -mPidHorizontalDrive.calculate(xDrive/20, mPidHorizontalTiltGoal);
+
+            double yDrive  =  table.getEntry("ty").getDouble(0.0); // Angle measurement 
+            double verticalDriveSpeed = -mPidVerticalDrive.calculate(yDrive, mPidVerticalDriveGoal);
+
+
+
+
+            System.out.println("Horizontal Tilt Speed: " + horizontalTiltSpeed);
+            System.out.println("Horizontal Drive Speed: " + horizontalDriveSpeed);
+            System.out.println("Vertical Tilt Speed: " + verticalDriveSpeed);
+
+            mDrive.drive(new ChassisSpeeds(horizontalDriveSpeed,verticalDriveSpeed,-horizontalTiltSpeed * Math.PI)); //might ned to change drivespeeds into meters
         }
     }
  
@@ -75,15 +91,15 @@ public class LimelightTrapTiltCommand extends Command {
         if (table.getEntry("tid").getInteger(0)==-1) {
             mDrive.drive(new ChassisSpeeds());
 
-            System.out.println("Tilt/Drive Cancelled, no tag found ");
+            System.out.println("Tilt Cancelled, no tag found ");
             return true;
         }
-        if(Math.abs(mPidTilt.getPositionError()) < horTiltEpsilon && Math.abs(mPidLeftRight.getPositionError()) < distanceEpsilon){
+        if(Math.abs(mPidHorizontalTilt.getPositionError())<horizontalTiltEpsilon && Math.abs(mPidHorizontalDrive.getPositionError())<horizontalDriveEpsilon && Math.abs(mPidVerticalDrive.getPositionError())<verticalDriveEpsilon){
             mDrive.drive(new ChassisSpeeds());
-            System.out.println("Tilt/Drive finished");
+            System.out.println("Tilt finished");
             
 			mLampController.setPulse(2, 0.2, 0.2, 0.8, true);
-
+          
             return true;
 
             
@@ -97,3 +113,10 @@ public class LimelightTrapTiltCommand extends Command {
         System.out.println("end");
     }
 }
+
+
+
+
+
+
+
