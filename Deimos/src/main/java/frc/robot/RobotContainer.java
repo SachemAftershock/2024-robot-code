@@ -231,11 +231,11 @@ public class RobotContainer {
     //   // mIntakeSubsystem.setIntakeArmState
     // }));
 
-    Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(7));
-    limelightTilt.whileTrue(new LimelightTiltCommand(mDriveSubsystem));//.andThen(new LimelightTiltCommand(mDriveSubsystem)));
+     Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(7));
+     limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem).andThen(new LimelightTiltCommand(mDriveSubsystem)));
 
-    Trigger limelightTrapTilt = new Trigger(()-> mControllerPrimary.getRawButton(16)); //I dont think thats a real # for the flightstick (but what do I know)
-    limelightTilt.whileTrue(new LimelightTrapTiltCommand(mDriveSubsystem));
+     Trigger limelightTrapTilt = new Trigger(()-> mControllerSecondary.getRawButton(7)); //I dont think thats a real # for the flightstick (but what do I know)
+     limelightTrapTilt.whileTrue(new LimelightTrapTiltCommand(mDriveSubsystem));
 	
     
     // Emergency Reinitialize

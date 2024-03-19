@@ -28,6 +28,7 @@ public class LimelightTiltCommand extends Command {
     public LimelightTiltCommand(DriveSubsystem mDriveSubsystem) {
         constraints = new TrapezoidProfile.Constraints(1, 1);
         this.mDrive = mDriveSubsystem;
+        addRequirements(mDriveSubsystem);
     }   
 
 
@@ -37,7 +38,7 @@ public class LimelightTiltCommand extends Command {
     public void initialize() {
         //start pid
         mPidTilt = new ProfiledPIDController(.4,0,.1, constraints);
-        table.getEntry("priorityid").setInteger(7);
+        //table.getEntry("priorityid").setInteger(7);
         mPIDGoal = 0;
         
     }
@@ -47,9 +48,9 @@ public class LimelightTiltCommand extends Command {
         //run pid
         if(table.getEntry("tid").getInteger(0)!=-1){
             double x  =  table.getEntry("tx").getDouble(0.0);
-            double speed = -mPidTilt.calculate(x/20, mPIDGoal);
+            double speed = mPidTilt.calculate(x/20, mPIDGoal);
             System.out.println(speed);
-            mDrive.drive(new ChassisSpeeds(0,0,-speed * Math.PI));
+            mDrive.drive(new ChassisSpeeds(0,0,speed * Math.PI));
         }
     }
  
