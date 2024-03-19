@@ -235,7 +235,7 @@ public class RobotContainer {
      limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem).andThen(new LimelightTiltCommand(mDriveSubsystem)));
 
      Trigger limelightTrapTilt = new Trigger(()-> mControllerSecondary.getRawButton(7)); //I dont think thats a real # for the flightstick (but what do I know)
-     limelightTrapTilt.whileTrue(new LimelightTrapTiltCommand(mDriveSubsystem));
+     limelightTrapTilt.onTrue(new LimelightTrapTiltCommand(mDriveSubsystem));
 	
     
     // Emergency Reinitialize

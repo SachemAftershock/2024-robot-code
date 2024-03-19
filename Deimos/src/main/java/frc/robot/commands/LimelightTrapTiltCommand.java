@@ -56,7 +56,7 @@ public class LimelightTrapTiltCommand extends Command {
 
         mPidHorizontalTiltGoal = 0; //angle
         mPidHorizontalDriveGoal = 0; //not an angle
-        mPidVerticalDriveGoal = 16; //change to what the value actually is when the limelight measures it (angle)
+        mPidVerticalDriveGoal = 16.05; //change to what the value actually is when the limelight measures it (angle)
         
     }
 
@@ -70,9 +70,19 @@ public class LimelightTrapTiltCommand extends Command {
             double xTilt  =  table.getEntry("tx").getDouble(0.0); //Angle measurement
             double horizontalTiltSpeed = mPidHorizontalTilt.calculate(xTilt/20, mPidHorizontalTiltGoal);
 
-            double xDrive  =  table.getEntry("txnc").getDouble(0.0); //it's measured by pixels not meters or angle so might need to be converted
-            double horizontalDriveSpeed = mPidHorizontalDrive.calculate(xDrive/20, mPidHorizontalTiltGoal);
+            double xDrive  =   table.getEntry("tx").getDouble(0.0); 
+            
+            double horizontalDriveSpeed = 0; 
+            if(xDrive < 0){
+                 horizontalDriveSpeed = 0.5;
+            }
 
+            if(xDrive > 0){
+                 horizontalDriveSpeed = -0.5;
+            }
+
+
+            
             double yDrive  =  table.getEntry("ty").getDouble(0.0); // Angle measurement 
             double verticalDriveSpeed = -mPidVerticalDrive.calculate(yDrive, mPidVerticalDriveGoal);
 
@@ -83,7 +93,7 @@ public class LimelightTrapTiltCommand extends Command {
             System.out.println("Horizontal Drive Speed: " + horizontalDriveSpeed);
             System.out.println("Vertical Tilt Speed: " + verticalDriveSpeed);
 
-            mDrive.drive(new ChassisSpeeds(horizontalDriveSpeed,0,horizontalTiltSpeed * Math.PI)); //might ned to change drivespeeds into meters
+            mDrive.drive(new ChassisSpeeds(horizontalDriveSpeed,verticalDriveSpeed,horizontalTiltSpeed * Math.PI)); //might ned to change drivespeeds into meters
         }
     }
  
