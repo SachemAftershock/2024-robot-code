@@ -27,6 +27,8 @@ public class LimelightTiltCommand extends Command {
     private double mPIDGoal;
     private int mTag;
     private double mAngle;
+    private double mMaxTime = 2;
+    private double mStartTime;
     
 
     
@@ -35,6 +37,7 @@ public class LimelightTiltCommand extends Command {
         mAngle = Angle;
         constraints = new TrapezoidProfile.Constraints(1, 1);
         this.mDrive = mDriveSubsystem;
+        mStartTime = Timer.getFPGATimestamp();
         addRequirements(mDriveSubsystem);
     }   
 
@@ -55,7 +58,7 @@ public class LimelightTiltCommand extends Command {
         table.getEntry("priorityid").setInteger(mTag);
         mPIDGoal = mAngle;
         if (mTag == -1){
-            System.out.println("No tag set");
+            System.out.println("No priority tag set");
         }
     }
 
@@ -70,15 +73,26 @@ public class LimelightTiltCommand extends Command {
         }
     }
  
+    int counter=0;
     @Override
     public boolean isFinished() {
+
+        // If the command lasts longer than 2 seconds, kill it
+        if (Timer.getFPGATimestamp() - mStartTime > mMaxTime) {
+            return true;
+        }
         
         if (table.getEntry("tid").getInteger(0)==-1) {
             mDrive.drive(new ChassisSpeeds());
 
-            System.out.println("Tilt Cancelled, no tag found ");
+            counter++;
+            if (counter % 50 == 0)
+                System.out.println("Tilt Cancelled, no tag found ");
             return true;
         }
+
+        //silyboi
+        
         if(Math.abs(mPidTilt.getPositionError())<tiltEpsilon){
             mDrive.drive(new ChassisSpeeds());
             System.out.println("Tilt finished");
