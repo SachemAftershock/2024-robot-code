@@ -3,14 +3,12 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightManagerSubsystem;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.wpilibj.TimedRobot;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -29,7 +27,6 @@ public class Robot extends TimedRobot {
   private LampController mLampController = LampController.getInstance();
   // private ChoreoManager mChoreoManager = ChoreoManager.getInstance();
   private Recorder mRecorder = Recorder.getInstance();
-
   private int count = 0;
 
   /**
@@ -45,7 +42,6 @@ public class Robot extends TimedRobot {
     CameraServer.startAutomaticCapture();
     m_robotContainer = new RobotContainer();
     m_robotContainer.initialize();
-    // mLampController.setPulse(3, 0.75, 0.25, 2.0);
   }
 
   /**
@@ -74,7 +70,6 @@ public class Robot extends TimedRobot {
       LimelightManagerSubsystem.getInstance().outputTelemetry();
       count = 0;
     }
-
     mLampController.run();
     // mChoreoManager.updatePose();
   }
@@ -82,7 +77,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    mLampController.setPulse(0,0,0,0,true);
+    mLampController.setPulse(0,0,0,0,0);
   }
 
   @Override
@@ -106,7 +101,6 @@ public class Robot extends TimedRobot {
     // }
     Constants.DriverStationConstants.updateAllianceColorAndLocation();
     Recorder.setIsPlaying(true);
-    // mLampController.setPulse(3, 0.5, 0.5, 0.5);
   }
 
   /** This function is called periodically during autonomous. */
@@ -136,7 +130,6 @@ public class Robot extends TimedRobot {
 
     Constants.DriverStationConstants.updateAllianceColorAndLocation();
 
-    // mLampController.setPulse(3, 0.25, 0.75, 0.5);
 
     // TODO: but a guard here, do not do again after auto mode if this is running on
     // the real field managemeent system.
@@ -161,18 +154,18 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopExit() {
-    mLampController.setPulse(0, 0, 0, 0, true);
+    mLampController.setPulse(0, 0, 0, 0, 0);
   }
 
   @Override
   public void testExit() {
-    mLampController.setPulse(0, 0, 0, 0, true);
+    mLampController.setPulse(0, 0, 0, 0,0);
   }
 
   @Override
   public void autonomousExit() {
     Recorder.setIsPlaying(false);
-    mLampController.setPulse(0, 0, 0, 0, true);
+    mLampController.setPulse(0, 0, 0, 0, 0);
 
   }
 }

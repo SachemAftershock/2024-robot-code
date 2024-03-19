@@ -1,9 +1,10 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Timer;
+import static frc.robot.Constants.LampConstants.kPdhId;
+
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import static frc.robot.Constants.LampConstants.*;
+import edu.wpi.first.wpilibj.Timer;
 
 public class LampController {
 
@@ -13,27 +14,31 @@ public class LampController {
     private double mPulseDurationInSec = 0;
     private double mDelayBetweenPulsesInSec = 0;
     private double mPulseTrainGapInSec = 0; 
-    private boolean mOnceOnly = true;
-
+    private int mPriority;
     private int mPulseCounter = 0;
     private boolean mPulsePhase = false;
     private final Timer mTimer = new Timer();
     private final PowerDistribution mPDH  = new PowerDistribution(kPdhId, ModuleType.kRev);
-
-    public void setPulse(int numPulses, double pulseDurationInSec, double delayBetweenPulsesInSec, double pulseTrainGapInSec, boolean onceOnly){
+    /**
+     * 
+     * @param numPulses Number of flashes
+     * @param pulseDurationInSec How much time it is on in Seconds
+     * @param delayBetweenPulsesInSec How much time it is off in Seconds
+     * @param pulseTrainGapInSec Time till the next set of flashes
+     * @param priority Larger = Higher in queue
+     */
+    public void setPulse(int numPulses, double pulseDurationInSec, double delayBetweenPulsesInSec, double pulseTrainGapInSec, int priority){
     
         if (!((mNumPulses == numPulses) &&
             (mPulseDurationInSec == pulseDurationInSec) &&
             (mDelayBetweenPulsesInSec == delayBetweenPulsesInSec) &&
             (mPulseTrainGapInSec == pulseTrainGapInSec) && 
-            (mOnceOnly = onceOnly))) {
-
+            (mPriority >= priority))) {
             mNumPulses = numPulses;
             mPulseDurationInSec = pulseDurationInSec;
             mDelayBetweenPulsesInSec = delayBetweenPulsesInSec;
             mPulseTrainGapInSec = pulseTrainGapInSec;
-            mOnceOnly = onceOnly;
-
+            mPriority = priority;
             mPulseCounter = 0;
             mPulsePhase = false;
             mPDH.setSwitchableChannel(mPulsePhase);
@@ -45,6 +50,7 @@ public class LampController {
         if (mNumPulses == 0) {
             mPulseCounter = 0;
             mPulsePhase = false;
+            mPriority = -1;
             mPDH.setSwitchableChannel(mPulsePhase);
             mTimer.restart();
         } else if (mPulseCounter < mNumPulses) {
@@ -66,12 +72,7 @@ public class LampController {
             mPulsePhase = false;
             mPDH.setSwitchableChannel(mPulsePhase);
             if (mTimer.advanceIfElapsed(mPulseTrainGapInSec)) {
-                if (mOnceOnly) {
-                    mNumPulses = 0;
-                } else {
-                    mPulseCounter = 0;
-                    mTimer.restart(); 
-                }
+                 mNumPulses = 0;
             }
         }  
     }

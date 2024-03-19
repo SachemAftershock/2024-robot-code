@@ -295,10 +295,10 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		if(!mInternalBeamBreaker.get())
 		{
 			mLampTriggered = true;
-				mLampController.setPulse(4, 0.1, 0.1, 0.7, true);
+				mLampController.setPulse(4, 0.1, 0.1, 0.7,1);
 			} else if (mLampTriggered) {
 				mLampTriggered = false;
-				mLampController.setPulse(0, 0, 0, 0, true);
+				mLampController.setPulse(0, 0, 0, 0,0);
 			}
 	}
 

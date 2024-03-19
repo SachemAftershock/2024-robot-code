@@ -273,10 +273,10 @@ public class ShooterSubsystem extends AftershockSubsystem {
 			if (isShooterAtSpeed())
 			{
 				mLampTriggered = true;
-				mLampController.setPulse(1, 3600, 0.5, 0.5,false);
+				mLampController.setPulse(1, 1, 0.0, 0,3);
 			} else if (mLampTriggered) {
 				mLampTriggered = false;
-				mLampController.setPulse(0, 0, 0, 0, false);
+				mLampController.setPulse(0, 0, 0, 0,0);
 			}
 
 			//call statecheck method, ... make statecheck call
