@@ -226,7 +226,7 @@ public class RobotContainer {
     // }));
 
     Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(7));
-    limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem).andThen(new LimelightTiltCommand(mDriveSubsystem)));
+    limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem, 7, 0).andThen(new LimelightTiltCommand(mDriveSubsystem,7 , 0)));
 	
     
     // Emergency Reinitialize
@@ -926,7 +926,7 @@ public class RobotContainer {
     //      when you face the speaker, this is right
     // return mRecorder.getRecordedAutonomousCommand("SpeakerRightSideTwoNoteVERIFIED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      fetches third from right of speaker
-    // return mRecorder.getRecordedAutonomousCommand("CenterThreeNoteVALIDATED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
+    return mRecorder.getRecordedAutonomousCommand("CenterThreeNoteVALIDATED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      breaks when battery is low
     // return mRecorder.getRecordedAutonomousCommand("Center4note", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      untested tbh try not to use this
@@ -936,8 +936,8 @@ public class RobotContainer {
 
     // ------------------------------------------------------------------------
     // return mChoreoManager.getChoreoAutonomousCommand();
-
-    return sequenceScoreSpeakerAmpSideForBlue;
+    // return new LimelightTiltCommand(mDriveSubsystem, 7, 0);
+    //return sequenceScoreSpeakerAmpSideForBlue;
 
     //return sequenceScoreSpeakerAmpSideForRed;
  
