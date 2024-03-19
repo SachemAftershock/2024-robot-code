@@ -232,9 +232,9 @@ public class RobotContainer {
     // }));
 
      Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(7));
-     limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem).andThen(new LimelightTiltCommand(mDriveSubsystem)));
+     limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem, 7, 0.0).andThen(new LimelightTiltCommand(mDriveSubsystem, 7, 0.0)));
 
-     Trigger limelightTrapTilt = new Trigger(()-> mControllerSecondary.getRawButton(7)); //I dont think thats a real # for the flightstick (but what do I know)
+     Trigger limelightTrapTilt = new Trigger(()-> mControllerSecondary.getRawButton(7)); 
      limelightTrapTilt.onTrue(new LimelightTrapTiltCommand(mDriveSubsystem));
 	
     

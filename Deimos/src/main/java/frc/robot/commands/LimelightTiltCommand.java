@@ -25,10 +25,22 @@ public class LimelightTiltCommand extends Command {
     private Alliance AllianceColor = null;
     private int LocationNumber = 0;
     private double mPIDGoal;
+    private int mTag;
+    private double mAngle;
     
 
     
+    public LimelightTiltCommand(DriveSubsystem mDriveSubsystem, int Tag, double Angle) {
+        mTag = Tag;
+        mAngle = Angle;
+        constraints = new TrapezoidProfile.Constraints(1, 1);
+        this.mDrive = mDriveSubsystem;
+        addRequirements(mDriveSubsystem);
+    }   
+
     public LimelightTiltCommand(DriveSubsystem mDriveSubsystem) {
+        mTag = -1;
+        mAngle = 0;
         constraints = new TrapezoidProfile.Constraints(1, 1);
         this.mDrive = mDriveSubsystem;
         addRequirements(mDriveSubsystem);
@@ -36,13 +48,15 @@ public class LimelightTiltCommand extends Command {
 
 
 
-
     @Override
     public void initialize() {
         //start pid
         mPidTilt = new ProfiledPIDController(.4,0,.1, constraints);
-                table.getEntry("priorityid").setInteger(7);
-
+        table.getEntry("priorityid").setInteger(mTag);
+        mPIDGoal = mAngle;
+        if (mTag == -1){
+            System.out.println("No tag set");
+        }
     }
 
     @Override
@@ -50,7 +64,7 @@ public class LimelightTiltCommand extends Command {
         //run pid
         if(table.getEntry("tid").getInteger(0)!=-1){
             double x  =  table.getEntry("tx").getDouble(0.0);
-            double speed = -mPidTilt.calculate(x/20, 0); //mPIDGoal);
+            double speed = -mPidTilt.calculate(x, mPIDGoal);
             System.out.println(speed);
             mDrive.drive(new ChassisSpeeds(0,0,-speed * Math.PI));
         }
