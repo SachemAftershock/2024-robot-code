@@ -638,21 +638,21 @@ public class RobotContainer {
     (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
-    (new OldLinearDriveCommand(mDriveSubsystem, -0.45, CardinalDirection.eX)).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, -0.5, 1.5, CardinalDirection.eX)).andThen
     (new DelayCommand(0.2)).andThen
-    (new RotateDriveCommand(mDriveSubsystem, -45)).andThen
+    (new RotateDriveCommand(mDriveSubsystem, -55)).andThen
 
    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.5)).andThen
     (
       (new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem)).alongWith
-    (new OldLinearDriveCommand(mDriveSubsystem, -2.0, CardinalDirection.eX))
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.5, CardinalDirection.eX))
     ).andThen
    
-    (new OldLinearDriveCommand(mDriveSubsystem, 1.7, CardinalDirection.eX)).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, 1.5, 1.5, CardinalDirection.eX)).andThen
     (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
-    //(new OldLinearDriveCommand(mDriveSubsystem, 0.75, CardinalDirection.eX)).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, 0.65, 1.5, CardinalDirection.eX)).andThen
 
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
@@ -920,7 +920,7 @@ public class RobotContainer {
     // breaks when battery is low
   // return mRecorder.getRecordedAutonomousCommand("Center4noteREDO", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      when you face the speaker, this is left
-    return mRecorder.getRecordedAutonomousCommand("BlueSourceRedAmpTwoVALIDATED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
+    //return mRecorder.getRecordedAutonomousCommand("BlueSourceRedAmpTwoVALIDATED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      center duh
     // return mRecorder.getRecordedAutonomousCommand("SpeakerCenterSideTwoNoteVERIFIED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      when you face the speaker, this is right
@@ -934,15 +934,25 @@ public class RobotContainer {
     
     //  -----------------------------------------------------------------------
 
-
+    // ------------------------------------------------------------------------
     // return mChoreoManager.getChoreoAutonomousCommand();
-    //return sequenceScoreSpeakerAmpSideForBlue;
+
+    return sequenceScoreSpeakerAmpSideForBlue;
+
     //return sequenceScoreSpeakerAmpSideForRed;
-    return sequenceScoreSpeakerHumanSideForBlue;
+ 
+    //return sequenceScoreSpeakerHumanSideForBlue;
+   
     //return sequenceScoreCenterSide3x ;
+   
     // return new OldLinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eX);
-     //return sequenceHPSideShootOnceReorientateRED;
-     //return sequenceScoreCenterSide
+   
+    //return sequenceHPSideShootOnceReorientateRED;
+   
+    //return sequenceScoreCenterSide
+    // -------------------------------------------------------------------------
+
+
     // TrajectoryConfig config = new TrajectoryConfig(
     //   DriveConstants.kMaxVelocityMetersPerSecond * 0.3, 
     //   DriveConstants.kMaxAccelerationMetersPerSecondSquared
