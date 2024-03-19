@@ -29,11 +29,11 @@ public class LampController {
      */
     public void setPulse(int numPulses, double pulseDurationInSec, double delayBetweenPulsesInSec, double pulseTrainGapInSec, int priority){
     
-        if (!((mNumPulses == numPulses) &&
-            (mPulseDurationInSec == pulseDurationInSec) &&
-            (mDelayBetweenPulsesInSec == delayBetweenPulsesInSec) &&
-            (mPulseTrainGapInSec == pulseTrainGapInSec) && 
-            (mPriority >= priority))) {
+        if (!(  (mNumPulses == numPulses) &&
+                (mPulseDurationInSec == pulseDurationInSec) &&
+                (mDelayBetweenPulsesInSec == delayBetweenPulsesInSec) &&
+                (mPulseTrainGapInSec == pulseTrainGapInSec) && 
+                (mPriority >= priority))) {
             mNumPulses = numPulses;
             mPulseDurationInSec = pulseDurationInSec;
             mDelayBetweenPulsesInSec = delayBetweenPulsesInSec;
