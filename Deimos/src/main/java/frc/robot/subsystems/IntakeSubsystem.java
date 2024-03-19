@@ -122,7 +122,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	}
 
 	public IntakeArmPositionEnum getIntakeArmState() {
-		double epsilon = 0.1;
+		double epsilon = 0.3;
 		IntakeArmPositionEnum currentIntakeArmPosition;
 		if(mIntakeRetractedLimitSwitch.get())
 			currentIntakeArmPosition = IntakeArmPositionEnum.eRetracted;
@@ -246,7 +246,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	public void ingestNote() {
 		double speed = -0.5;
 		// if (showPrints)
-			System.out.println(mExternalBeamBreaker.get());
+			//System.out.println("BEAM BREAKER INTERNAL" + mInternalBeamBreaker.get());
 		// if (!mExternalBeamBreaker.get()) { // commented out due to intake being weird
 			if (!mInternalBeamBreaker.get()) {
 				speed = 0.0;
@@ -276,7 +276,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	@Override
 	public boolean checkSystem() {
-		final boolean showPrints = false;		
+		final boolean showPrints = true;		
 		if (showPrints) System.out.println(
 			"Intake ExternalBeamBreaker: " + 
 			mExternalBeamBreaker.get() + 

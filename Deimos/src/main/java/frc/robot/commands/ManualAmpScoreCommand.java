@@ -43,7 +43,7 @@ public class ManualAmpScoreCommand extends Command{
             else 
             {
                 //System.out.println("Note not loaded");
-                shooterSpeed = 0.1 * .8; //multiiplier .75
+                shooterSpeed = 0.12; //multiiplier .75
             }
         }
 

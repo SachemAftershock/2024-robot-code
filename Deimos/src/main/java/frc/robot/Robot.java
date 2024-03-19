@@ -95,24 +95,24 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    mRecorder.loadFromFile("Center4note", false);
+    //mRecorder.loadFromFile("Center4note", false);
     m_robotContainer.initialize();
     // m_robotContainer.calibrateIntakeArm();
-    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command (example)
-    // if (m_autonomousCommand != null) {
-    // m_autonomousCommand.schedule();
-    // }
+    //schedule the autonomous command (example)
+    if (m_autonomousCommand != null) {
+    m_autonomousCommand.schedule();
+    }
     Constants.DriverStationConstants.updateAllianceColorAndLocation();
-    Recorder.setIsPlaying(true);
+   // Recorder.setIsPlaying(true);
     // mLampController.setPulse(3, 0.5, 0.5, 0.5);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    mRecorder.playNextFrame();
+    //mRecorder.playNextFrame();
   }
 
   @Override
