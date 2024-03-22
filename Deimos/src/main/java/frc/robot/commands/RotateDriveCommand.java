@@ -10,7 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class RotateDriveCommand extends Command {
 
-    final boolean showPrints = true;		
+    final boolean showPrints = false;		
 
     private DriveSubsystem mDrive;
     private double mSetpointDegrees;

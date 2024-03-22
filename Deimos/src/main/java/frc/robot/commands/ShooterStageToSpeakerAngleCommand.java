@@ -6,7 +6,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 public class ShooterStageToSpeakerAngleCommand extends Command {
 
-    final boolean showPrints = true;		
+    final boolean showPrints = false;		
 
     private ShooterSubsystem mShooter;
 

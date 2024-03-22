@@ -6,7 +6,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 public class ShooterStageToNoteLoadAngleCommand extends Command {
 
-    final boolean showPrints = true;		
+    final boolean showPrints = false;		
 
     private ShooterSubsystem mShooter;
 

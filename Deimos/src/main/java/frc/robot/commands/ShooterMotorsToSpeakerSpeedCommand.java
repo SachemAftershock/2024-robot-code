@@ -7,7 +7,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 public class ShooterMotorsToSpeakerSpeedCommand extends Command {
 
-    final boolean showPrints = true;		
+    final boolean showPrints = false;		
 
     private ShooterSubsystem mShooter;
 

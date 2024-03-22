@@ -60,7 +60,7 @@ public class Recorder extends RecorderBase {
         actions[0] *= 1.05; // chassis
         actions[1] *= 1.05;
         actions[2] *= 1.05;
-        actions[3] *= 1.08; // intake arm
+        actions[3] *= 1.11; // intake arm
 
         if (Math.abs(actions[3]) <= .5) actions[3] *= 1.1;
 

@@ -176,8 +176,8 @@ public class RobotContainer {
 
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * turboMultIfTrue(),
-            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * turboMultIfTrue(),//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0, //* turboMultIfTrue(),
+            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0, //* turboMultIfTrue(),//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
             () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.45//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
@@ -490,6 +490,8 @@ public class RobotContainer {
 
 
   // }
+
+  //REORIENTATE COMMNANDS ---------------------------------------------------------------------
    private Command sequenceHPSideShootOnceReorientateBLUE = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
@@ -509,7 +511,7 @@ public class RobotContainer {
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
     (new DelayCommand(0.2))//.andThen
 
-    // (new OldLinearDriveCommand(mDriveSubsystem, -0.5, CardinalDirection.eX )).andThen
+    // (new TimedLinearDriveCommand(mDriveSubsystem, -0.5, CardinalDirection.eX )).andThen
     // (new DelayCommand(0.2)).andThen
     // (new RotateDriveCommand(mDriveSubsystem, 45))
    );
@@ -532,12 +534,14 @@ public class RobotContainer {
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
 
-    (new OldLinearDriveCommand(mDriveSubsystem, -0.45, CardinalDirection.eX )).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, -0.45, 1.5, CardinalDirection.eX )).andThen
     (new RotateDriveCommand(mDriveSubsystem, -45))
    );
    private Command sequenceHPSideShootOnceReorientateRED = sequenceAMPSideShootOnceReorientateBLUE;
    private Command sequenceAMPSideShootOnceReorientateRED = sequenceHPSideShootOnceReorientateBLUE;
+   //---------------------------------------------------------------------------------------------------
 
+   //Amp side 3x score UNUSED---------------------------------------------------------------------------
    private Command sequenceScoreSpeakerAmpSideForBlue3x = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
@@ -555,7 +559,7 @@ public class RobotContainer {
     (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
-    (new OldLinearDriveCommand(mDriveSubsystem, -0.45, CardinalDirection.eX)).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, -0.45, 1.5, CardinalDirection.eX)).andThen
     (new DelayCommand(0.2)).andThen
     (new RotateDriveCommand(mDriveSubsystem, -45)).andThen
 
@@ -564,12 +568,12 @@ public class RobotContainer {
     (
       (new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem)).alongWith
-    (new OldLinearDriveCommand(mDriveSubsystem, -2.0, CardinalDirection.eX))
+    (new TimedLinearDriveCommand(mDriveSubsystem, -2.0, 1.5, CardinalDirection.eX))
     ).andThen
    
-    (new OldLinearDriveCommand(mDriveSubsystem, 1.7, CardinalDirection.eX)).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, 1.7, 1.5, CardinalDirection.eX)).andThen
     (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
-    //(new OldLinearDriveCommand(mDriveSubsystem, 0.75, CardinalDirection.eX)).andThen
+    //(new TimedLinearDriveCommand(mDriveSubsystem, 0.75, CardinalDirection.eX)).andThen
 
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
@@ -595,10 +599,10 @@ public class RobotContainer {
     (
       (new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem)).alongWith
-    (new OldLinearDriveCommand(mDriveSubsystem, -3.8, CardinalDirection.eX))
+    (new TimedLinearDriveCommand(mDriveSubsystem, -3.8, 1.5, CardinalDirection.eX)) //THIS DISTANCE TO THE MIDDLE LINE IS UNKNOWN
     ).andThen
    
-    (new OldLinearDriveCommand(mDriveSubsystem, 3.5, CardinalDirection.eX)).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, 3.5, 1.5, CardinalDirection.eX)).andThen
     (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
      (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
@@ -619,8 +623,9 @@ public class RobotContainer {
     //.andThen
     // (new LinearDriveCommand(mDriveSubsystem, -0.5))
     );
+  //-----------------------------------------------------------------------------------------------
 
-
+  //USED COMMANDS----------------------------------------------------------------------------------
   private Command sequenceScoreSpeakerAmpSideForBlue = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
@@ -640,7 +645,7 @@ public class RobotContainer {
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
     (new TimedLinearDriveCommand(mDriveSubsystem, -0.5, 1.5, CardinalDirection.eX)).andThen
     (new DelayCommand(0.2)).andThen
-    (new RotateDriveCommand(mDriveSubsystem, -55)).andThen
+    (new RotateDriveCommand(mDriveSubsystem, -62)).andThen
 
    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.5)).andThen
@@ -695,15 +700,14 @@ public class RobotContainer {
     (new TimedLinearDriveCommand(mDriveSubsystem, -0.5, 1.5, CardinalDirection.eX)).andThen
     (new DelayCommand(0.2)).andThen
     (new RotateDriveCommand(mDriveSubsystem, 62)).andThen
-    //(new OldLinearDriveCommand(mDriveSubsystem, -1.8, CardinalDirection.eX)).andThen
-
+    //(new TimedLinearDriveCommand(mDriveSubsystem, -1.8, CardinalDirection.eX)).andThen
 
    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.5)).andThen
     (
       (new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem)).alongWith
-    (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.5, CardinalDirection.eX))
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.0, CardinalDirection.eX))
     ).andThen
    
     (new TimedLinearDriveCommand(mDriveSubsystem, 1.5, 1.5, CardinalDirection.eX)).andThen
@@ -729,7 +733,7 @@ public class RobotContainer {
     // (new LinearDriveCommand(mDriveSubsystem, -0.5))
     );
 
-    private Command Taxi = new SequentialCommandGroup(
+    private Command ScoreAmpAndTaxi = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
@@ -751,40 +755,10 @@ public class RobotContainer {
     (new RotateDriveCommand(mDriveSubsystem, 45)).andThen
     (new TimedLinearDriveCommand(mDriveSubsystem, 1.5, 1.5, CardinalDirection.eY)).andThen
     (new TimedLinearDriveCommand(mDriveSubsystem, -1.6, 1.5, CardinalDirection.eX))
-
-  //  (new DeployIntakeCommand(mIntakeSubsystem)).andThen
-  //   (new DelayCommand(0.5)).andThen
-  //   (
-  //     (new IngestNoteCommand(mIntakeSubsystem)).andThen
-  //     (new RetractIntakeCommand(mIntakeSubsystem)).alongWith
-  //   (new TimedLinearCommand(mDriveSubsystem, -2.0, CardinalDirection.eX))
-  //   ).andThen
-   
-  //   (new TimedLinearCommand(mDriveSubsystem, 1.7, CardinalDirection.eX)).andThen
-  //   (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
-  //   //(new OldLinearDriveCommand(mDriveSubsystem, 0.75, CardinalDirection.eX)).andThen
-
-  //   (new DelayCommand(0.1)).andThen
-  //   (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
-  //   (new DelayCommand(0.2)).andThen
-  //   (new RetractIntakeCommand(mIntakeSubsystem)).andThen
-  //   (new DelayCommand(0.2)).andThen
-  //   (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
-  //   (new DelayCommand(0.2)).andThen
-  //   (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
-  //   (new DelayCommand(0.2)).andThen
-  //   (new InstantCommand(() -> { mArmedToFire = true; })).andThen
-  //   (new DelayCommand(0.1)).andThen
-  //   (new EjectNoteCommand(mIntakeSubsystem)).andThen
-  //   (new DelayCommand(0.1)).andThen
-  //   (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
-  //   (new DelayCommand(0.2)).andThen
-  //   (new InstantCommand(() -> { mArmedToFire = false; }))//.andThen
-  //   // (new LinearDriveCommand(mDriveSubsystem, -0.5))
     );
 
     private Command sequenceScoreSpeakerAmpSideForRed = sequenceScoreSpeakerHumanSideForBlue;
-   private Command sequenceScoreCenterSideSINGLE = new SequentialCommandGroup(
+    private Command sequenceScoreCenterSideSINGLE = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
@@ -802,7 +776,11 @@ public class RobotContainer {
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; }))
    );
-  private Command sequenceScoreCenterSide3x = new SequentialCommandGroup(
+
+    /* 3x
+     * Starts in center, shoots in place, shoots the close middle piece, shoots the close right side piece
+     */
+    private Command sequenceScoreCenterSide3xtoRIGHT = new SequentialCommandGroup(
     // (new DelayCommand(0.1)).andThen
     // (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
     // (new DelayCommand(0.2)).andThen
@@ -828,7 +806,7 @@ public class RobotContainer {
       (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
     (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.5, CardinalDirection.eX))
     ).andThen
-     //(new OldLinearDriveCommand(mDriveSubsystem, 0, 0.1, 0)).andThen
+     //(new TimedLinearDriveCommand(mDriveSubsystem, 0, 0.1, 0)).andThen
      ((new TimedLinearDriveCommand(mDriveSubsystem, 1.6, 1.5, CardinalDirection.eX)).alongWith
     // (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem))).andThen
     // (new RotateDriveCommand(mDriveSubsystem, 0)).andThen //new
@@ -848,15 +826,17 @@ public class RobotContainer {
     (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
-    (new TimedLinearDriveCommand(mDriveSubsystem, -1.46, 1.5, CardinalDirection.eY)).andThen
+
+    (new TimedLinearDriveCommand(mDriveSubsystem, 1.51, 1.5, CardinalDirection.eY)).andThen //1.46
     (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(1.0)).andThen
     (
       ((new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
     (new TimedLinearDriveCommand(mDriveSubsystem, -1.4, 1.5, CardinalDirection.eX))
     ).andThen
-    (new TimedLinearDriveCommand(mDriveSubsystem, 1.46, 1.5, CardinalDirection.eY)).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.51, 1.5, CardinalDirection.eY)).andThen //-1.46
     (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
      ((new TimedLinearDriveCommand(mDriveSubsystem, 1.4, 1.5, CardinalDirection.eX)).alongWith
     // (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem))).andThen
@@ -876,19 +856,19 @@ public class RobotContainer {
     (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; }))//.andThen
-    // (new OldLinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eX)).andThen
+    // (new TimedLinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eX)).andThen
     // (new RotateDriveCommand(mDriveSubsystem, 175))
 
-    //  (new OldLinearDriveCommand(mDriveSubsystem, 1.4, CardinalDirection.eY)).andThen
+    //  (new TimedLinearDriveCommand(mDriveSubsystem, 1.4, CardinalDirection.eY)).andThen
     //  (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     // (new DelayCommand(0.5)).andThen
     // (
     //   ((new IngestNoteCommand(mIntakeSubsystem)).andThen
     //   (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
-    // (new OldLinearDriveCommand(mDriveSubsystem, -1.4, CardinalDirection.eX))
+    // (new TimedLinearDriveCommand(mDriveSubsystem, -1.4, CardinalDirection.eX))
     // ).andThen
-    // ((new OldLinearDriveCommand(mDriveSubsystem, 1.4, CardinalDirection.eX)).andThen
-    // (new OldLinearDriveCommand(mDriveSubsystem, -1.4, CardinalDirection.eY))).andThen
+    // ((new TimedLinearDriveCommand(mDriveSubsystem, 1.4, CardinalDirection.eX)).andThen
+    // (new TimedLinearDriveCommand(mDriveSubsystem, -1.4, CardinalDirection.eY))).andThen
 
     // (new DelayCommand(0.1)).andThen
     // (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
@@ -906,6 +886,74 @@ public class RobotContainer {
     // (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
     // (new DelayCommand(0.2)).andThen
     // (new InstantCommand(() -> { mArmedToFire = false; }))
+    );
+
+    /* 3x note
+     * Starts in center, shoots in place, shoots the close middle piece, shoots the close left side piece
+     */
+    private Command sequenceScoreCenterSide3xtoLEFT = new SequentialCommandGroup(
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    (new DelayCommand(0.1)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = false; })).andThen
+    //Driving back to shoot into speaker after driving out to get a piece
+    
+    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.5)).andThen
+    (
+      ((new IngestNoteCommand(mIntakeSubsystem)).andThen
+      (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.5, CardinalDirection.eX))
+    ).andThen
+     //(new TimedLinearDriveCommand(mDriveSubsystem, 0, 0.1, 0)).andThen
+     ((new TimedLinearDriveCommand(mDriveSubsystem, 1.6, 1.5, CardinalDirection.eX)).alongWith
+
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem))).andThen
+    (new DelayCommand(0.2)).andThen
+    (new RotateDriveCommand(mDriveSubsystem, 0)).andThen 
+    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    (new DelayCommand(0.1)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = false; })).andThen
+
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.51, 1.5, CardinalDirection.eY)).andThen //-1.46
+    (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
+    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(1.0)).andThen
+    (
+      ((new IngestNoteCommand(mIntakeSubsystem)).andThen
+      (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.4, 1.5, CardinalDirection.eX))
+    ).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, 1.51, 1.5, CardinalDirection.eY)).andThen //1.46
+    (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
+     ((new TimedLinearDriveCommand(mDriveSubsystem, 1.4, 1.5, CardinalDirection.eX)).alongWith
+
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem))).andThen
+    (new DelayCommand(0.2)).andThen
+    (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    (new DelayCommand(0.1)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = false; }))
     );
   
     // ChoreoManager mChoreoManager = ChoreoManager.getInstance();
@@ -926,7 +974,7 @@ public class RobotContainer {
     //      when you face the speaker, this is right
     // return mRecorder.getRecordedAutonomousCommand("SpeakerRightSideTwoNoteVERIFIED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      fetches third from right of speaker
-    return mRecorder.getRecordedAutonomousCommand("CenterThreeNoteVALIDATED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
+    // return mRecorder.getRecordedAutonomousCommand("CenterThreeNoteVALIDATED", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      breaks when battery is low
     // return mRecorder.getRecordedAutonomousCommand("Center4note", false, mDriveSubsystem, mIntakeSubsystem, mShooterSubsystem);
     //      untested tbh try not to use this
@@ -934,22 +982,28 @@ public class RobotContainer {
     
     //  -----------------------------------------------------------------------
 
-    // ------------------------------------------------------------------------
+    
     // return mChoreoManager.getChoreoAutonomousCommand();
     // return new LimelightTiltCommand(mDriveSubsystem, 7, 0);
-    //return sequenceScoreSpeakerAmpSideForBlue;
+
+    // ------------------------------------------------------------------------
+    return sequenceScoreSpeakerAmpSideForBlue;
 
     //return sequenceScoreSpeakerAmpSideForRed;
  
     //return sequenceScoreSpeakerHumanSideForBlue;
+
+    //return sequenceScoreSpeakerHumanSideForRed;
    
-    //return sequenceScoreCenterSide3x ;
-   
-    // return new OldLinearDriveCommand(mDriveSubsystem, -1.0, CardinalDirection.eX);
-   
+    //return sequenceScoreCenterSide3xtoRIGHT;
+
+    //return sequenceScoreCenterSide3xtoLEFT;
+      
     //return sequenceHPSideShootOnceReorientateRED;
    
-    //return sequenceScoreCenterSide
+    //return sequenceScoreCenterSideSINGLE;
+    
+    //return ScoreAmpAndTaxi;
     // -------------------------------------------------------------------------
 
 

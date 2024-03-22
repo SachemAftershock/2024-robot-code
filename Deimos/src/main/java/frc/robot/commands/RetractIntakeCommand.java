@@ -5,7 +5,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 
 public class RetractIntakeCommand extends Command {
 
-    final boolean showPrints = true;		
+    final boolean showPrints = false;		
 
     private IntakeSubsystem mIntake;
 

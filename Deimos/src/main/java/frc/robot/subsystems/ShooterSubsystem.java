@@ -53,7 +53,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	private double mAngleEncoderCurrentPositionDegrees = 0;
 
-	boolean showPrints = true;
+	boolean showPrints = false;
 	// states
 	private ShooterAngleState mCurrentShooterAngleState = ShooterAngleState.eUnknown;
 
@@ -63,8 +63,8 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
 	private ShooterSubsystem() {
 		mAngleShootMotor = new CANSparkMax(kAngleShootMotorID, MotorType.kBrushless);
-		mBeamBreakerEnter = new DigitalInput(1); // TODO temporarily removed a while ago
-		mBeamBreakerLeave = new DigitalInput(8); // TODO temporarily removed a while ago
+		mBeamBreakerEnter = new DigitalInput(kBeamBreakerEnterID);
+		mBeamBreakerLeave = new DigitalInput(kBeamBreakerLeaveID);
 		
 		mPanicLimitSwitch = new DigitalInput(10);
 
@@ -299,9 +299,9 @@ public class ShooterSubsystem extends AftershockSubsystem {
 		
 		final boolean showPrints = false;		
 		if (showPrints) System.out.println(
-			"Shooter EnterBeamBreaker: " + 
-			mBeamBreakerEnter.get() + 
-			" Shooter LeaveBeamBreaker: " + 
+			"Shooter EnterBeamBreaker: " + // enter and leave are actually backwards but 
+			mBeamBreakerEnter.get() +      // this hasnt caused amp transfer any problems.
+			" Shooter LeaveBeamBreaker: " + // checked 2024-03-21 li regional
 			mBeamBreakerLeave.get() +
 			" Shooter LimitSwitch: " + 
 			mPanicLimitSwitch.get());

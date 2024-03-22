@@ -103,8 +103,8 @@ public final class Constants {
         public static final int kAngleEncoderID2 = 5; // TODO
         public static final int kAngleCANcoderID = 13;
 
-        public static final int kBeamBreakerEnterID = 0; // TODO
-        public static final int kBeamBreakerLeaveID = 1; // TODO
+        public static final int kBeamBreakerEnterID = 1;
+        public static final int kBeamBreakerLeaveID = 8;
 
         public static final int kShooterLimitSwitchID = 5;
 

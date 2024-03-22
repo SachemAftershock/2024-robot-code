@@ -180,7 +180,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 			} else {
 				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.8;
 				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.08;
-				EncoderCountThresholdToReverseDirection = 4.5; // changeable TODO make constant?
+				EncoderCountThresholdToReverseDirection = 4.7; // changeable TODO make constant?
 
 				if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
 					// from retracted position, start with maximum lift speed but then ramp it down propotionaly to zero
@@ -276,7 +276,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	@Override
 	public boolean checkSystem() {
-		final boolean showPrints = true;		
+		final boolean showPrints = false;		
 		if (showPrints) System.out.println(
 			"Intake ExternalBeamBreaker: " + 
 			mExternalBeamBreaker.get() + 
