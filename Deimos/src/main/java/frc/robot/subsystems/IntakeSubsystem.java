@@ -81,7 +81,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	public enum  IntakeArmPositionEnum { eUnknown, eDeployed, eRetracted, eSafeZone };
 	private IntakeArmPositionEnum mDesiredIntakeArmPosition = IntakeArmPositionEnum.eUnknown;
 
-	final private double kDesiredIntakeArmEncoderSweep = 7.4; //8.0;
+	final private double kDesiredIntakeArmEncoderSweep = 7.66; //8.0;
 
 	final private boolean kEnableMotors = true;
 
@@ -179,14 +179,14 @@ public class IntakeSubsystem extends AftershockSubsystem {
 				if (showPrints) System.out.print("Phase D3: ");
 			} else {
 				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.8;
-				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.08;
+				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.11;
 				EncoderCountThresholdToReverseDirection = 4.7; // changeable TODO make constant?
 
 				if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
 					// from retracted position, start with maximum lift speed but then ramp it down propotionaly to zero
 					// along to apogee position.   Still a bit of momentum towards retracted position at apogee.
-					factor = (EncoderCountThresholdToReverseDirection - Math.abs(currentIntakeArmEncoderPosition))
-							/EncoderCountThresholdToReverseDirection;
+					factor = .5; //(EncoderCountThresholdToReverseDirection - Math.abs(currentIntakeArmEncoderPosition))
+							// /EncoderCountThresholdToReverseDirection;
 					intakeArmSpeed = mMaximumIntakeArmUpswingLiftMaxSpeed * factor;  // Percent
 					if (showPrints) System.out.print("Phase D1: ");
 				} else {
@@ -233,6 +233,9 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	public double getIntakeArmMotorSpeed() {
 		return mIntakeArmMotor.get();
+	}
+	public void pulseIntake(){
+		setIntakeArmMotorSpeed(-0.5);
 	}
 	/**
 	 * Raw setter for intake arm motor speed, for auto
@@ -289,6 +292,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	@Override
 	public void periodic() {
 		checkSystem();
+		System.out.println("INTAKE ARM POS: " + mIntakeArmEncoder.getPosition());
 		if (!Recorder.getIsPlaying())
 			runControlIntakeArmPosition();
 		// System.out.println("intake state "+getIntakeArmState());

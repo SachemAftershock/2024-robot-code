@@ -62,7 +62,7 @@ public class Recorder extends RecorderBase {
         actions[2] *= 1.05;
         actions[3] *= 1.11; // intake arm
 
-        if (Math.abs(actions[3]) <= .5) actions[3] *= 1.1;
+        if (Math.abs(actions[3]) <= .5) actions[3] *= 1.1;          
 
         actions[4] *= 1.08; // intake roller
         actions[5] *= 1.05; // shooter

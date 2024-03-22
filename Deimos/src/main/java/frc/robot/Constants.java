@@ -67,6 +67,54 @@ public final class Constants {
 
         public static double kIntakeArmMotorSpeed = 0.05;
         public static double kIntakeRollerMotorSpeed = 0.05;
+
+        public static PositionToVelocityProfiler kIntakeAngleDeployedProfiler = (new PositionToVelocityProfiler()
+            .setGoal(7.4)
+            .addProfileEntry(0.0 , 0.2 , 0.8)
+            .addProfileEntry(0.2 , 0.4 , 0.)
+            .addProfileEntry(0.4, 0.6 , 0.80)
+            .addProfileEntry(0.6 , 0.8 , 0.85)
+            .addProfileEntry(0.8 , 1.0 , 0.90)
+            .addProfileEntry( 1.0, 1.2 , 0.90)
+            .addProfileEntry(1.2 , 1.4 , 0.90)
+            .addProfileEntry(1.4 , 1.6 , 0.90)
+            .addProfileEntry(1.6, 1.8, 0.4)
+            .addProfileEntry(1.8 , 2.0 , 0.8)
+            .addProfileEntry(2.0 , 2.2 , 0.)
+            .addProfileEntry(2.2 , 2.4 , 0.80)
+            .addProfileEntry(2.2 , 2.4 , 0.85)
+            .addProfileEntry(2.4 , 2.6 , 0.90)
+            .addProfileEntry( 2.6, 2.8 , 0.90)
+            .addProfileEntry(2.8 , 3.0 , 0.90)
+            .addProfileEntry(3.0 , 3.2 , 0.90)
+            .addProfileEntry(3.2, 3.4, 0.4)
+            .addProfileEntry(3.4 , 3.6 , 0.8)
+            .addProfileEntry(3.6 , 3.8 , 0.)
+            .addProfileEntry(3.8 , 4.0 , 0.80)
+            .addProfileEntry(4.0 , 4.2 , 0.85)
+            .addProfileEntry(4.2 , 4.4 , 0.90)
+            .addProfileEntry(4.4 , 4.6 , 0.90)
+            .addProfileEntry(4.6 , 4.8 , 0.90)
+            .addProfileEntry(4.8 , 5.0 , 0.90)
+
+            .addProfileEntry(5.0 , 5.2 , 0.90)
+            
+            .addProfileEntry(5.2 , 5.4 , 0.90)
+            .addProfileEntry(5.4 , 5.6 , 0.90)
+            .addProfileEntry(5.6 , 5.8 , 0.70)
+            .addProfileEntry(5.8 , 6.0 , 0.55)
+            .addProfileEntry(6.0 , 6.2 , 0.35)
+            .addProfileEntry(6.2 , 6.4 , 0.07)
+            .addProfileEntry(6.4, 6.6, 0.01)
+            .addProfileEntry(6.6, 6.8, -0.07)
+            .addProfileEntry(6.8 , 7.0 , 0.90)
+            
+            .addProfileEntry(7.0 , 7.2 , 0.90)
+            .addProfileEntry(7.2 , 7.4 , 0.90)
+
+            // in case it goes too far somehow
+        );
+
     }
 
     public static class ClimberConstants {

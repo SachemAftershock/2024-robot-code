@@ -230,10 +230,13 @@ public class DriveSubsystem extends AftershockSubsystem {
 		// mNavx.setAngleAdjustment(0.0);
 		counter = 0;
 		mNavx.setAngleAdjustment(-4.0);
+		System.out.println("NAVX RESET " + mNavx.getAngle() + ", INITIALIZE CALLED-------------------------------------------------------------------");
 	}
 
 	@Override
 	public void periodic() {
+		// greppable via ps1
+		System.out.println("MNAVX=["+mNavx.getYaw()+"]");
 		SwerveModuleState[] states = mKinematics.toSwerveModuleStates(mChassisSpeeds);
 
 		// System.out.println("X-Pose" + mPoseEstimator.getEstimatedPosition().getX() +

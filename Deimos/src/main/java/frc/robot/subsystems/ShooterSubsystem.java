@@ -297,7 +297,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
 	@Override
 	public boolean checkSystem() {
 		
-		final boolean showPrints = false;		
+		final boolean showPrints = true;		
 		if (showPrints) System.out.println(
 			"Shooter EnterBeamBreaker: " + // enter and leave are actually backwards but 
 			mBeamBreakerEnter.get() +      // this hasnt caused amp transfer any problems.

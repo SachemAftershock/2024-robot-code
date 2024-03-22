@@ -308,8 +308,8 @@ public class RobotContainer {
     Trigger IntakeDeployThenAutoIngestThenRetractTrigger 
       = new Trigger(() -> mControllerTertiary.getBButton());
     IntakeDeployThenAutoIngestThenRetractTrigger
-      .whileTrue(sequenceDeployIngestRetract)
-      .whileFalse(sequenceStopRollersAndRetract);
+      .onTrue(sequenceDeployIngestRetract)
+      .onFalse(sequenceStopRollersAndRetract);
 
     Trigger IntakeStopRollersAndRetractTrigger 
       = new Trigger(() -> mControllerTertiary.getXButton());
@@ -345,14 +345,16 @@ public class RobotContainer {
     
     //togggle climber and shoooter ( default shooter; default false )
     // We are currently not using a multi-mode setup. These buttons are FREE.
-    Trigger safeZoneTrigger = new Trigger(() -> {
-      return mControllerTertiary.getStartButton();
-      //Sttart maps Shooter
+    Trigger overrideIntakeButton = new Trigger(() -> {
+      return mControllerTertiary.getStartButtonPressed();
+    //   //Sttart maps Shooter
     });
-    safeZoneTrigger.onTrue(new SafeZoneIntakeCommand(mIntakeSubsystem));
-    // toggleToShooter.onTrue(new InstantCommand(() -> {
-    //   setForShooterNotClimber(true);
-    // }));
+    overrideIntakeButton.whileTrue(new InstantCommand(() -> {
+      mIntakeSubsystem.setIntakeArmMotorSpeed(-1.0);
+    })).whileFalse(new InstantCommand(() -> {
+      mIntakeSubsystem.setIntakeArmMotorSpeed(0.0);
+    }));
+
     Trigger shooterArmFailsafeGoBackTrigger = new Trigger(() -> {
       return mControllerTertiary.getBackButton();
     });
@@ -645,26 +647,26 @@ public class RobotContainer {
     (new RetractIntakeCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
     (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
-    (new DelayCommand(0.2)).andThen
+    (new DelayCommand(0.5)).andThen
     (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = true; })).andThen
     (new DelayCommand(0.1)).andThen
     (new EjectNoteCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.1)).andThen
-    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen 
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
     (new TimedLinearDriveCommand(mDriveSubsystem, -0.5, 1.5, CardinalDirection.eX)).andThen
     (new DelayCommand(0.2)).andThen
-    (new RotateDriveCommand(mDriveSubsystem, -62)).andThen
+    (new RotateDriveCommand(mDriveSubsystem, -58)).andThen
 
    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.5)).andThen
     (
       (new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem)).alongWith
-    (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.5, CardinalDirection.eX))
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.3, CardinalDirection.eX))
     ).andThen
    
     (new TimedLinearDriveCommand(mDriveSubsystem, 1.5, 1.5, CardinalDirection.eX)).andThen
@@ -722,9 +724,9 @@ public class RobotContainer {
     (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.0, CardinalDirection.eX))
     ).andThen
    
-    (new TimedLinearDriveCommand(mDriveSubsystem, 1.5, 1.5, CardinalDirection.eX)).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, 1.565, 1.5, CardinalDirection.eX)).andThen
     (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
-    (new TimedLinearDriveCommand(mDriveSubsystem, 0.65, 1.5, CardinalDirection.eX)).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, 0.68, 1.5, CardinalDirection.eX)).andThen
 
     (new DelayCommand(0.1)).andThen
     (new ShooterStageToNoteLoadAngleCommand(mShooterSubsystem)).andThen
@@ -925,7 +927,7 @@ public class RobotContainer {
     (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.5, CardinalDirection.eX))
     ).andThen
      //(new TimedLinearDriveCommand(mDriveSubsystem, 0, 0.1, 0)).andThen
-     ((new TimedLinearDriveCommand(mDriveSubsystem, 1.6, 1.5, CardinalDirection.eX)).alongWith
+     ((new TimedLinearDriveCommand(mDriveSubsystem, 1.55, 1.5, CardinalDirection.eX)).alongWith
 
     (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem))).andThen
     (new DelayCommand(0.2)).andThen
@@ -941,18 +943,18 @@ public class RobotContainer {
     (new DelayCommand(0.2)).andThen
     (new InstantCommand(() -> { mArmedToFire = false; })).andThen
 
-    (new TimedLinearDriveCommand(mDriveSubsystem, -1.51, 1.5, CardinalDirection.eY)).andThen //-1.46
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.53, 1.5, CardinalDirection.eY)).andThen //-1.46
     (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
     (new DeployIntakeCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(1.0)).andThen
     (
       ((new IngestNoteCommand(mIntakeSubsystem)).andThen
       (new RetractIntakeCommand(mIntakeSubsystem))).alongWith
-    (new TimedLinearDriveCommand(mDriveSubsystem, -1.4, 1.5, CardinalDirection.eX))
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.43, 1.5, CardinalDirection.eX))
     ).andThen
-    (new TimedLinearDriveCommand(mDriveSubsystem, 1.51, 1.5, CardinalDirection.eY)).andThen //1.46
+    (new TimedLinearDriveCommand(mDriveSubsystem, 1.53, 1.5, CardinalDirection.eY)).andThen //1.46
     (new RotateDriveCommand(mDriveSubsystem, 0)).andThen
-     ((new TimedLinearDriveCommand(mDriveSubsystem, 1.4, 1.5, CardinalDirection.eX)).alongWith
+     ((new TimedLinearDriveCommand(mDriveSubsystem, 1.43, 1.5, CardinalDirection.eX)).alongWith
 
     (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem))).andThen
     (new DelayCommand(0.2)).andThen
@@ -999,7 +1001,7 @@ public class RobotContainer {
     // return new LimelightTiltCommand(mDriveSubsystem, 7, 0);
 
     // ------------------------------------------------------------------------
-    return sequenceScoreSpeakerAmpSideForBlue;
+    //return sequenceScoreSpeakerAmpSideForBlue;
 
     //return sequenceScoreSpeakerAmpSideForRed;
  
@@ -1009,7 +1011,9 @@ public class RobotContainer {
    
     //return sequenceScoreCenterSide3xtoRIGHT;
 
-    //return sequenceScoreCenterSide3xtoLEFT;
+    return sequenceScoreCenterSide3xtoLEFT;
+
+    //return sequenceScoreCenterSideSINGLE;
       
     //return sequenceHPSideShootOnceReorientateRED;
    
