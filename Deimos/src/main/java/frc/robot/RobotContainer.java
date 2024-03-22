@@ -229,9 +229,20 @@ public class RobotContainer {
     limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem, 7, 0).andThen(new LimelightTiltCommand(mDriveSubsystem,7 , 0)));
 	
     
-    // Emergency Reinitialize
-    Trigger fieldOrientTrigger = new Trigger(() -> mControllerPrimary.getRawButton(8)); // button 8 left joystick todo make constant
-    fieldOrientTrigger.onTrue(new InstantCommand(() -> mDriveSubsystem.initialize()));
+    // Emergency Reinitialize. Note that this both reinitializes the drive gyroscope
+    // AND intercepts ManualDriveCommand, so that pressing the joystick hat when the
+    // bot is facing right will reorient it correctly.
+    Trigger fieldOrientTrigger = new Trigger(() -> mControllerPrimary.getPOV() != -1); // reorient by pov
+    fieldOrientTrigger.onTrue(new InstantCommand(() -> {
+      // Must be cardinal direction {0,90,180,270}, not an ordinal direction.
+      // When the driver hits right hat while the bot is facing right, the
+      // code should know where "field forward" is. We add to gyroscope instead of
+      // setting mNavx's reinitial yaw manually because no mNavx.setYaw() exists in DriveSubsystem
+      if (mControllerPrimary.getPOV() % 90 == 0) {
+        mDriveSubsystem.initialize();
+        ManualDriveCommand.setHackyNavXYawOffset(mControllerPrimary.getPOV()); // TODO ensure left/right isn't swapped;
+      }
+    }));
 
     // Multiply manual drive by a Large Number (blame Enzo)
     Trigger turboButton = new Trigger(()-> mControllerSecondary.getRawButton(1)); // guntrigger button
@@ -316,20 +327,21 @@ public class RobotContainer {
     IntakeFireNoteTrigger.onTrue(sequenceFireNote);
 
     // teleop straighten for amp using the little nub on the joystick (west pov is 270 degrees)
-    Trigger cardinalizeBotLeftward = new Trigger(() -> {
-      int pov = mControllerPrimary.getPOV();
-      return (225 <= pov && pov <= 315);
-    });
-    cardinalizeBotLeftward
-    .whileTrue(new RotateDriveCommand(mDriveSubsystem, 270.0))
-    .onFalse(new InstantCommand(() -> mDriveSubsystem.drive(new ChassisSpeeds())));
-    Trigger cardinalizeBotRightward = new Trigger(() -> {
-      int pov = mControllerPrimary.getPOV();
-      return (45 <= pov && pov <= 135);
-    });
-    cardinalizeBotRightward
-    .whileTrue(new RotateDriveCommand(mDriveSubsystem, 90.0))
-    .onFalse(new InstantCommand(() -> mDriveSubsystem.drive(new ChassisSpeeds())));
+    // REMOVED due to mysterious fatal error bug when rapidly switching between motors.
+    // Trigger cardinalizeBotLeftward = new Trigger(() -> {
+    //   int pov = mControllerPrimary.getPOV();
+    //   return (225 <= pov && pov <= 315);
+    // });
+    // cardinalizeBotLeftward
+    // .whileTrue(new RotateDriveCommand(mDriveSubsystem, 270.0))
+    // .onFalse(new InstantCommand(() -> mDriveSubsystem.drive(new ChassisSpeeds())));
+    // Trigger cardinalizeBotRightward = new Trigger(() -> {
+    //   int pov = mControllerPrimary.getPOV();
+    //   return (45 <= pov && pov <= 135);
+    // });
+    // cardinalizeBotRightward
+    // .whileTrue(new RotateDriveCommand(mDriveSubsystem, 90.0))
+    // .onFalse(new InstantCommand(() -> mDriveSubsystem.drive(new ChassisSpeeds())));
     
     //togggle climber and shoooter ( default shooter; default false )
     // We are currently not using a multi-mode setup. These buttons are FREE.

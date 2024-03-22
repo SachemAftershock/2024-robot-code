@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
@@ -7,6 +8,8 @@ import frc.robot.subsystems.DriveSubsystem;
 import java.util.function.DoubleSupplier;
 
 public class ManualDriveCommand extends Command {
+
+    private static Rotation2d hackyNavXOffset = Rotation2d.fromDegrees(0);
 
     final boolean showPrints = false;		
 
@@ -36,7 +39,7 @@ public class ManualDriveCommand extends Command {
                         m_translationXSupplier.getAsDouble(),
                         m_translationYSupplier.getAsDouble(),
                         m_rotationSupplier.getAsDouble(),
-                        m_drivetrainSubsystem.getGyroscopeRotation()
+                        m_drivetrainSubsystem.getGyroscopeRotation().plus(hackyNavXOffset)
                 )
         );
     }
@@ -44,5 +47,14 @@ public class ManualDriveCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         m_drivetrainSubsystem.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
+    }
+
+    /**
+     * Intercept ManualDriveCommand to offset the rotation supplier
+     * by a given amount
+     * @param pov
+     */
+    public static void setHackyNavXYawOffset(int pov) {
+        ManualDriveCommand.hackyNavXOffset = Rotation2d.fromDegrees(pov * -1.0);
     }
 }
