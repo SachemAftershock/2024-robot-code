@@ -22,6 +22,7 @@ import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import frc.lib.AftershockSubsystem;
 import frc.robot.LampController;
 
@@ -39,6 +40,29 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	private static boolean mInternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit = true;
 	private boolean mLampTriggered = false;
 
+	private enum IntakePositionOverrideEnum { eNotOverride, eDeployed, eRetracted, eIdle };
+	IntakePositionOverrideEnum mIntakeArmPositionMode = IntakePositionOverrideEnum.eNotOverride;
+
+	private long mIterationsOverriden = 0;
+
+	public void AdvanceIntakePositionOverrideMode(){
+		switch (mIntakeArmPositionMode) {
+			case eNotOverride:
+				mIntakeArmPositionMode = IntakePositionOverrideEnum.eDeployed;
+				break;
+			case eDeployed:
+				mIntakeArmPositionMode = IntakePositionOverrideEnum.eRetracted;
+				break;
+			case eRetracted:
+				mIntakeArmPositionMode = IntakePositionOverrideEnum.eDeployed;	
+				break;
+			case eIdle:
+				mIntakeArmPositionMode = IntakePositionOverrideEnum.eNotOverride;	
+				break;
+				//mIntakeArmPositionMode = IntakePositionOverrideEnum.values()[mIntakeArmPositionMode.ordinal() + 1];
+		}
+		mIterationsOverriden = 0;
+	}
 
 	public static boolean IsBothBeamBreakersBeenBroken() {
 		return !mExternalBeamBreakerHasNeverBeenBrokenIndicatingNonFunctionalCircuit 
@@ -136,6 +160,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 
 	
 	public void runControlIntakeArmPosition() {
+
 		final boolean showPrints = false;		
 		double mMaximumIntakeArmUpswingLiftMaxSpeed = 0;
 		double mMaximumIntakeArmDownswingBrakingMaxSpeed = 0;
@@ -144,80 +169,116 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		double intakeArmSpeed = 0;
 		double factor = 0;
 
-		if (mDesiredIntakeArmPosition == IntakeArmPositionEnum.eRetracted) {
+		final double kSecondsToDriveOverrideSpeedBeforeZeroing = 1.5;
+		final double kSecondsPerRioHearbeat = 0.020;
 
-			if (getIntakeArmState() == IntakeArmPositionEnum.eRetracted) {
-				intakeArmSpeed = 0.1;  // Apply persisting parking pressure, to counter robot motion dynamics
-				if (showPrints) System.out.print("Phase R3: ");
-			} else {
-				mMaximumIntakeArmUpswingLiftMaxSpeed = 0.8;
-				mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.03;
-				EncoderCountThresholdToReverseDirection = 1.5; // changeable TODO make constant?
+		switch(mIntakeArmPositionMode) {
 
-				if (Math.abs(currentIntakeArmEncoderPosition) > EncoderCountThresholdToReverseDirection) {
-					// from deployed position, start with maximum lift speed but then ramp it down propotionaly to zero
-					// along to apogee position.   Still a bit of momentum towards retracted position when at apogee.
-					factor = (Math.abs(currentIntakeArmEncoderPosition) - EncoderCountThresholdToReverseDirection) 
-							/(kDesiredIntakeArmEncoderSweep - EncoderCountThresholdToReverseDirection);
-					intakeArmSpeed = mMaximumIntakeArmUpswingLiftMaxSpeed * factor;  // Percent
-					if (showPrints) System.out.print("Phase R1: ");			
+			case eNotOverride:
+
+				if (mDesiredIntakeArmPosition == IntakeArmPositionEnum.eRetracted) {
+
+					if (getIntakeArmState() == IntakeArmPositionEnum.eRetracted) {
+						intakeArmSpeed = 0.0;  // +1.0 Apply persisting parking pressure, to counter robot motion dynamics
+						if (showPrints) System.out.print("Phase R3: ");
+					} else {
+						mMaximumIntakeArmUpswingLiftMaxSpeed = 0.8;
+						mMaximumIntakeArmDownswingBrakingMaxSpeed = -0.03;
+						EncoderCountThresholdToReverseDirection = 1.5; // changeable TODO make constant?
+		
+						if (Math.abs(currentIntakeArmEncoderPosition) > EncoderCountThresholdToReverseDirection) {
+							// from deployed position, start with maximum lift speed but then ramp it down propotionaly to zero
+							// along to apogee position.   Still a bit of momentum towards retracted position when at apogee.
+							factor = (Math.abs(currentIntakeArmEncoderPosition) - EncoderCountThresholdToReverseDirection) 
+									/(kDesiredIntakeArmEncoderSweep - EncoderCountThresholdToReverseDirection);
+							intakeArmSpeed = mMaximumIntakeArmUpswingLiftMaxSpeed * factor;  // Percent
+							if (showPrints) System.out.print("Phase R1: ");			
+						} else {
+							// after reachinig apogee, start at zero speed (letting momentum and gravity take over) 
+							// then ramp up the reverse power until max braking speed (is reverse speed) 
+							// applied near retracted landing position. 
+							factor = (EncoderCountThresholdToReverseDirection - Math.abs(currentIntakeArmEncoderPosition))
+									/EncoderCountThresholdToReverseDirection;
+							intakeArmSpeed = mMaximumIntakeArmDownswingBrakingMaxSpeed * factor;  // Percent
+							if (showPrints) System.out.print("Phase R2: ");
+						} 
+					}
+		
+				} else if (mDesiredIntakeArmPosition == IntakeArmPositionEnum.eDeployed) {
+		
+					if (getIntakeArmState() == IntakeArmPositionEnum.eDeployed) {
+						intakeArmSpeed = -0.03;  // -1.0 Apply persisting parking pressure, to counter robot motion dynamics
+						if (showPrints) System.out.print("Phase D3: ");
+					} else {
+						mMaximumIntakeArmUpswingLiftMaxSpeed = -0.8;
+						mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.11;
+						EncoderCountThresholdToReverseDirection = 4.7; // changeable TODO make constant?
+		
+						if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
+							// from retracted position, start with maximum lift speed but then ramp it down propotionaly to zero
+							// along to apogee position.   Still a bit of momentum towards retracted position at apogee.
+							factor = .5; //(EncoderCountThresholdToReverseDirection - Math.abs(currentIntakeArmEncoderPosition))
+									// /EncoderCountThresholdToReverseDirection;
+							intakeArmSpeed = mMaximumIntakeArmUpswingLiftMaxSpeed * factor;  // Percent
+							if (showPrints) System.out.print("Phase D1: ");
+						} else {
+							// after reachinig apogee, make zero speed (letting momentum and gravity take over) 
+							// then ramp up the reverse power until max braking speed (is reverse speed) 
+							// applied near deployed landing position. 
+							factor = (Math.abs(currentIntakeArmEncoderPosition)-EncoderCountThresholdToReverseDirection)
+									/(kDesiredIntakeArmEncoderSweep - EncoderCountThresholdToReverseDirection);
+							intakeArmSpeed = mMaximumIntakeArmDownswingBrakingMaxSpeed * factor;  // Percent
+							if (showPrints) System.out.print("Phase D2: ");
+						} 
+					}
+		
 				} else {
-					// after reachinig apogee, start at zero speed (letting momentum and gravity take over) 
-					// then ramp up the reverse power until max braking speed (is reverse speed) 
-					// applied near retracted landing position. 
-					factor = (EncoderCountThresholdToReverseDirection - Math.abs(currentIntakeArmEncoderPosition))
-							/EncoderCountThresholdToReverseDirection;
-					intakeArmSpeed = mMaximumIntakeArmDownswingBrakingMaxSpeed * factor;  // Percent
-					if (showPrints) System.out.print("Phase R2: ");
-				} 
+					factor = 0.0;
+					intakeArmSpeed = 0.0;
+					if (showPrints) System.out.print("Phase U0: "); // eUnknown
+				}
+				if (showPrints) System.out.println(	
+					"IntakeArm: ENCODER: " + mIntakeArmEncoder.getPosition() +  
+					" Desire: "+ mDesiredIntakeArmPosition +
+					" SPD: " + intakeArmSpeed + 
+					" Factor: " + factor + 
+					" Sweep: " +  kDesiredIntakeArmEncoderSweep + 
+					" Limit " + mIntakeRetractedLimitSwitch.get());
+		
+				// if(mIntakeRetractedLimitSwitch.get()) {
+				// 	mIntakeArmEncoder.setPosition(0.0);
+				// } 
+		
+				if (kEnableMotors) mIntakeArmMotor.set(intakeArmSpeed);
+	
+
+				break;
+			case eDeployed:
+				if (kEnableMotors) 
+					if (mIterationsOverriden++ <= kSecondsToDriveOverrideSpeedBeforeZeroing / kSecondsPerRioHearbeat) 
+						mIntakeArmMotor.set(-0.3); 
+					else mIntakeArmMotor.set(0.0); // seconds/20ms
+				break;
+			case eRetracted:
+				if (kEnableMotors) 
+					if (mIterationsOverriden++ <= kSecondsToDriveOverrideSpeedBeforeZeroing / kSecondsPerRioHearbeat) 
+					// if(Math.abs(mIntakeArmEncoder.getPosition()) > 2.0){
+					// 	mIntakeArmMotor.set(0.25); 
+					// }
+					// else{
+					// 	mIntakeArmMotor.set(-0.07); 
+					// }
+						mIntakeArmMotor.set(0.25);
+						
+					else mIntakeArmMotor.set(0.0); // seconds/20ms
+				break;
+			case eIdle:
+				if (kEnableMotors) mIntakeArmMotor.set(0.0);
+				break;
 			}
-
-		} else if (mDesiredIntakeArmPosition == IntakeArmPositionEnum.eDeployed) {
-
-			if (getIntakeArmState() == IntakeArmPositionEnum.eDeployed) {
-				intakeArmSpeed = -0.1;  // Apply persisting parking pressure, to counter robot motion dynamics
-				if (showPrints) System.out.print("Phase D3: ");
-			} else {
-				mMaximumIntakeArmUpswingLiftMaxSpeed = -0.8;
-				mMaximumIntakeArmDownswingBrakingMaxSpeed = 0.11;
-				EncoderCountThresholdToReverseDirection = 4.7; // changeable TODO make constant?
-
-				if (Math.abs(currentIntakeArmEncoderPosition) < EncoderCountThresholdToReverseDirection) {
-					// from retracted position, start with maximum lift speed but then ramp it down propotionaly to zero
-					// along to apogee position.   Still a bit of momentum towards retracted position at apogee.
-					factor = .5; //(EncoderCountThresholdToReverseDirection - Math.abs(currentIntakeArmEncoderPosition))
-							// /EncoderCountThresholdToReverseDirection;
-					intakeArmSpeed = mMaximumIntakeArmUpswingLiftMaxSpeed * factor;  // Percent
-					if (showPrints) System.out.print("Phase D1: ");
-				} else {
-					// after reachinig apogee, make zero speed (letting momentum and gravity take over) 
-					// then ramp up the reverse power until max braking speed (is reverse speed) 
-					// applied near deployed landing position. 
-					factor = (Math.abs(currentIntakeArmEncoderPosition)-EncoderCountThresholdToReverseDirection)
-							/(kDesiredIntakeArmEncoderSweep - EncoderCountThresholdToReverseDirection);
-					intakeArmSpeed = mMaximumIntakeArmDownswingBrakingMaxSpeed * factor;  // Percent
-					if (showPrints) System.out.print("Phase D2: ");
-				} 
-			}
-
-		} else {
-			factor = 0.0;
-			intakeArmSpeed = 0.0;
-			if (showPrints) System.out.print("Phase U0: "); // eUnknown
-		}
-		if (showPrints) System.out.println(	
-			"IntakeArm: ENCODER: " + mIntakeArmEncoder.getPosition() +  
-			" Desire: "+ mDesiredIntakeArmPosition +
-			" SPD: " + intakeArmSpeed + 
-			" Factor: " + factor + 
-			" Sweep: " +  kDesiredIntakeArmEncoderSweep + 
-			" Limit " + mIntakeRetractedLimitSwitch.get());
-
-		if(mIntakeRetractedLimitSwitch.get()) {
-			mIntakeArmEncoder.setPosition(0.0);
-		} 
-
-		if (kEnableMotors) mIntakeArmMotor.set(intakeArmSpeed);
+	}
+	public void resumeNormalArmMode(){
+		mIntakeArmPositionMode = IntakePositionOverrideEnum.eNotOverride;
 	}
 	/**
 	 * positive=outward
@@ -234,9 +295,6 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	public double getIntakeArmMotorSpeed() {
 		return mIntakeArmMotor.get();
 	}
-	public void pulseIntake(){
-		setIntakeArmMotorSpeed(-0.5);
-	}
 	/**
 	 * Raw setter for intake arm motor speed, for auto
 	 * @param speed
@@ -246,6 +304,9 @@ public class IntakeSubsystem extends AftershockSubsystem {
 		mIntakeArmMotor.set(speed);
 	}
 	
+	public boolean hasNote(){
+		return !mInternalBeamBreaker.get();
+	}
 	public void ingestNote() {
 		double speed = -0.5;
 		// if (showPrints)
@@ -292,7 +353,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
 	@Override
 	public void periodic() {
 		checkSystem();
-		System.out.println("INTAKE ARM POS: " + mIntakeArmEncoder.getPosition());
+		 System.out.println("INTAKE ARM POS: " + mIntakeArmEncoder.getPosition());
 		if (!Recorder.getIsPlaying())
 			runControlIntakeArmPosition();
 		// System.out.println("intake state "+getIntakeArmState());

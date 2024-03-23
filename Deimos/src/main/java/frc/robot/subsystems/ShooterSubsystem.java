@@ -304,7 +304,10 @@ public class ShooterSubsystem extends AftershockSubsystem {
 			" Shooter LeaveBeamBreaker: " + // checked 2024-03-21 li regional
 			mBeamBreakerLeave.get() +
 			" Shooter LimitSwitch: " + 
+			mShooterLimitSwitch.get() + 
+			" Shooter LimitSwitch: " + 
 			mPanicLimitSwitch.get());
+
 			//"  Intake LIMIT: " + mIntakeRetractedLimitSwitch.get());
 		return true;
 	}

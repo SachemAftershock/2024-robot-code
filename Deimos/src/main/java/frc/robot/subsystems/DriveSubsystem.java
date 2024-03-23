@@ -242,15 +242,19 @@ public class DriveSubsystem extends AftershockSubsystem {
 		// System.out.println("X-Pose" + mPoseEstimator.getEstimatedPosition().getX() +
 		// " Y Pose : " + mPoseEstimator.getEstimatedPosition().getY());
 		// System.out.println("CHASSSIS SPEEDS : " + states[0].speedMetersPerSecond);
-		FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
-		// delete
-		// System.out.println(poseInfo);
+		try{
+			FluidicalPoseInfo poseInfo = mLimelight.getBotPose();
+			// delete
+			// System.out.println(poseInfo);
 
-		if (poseInfo != null && poseInfo.isValidTarget()) {
-			mPoseEstimator.addVisionMeasurement(poseInfo.getPose(), poseInfo.getTimestamp());
+			if (poseInfo != null && poseInfo.isValidTarget()) {
+				mPoseEstimator.addVisionMeasurement(poseInfo.getPose(), poseInfo.getTimestamp());
+			}
+
+			mPoseEstimator.update(getGyroscopeRotation(), getPositions());
+		}catch (Exception e){
+			
 		}
-
-		mPoseEstimator.update(getGyroscopeRotation(), getPositions());
 
 		// var result = mPhotonCamera.getLatestResult();
 
