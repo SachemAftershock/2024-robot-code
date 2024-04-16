@@ -166,9 +166,12 @@ public class RobotContainer {
   private boolean mArmedToFire = false;
   private boolean turboEnabled = false;
 
+  private final boolean kXBoxDriveNotFlightStick = true;
+
   private double turboMultIfTrue() {
     return turboEnabled ? 10000000 : 1;
   }
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
@@ -205,18 +208,18 @@ public class RobotContainer {
 
     // Start a clean recording
     Trigger startRecording = new Trigger(
-        () -> mControllerPrimary.getRawButton(10)
+        () -> mControllerPrimary.getRawButton(kXBoxDriveNotFlightStick ? 3 : 10)
     );
     startRecording.onTrue(mRecorder.startRecording(
         () -> mRecorder.record(mDriveSubsystem, mShooterSubsystem, mIntakeSubsystem)
     ));
     // End a recording, but don't save it yet
     Trigger endRecording = new Trigger(
-        () -> mControllerPrimary.getRawButton(11)
+        () -> mControllerPrimary.getRawButton(kXBoxDriveNotFlightStick ? 4 : 11)
     );
     endRecording.onTrue(mRecorder.endRecording());
     Trigger saveRecording = new Trigger(
-        () -> mControllerPrimary.getRawButton(12)
+        () -> mControllerPrimary.getRawButton(kXBoxDriveNotFlightStick ? 2 : 12)
     );
     // BEWARE: If a file by this name preexists, it WILL be overwritten!
     saveRecording.onTrue(mRecorder.saveRecording("MostRecent"));
@@ -227,7 +230,7 @@ public class RobotContainer {
     //   // mIntakeSubsystem.setIntakeArmState
     // }));
 
-    Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(7));
+    Trigger limelightTilt = new Trigger(()-> mControllerPrimary.getRawButton(kXBoxDriveNotFlightStick ? 1 : 7));
     limelightTilt.onTrue(new LimelightTiltCommand(mDriveSubsystem, 7, 0).andThen(new LimelightTiltCommand(mDriveSubsystem,7 , 0)));
 	
     
