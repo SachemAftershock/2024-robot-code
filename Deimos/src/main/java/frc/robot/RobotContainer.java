@@ -85,7 +85,7 @@ public class RobotContainer {
   private Recorder mRecorder = Recorder.getInstance();
   
   private final AftershockXboxController mControllerTertiary = new AftershockXboxController(0);
-  private final Joystick mControllerPrimary = new Joystick(1);
+  private final AftershockXboxController mControllerPrimary = new AftershockXboxController(1);
   private final Joystick mControllerSecondary = new Joystick(2);
   
   private Command sequenceDeployIngestRetractEject = new SequentialCommandGroup(
@@ -174,12 +174,14 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
+    final boolean kCompetitionMode = false;
+
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getY()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0, //* turboMultIfTrue(),
-            () -> -modifyAxis(mControllerPrimary.getX()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0, //* turboMultIfTrue(),//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerPrimary.getLeftDeadbandY()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * (kCompetitionMode ? 1.0 : 0.05), //* turboMultIfTrue(),
+            () -> -modifyAxis(mControllerPrimary.getLeftDeadbandX()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * (kCompetitionMode ? 1.0 : 0.05), //* turboMultIfTrue(),//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
-            () ->-modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.45//() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
+            () ->-modifyAxis(mControllerPrimary.getRightDeadbandX()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.45 * (kCompetitionMode ? 1.0 : 0.2)  //() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
     // mIntakeSubsystem.setDefaultCommand(new ManualIntakeArm(
     //         mIntakeSubsystem,
@@ -1007,11 +1009,9 @@ public class RobotContainer {
 
     //return sequenceScoreSpeakerAmpSideForRed;
  
-  return sequenceScoreSpeakerAmpSideForRed2;
+  //return sequenceScoreSpeakerAmpSideForRed2;
 
-  // return sequenceScoreSpeakerSourceSideForRed;
-
-
+   return sequenceScoreSpeakerSourceSideForRed;
 
     //return sequenceScoreSpeakerHumanSideForRed;
    
