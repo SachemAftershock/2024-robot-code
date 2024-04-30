@@ -48,6 +48,26 @@ public class Recorder extends RecorderBase {
 
     public void playNextFrame() {
         double[] actions = getNextDoubles(); // recorded data entries
+        // if (actions.length > 7) { // Try to adapt to battery
+        //     double wantedBatteryVoltage = actions[7];
+        //     for (int i = 0; i < actions.length - 1; i++) {
+        //         actions[i] *= (wantedBatteryVoltage / RobotController.getBatteryVoltage());
+        //     }
+        // }
+
+        // magic math to increase motor voltages because they keep
+        // coming up too low
+        actions[0] *= 1.05; // chassis
+        actions[1] *= 1.05;
+        actions[2] *= 1.05;
+        actions[3] *= 1.11; // intake arm
+
+        if (Math.abs(actions[3]) <= .5) actions[3] *= 1.1;          
+
+        actions[4] *= 1.08; // intake roller
+        actions[5] *= 1.05; // shooter
+        actions[6] *= 1.05;
+
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(actions[0], actions[1], actions[2]);
         mDriveSubsystem.drive(chassisSpeeds);
         mIntakeSubsystem.setIntakeArmMotorSpeed(actions[3]);
