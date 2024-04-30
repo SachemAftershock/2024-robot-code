@@ -23,7 +23,7 @@ public class AutoPicker {
         
 
 
-        SmartDashboard.putData("Auto Selector", autoChooser);
+        SmartDashboard.putData("Auto Mode", autoChooser);
     }
 
     public String getSelectedAuto() {

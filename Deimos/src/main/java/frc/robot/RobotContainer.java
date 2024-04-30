@@ -648,20 +648,14 @@ public class RobotContainer {
 
     //Simple Drive Auto For Auto Pick Test
     private Command SimpleDrive = new SequentialCommandGroup(
-     (new TimedLinearDriveCommand(mDriveSubsystem, 2, 0.5, CardinalDirection.eX)).andThen
-     (new RotateDriveCommand(mDriveSubsystem, 45)).andThen
-     (new TimedLinearDriveCommand(mDriveSubsystem, 2, 0.5, CardinalDirection.eX)).andThen
-     (new RotateDriveCommand(mDriveSubsystem, 45)).andThen
-     (new TimedLinearDriveCommand(mDriveSubsystem, 2, 0.5, CardinalDirection.eX)).andThen
-     (new RotateDriveCommand(mDriveSubsystem, 45)).andThen
-     (new TimedLinearDriveCommand(mDriveSubsystem, 2, 0.5, CardinalDirection.eX)).andThen
-     (new RotateDriveCommand(mDriveSubsystem, 45)).andThen
-     (new TimedLinearDriveCommand(mDriveSubsystem, 2, 0.5, CardinalDirection.eX))
-     
-     
-
-
-
+     (new TimedLinearDriveCommand(mDriveSubsystem, 1, 0.25, CardinalDirection.eX)).andThen
+     (new RotateDriveCommand(mDriveSubsystem, 90)).andThen
+     (new TimedLinearDriveCommand(mDriveSubsystem, 1, 0.25, CardinalDirection.eX)).andThen
+     (new RotateDriveCommand(mDriveSubsystem, 90)).andThen
+     (new TimedLinearDriveCommand(mDriveSubsystem, 1, 0.25, CardinalDirection.eX)).andThen
+     (new RotateDriveCommand(mDriveSubsystem, 90)).andThen
+     (new TimedLinearDriveCommand(mDriveSubsystem, 1, 0.25, CardinalDirection.eX)).andThen
+     (new RotateDriveCommand(mDriveSubsystem, 90))
     );
 
     //-----------------------------------------------------------------------------------------------
@@ -1054,11 +1048,11 @@ public class RobotContainer {
  
   //return sequenceScoreSpeakerAmpSideForRed2;
 
-    if(mAutoPicker.getSelectedAuto().equals("AmpsideRed")){
+  if(mAutoPicker.getSelectedAuto().equals("AmpsideRed")){
    return sequenceScoreSpeakerSourceSideForRed;
   }
 
-    if(mAutoPicker.getSelectedAuto().equals("HumanSideRed")){
+  if(mAutoPicker.getSelectedAuto().equals("HumanSideRed")){
     return sequenceScoreSpeakerHumanSideForRed;
   }
 
