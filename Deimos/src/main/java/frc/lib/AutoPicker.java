@@ -8,7 +8,8 @@ public class AutoPicker {
 
     public AutoPicker(){
         autoChooser = new SendableChooser<>();
-        autoChooser.setDefaultOption("AmpsideRed", "AmpsideRed");
+        autoChooser.setDefaultOption("SimpleDrive", "SimpleDrive");
+        autoChooser.addOption("AmpsideRed", "AmpsideRed");
         autoChooser.addOption("HumanSideRed", "HumanSideRed");
         autoChooser.addOption("CenterSide3xRight", "CenterSide3xRight");
         autoChooser.addOption("CenterSide3xLeft", "CenterSide3xLeft");

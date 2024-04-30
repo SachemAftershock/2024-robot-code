@@ -646,6 +646,26 @@ public class RobotContainer {
     );
   //-----------------------------------------------------------------------------------------------
 
+    //Simple Drive Auto For Auto Pick Test
+    private Command SimpleDrive = new SequentialCommandGroup(
+     (new TimedLinearDriveCommand(mDriveSubsystem, 2, 0.5, CardinalDirection.eX)).andThen
+     (new RotateDriveCommand(mDriveSubsystem, 45)).andThen
+     (new TimedLinearDriveCommand(mDriveSubsystem, 2, 0.5, CardinalDirection.eX)).andThen
+     (new RotateDriveCommand(mDriveSubsystem, 45)).andThen
+     (new TimedLinearDriveCommand(mDriveSubsystem, 2, 0.5, CardinalDirection.eX)).andThen
+     (new RotateDriveCommand(mDriveSubsystem, 45)).andThen
+     (new TimedLinearDriveCommand(mDriveSubsystem, 2, 0.5, CardinalDirection.eX)).andThen
+     (new RotateDriveCommand(mDriveSubsystem, 45)).andThen
+     (new TimedLinearDriveCommand(mDriveSubsystem, 2, 0.5, CardinalDirection.eX))
+     
+     
+
+
+
+    );
+
+    //-----------------------------------------------------------------------------------------------
+
   //USED COMMANDS----------------------------------------------------------------------------------
   private Command sequenceScoreSpeakerAmpSideForRed2 = new SequentialCommandGroup(
     (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
@@ -986,6 +1006,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    //Lowkey might need to change .equals() to like == cause idk if it returns a string or not
+
     // RECORDER AUTO COMMANDS -------------------------------------------------
 
     // breaks when battery is low
@@ -1051,6 +1073,11 @@ public class RobotContainer {
   if(mAutoPicker.getSelectedAuto().equals("CenterSideSingle")){
     return sequenceScoreCenterSideSINGLE;
   }
+
+  if (mAutoPicker.getSelectedAuto().equals("SimpleDrive")){
+    return SimpleDrive;
+  }
+
   return null;
     //return sequenceHPSideShootOnceReorientateRED;
    
