@@ -7,31 +7,15 @@ package frc.robot;
 // import com.choreo.lib.Choreo;
 // import com.choreo.lib.ChoreoTrajectory;
 
-import static frc.robot.Constants.ClimberConstants.kClimberMotorSpeed;
-import static frc.robot.Constants.ShooterConstants.kShootMotorShootingVelocity;
 
-import com.fasterxml.jackson.databind.util.PrimitiveArrayBuilder;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.lib.AftershockXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.ClimberSubsystem;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -41,30 +25,21 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.CardinalDirection;
 import frc.robot.commands.DelayCommand;
 import frc.robot.commands.DeployIntakeCommand;
-import frc.robot.commands.FollowTrajectoryCommandFactory;
 import frc.robot.commands.IngestNoteCommand;
 import frc.robot.commands.LimelightTiltCommand;
 import frc.robot.commands.EjectNoteCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.RotateDriveCommand;
-import frc.robot.commands.SafeZoneIntakeCommand;
 import frc.robot.commands.ShooterMotorsOffCommand;
 import frc.robot.commands.ShooterMotorsToSpeakerSpeedCommand;
-import frc.robot.commands.SafeZoneIntakeCommand;
 
 import frc.robot.commands.ShooterStageToNoteLoadAngleCommand;
 import frc.robot.commands.ShooterStageToSpeakerAngleCommand;
 import frc.robot.commands.TimedLinearDriveCommand;
-import frc.robot.commands.AutoCommands.AutoAmpScoreSequence;
 import frc.robot.commands.AutoCommands.NullCommand;
-import frc.robot.enums.IntakeState;
 import frc.robot.enums.ShooterAngleState;
-import frc.robot.commands.LinearDriveCommand;
 import frc.robot.commands.ManualAmpScoreCommand;
 import frc.robot.commands.ManualDriveCommand;
-import frc.robot.commands.OldLinearDriveCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.LimelightManagerSubsystem;
 
 /**
@@ -74,7 +49,6 @@ import frc.robot.subsystems.LimelightManagerSubsystem;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private boolean mIsMappedForShooterNotClimber = true;
   public static boolean isScoreTriggered = false;
 
   // The robot's subsystems and commands are defined here...
@@ -86,7 +60,6 @@ public class RobotContainer {
   
   private final AftershockXboxController mControllerTertiary = new AftershockXboxController(0);
   private final AftershockXboxController mControllerPrimary = new AftershockXboxController(1);
-  private final Joystick mControllerSecondary = new Joystick(2);
   
   private Command sequenceDeployIngestRetractEject = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
@@ -181,10 +154,10 @@ public class RobotContainer {
 
     mDriveSubsystem.setDefaultCommand(new ManualDriveCommand(
             mDriveSubsystem,
-            () -> -modifyAxis(mControllerPrimary.getLeftDeadbandY()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * (kCompetitionMode ? 1.0 : 0.05), //* turboMultIfTrue(),
-            () -> -modifyAxis(mControllerPrimary.getLeftDeadbandX()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * (kCompetitionMode ? 1.0 : 0.05), //* turboMultIfTrue(),//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
+            () -> -modifyAxis(mControllerPrimary.getLeftDeadbandY()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * 0.5, //* turboMultIfTrue(),
+            () -> -modifyAxis(mControllerPrimary.getLeftDeadbandX()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * 0.5, //* turboMultIfTrue(),//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
-            () ->-modifyAxis(mControllerPrimary.getRightDeadbandX()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.45 * (kCompetitionMode ? 1.0 : 0.2)  //() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
+            () ->-modifyAxis(mControllerPrimary.getRightDeadbandX()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.45   //() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
     // mIntakeSubsystem.setDefaultCommand(new ManualIntakeArm(
     //         mIntakeSubsystem,
@@ -250,12 +223,12 @@ public class RobotContainer {
     }));
 
     // Multiply manual drive by a Large Number (blame Enzo)
-    Trigger turboButton = new Trigger(()-> mControllerSecondary.getRawButton(1)); // guntrigger button
-    turboButton.onTrue(new InstantCommand(()->{
-      turboEnabled = true;
-    })).onFalse(new InstantCommand(()->{
-      turboEnabled = false;
-    }));
+    // Trigger turboButton = new Trigger(()-> mControllerSecondary.getRawButton(1)); // guntrigger button
+    // turboButton.onTrue(new InstantCommand(()->{
+    //   turboEnabled = true;
+    // })).onFalse(new InstantCommand(()->{
+    //   turboEnabled = false;
+    // }));
   	//INTAKE ROLLERS (Manual)
     // Trigger something = new Trigger(()-> mControllerPrimary.getRawButton(7));
     // something.onTrue((new LimelightTiltCommand(mDriveSubsystem)).andThen(new LimelightTiltCommand(mDriveSubsystem)));
@@ -1014,7 +987,8 @@ public class RobotContainer {
  
   //return sequenceScoreSpeakerAmpSideForRed2;
 
-   return sequenceScoreSpeakerSourceSideForRed;
+   //return sequenceScoreSpeakerSourceSideForRed;
+   return new NullCommand(); 
 
     //return sequenceScoreSpeakerHumanSideForRed;
    

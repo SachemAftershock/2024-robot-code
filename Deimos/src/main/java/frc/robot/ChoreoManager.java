@@ -1,7 +1,5 @@
 package frc.robot;
 
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;

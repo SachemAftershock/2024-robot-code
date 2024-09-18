@@ -1,9 +1,5 @@
 package frc.robot.commands.AutoCommands;
 
-import java.util.function.BooleanSupplier;
-
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.enums.ShooterAngleState;
 import frc.robot.subsystems.IntakeSubsystem;

@@ -17,14 +17,8 @@ import static frc.robot.Constants.IntakeConstants.kInternalBeamBreakerID;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
-import frc.lib.AftershockSubsystem;
-import frc.robot.LampController;
 
 public class IntakeSubsystem extends AftershockSubsystem {
 

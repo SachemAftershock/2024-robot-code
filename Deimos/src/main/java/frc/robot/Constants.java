@@ -61,7 +61,7 @@ public final class Constants {
         public static final int kIntakeLimitSwitchID = 4;
 
         public static final double kIngestNoteSpeed = -0.4;
-        public static final double kEjectNoteSpeed = 0.5;
+        public static final double kEjectNoteSpeed = 0.5 * 0.5;
 
         public static double[] kIntakeArmGains = { 0.4, 0, 0 };
 
@@ -167,7 +167,7 @@ public final class Constants {
         public static double kArmAmpRollerVelocity = 0.5;
 
         // TODO are we going to make the left motor and right motors different?
-        public static double kShootMotorShootingVelocity = 1.0;
+        public static double kShootMotorShootingVelocity = 1.0 * 0.5;
 
         // shooter angle arm position to velocity profiles (aka lookup tables)
         /**

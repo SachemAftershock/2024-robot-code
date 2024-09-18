@@ -2,37 +2,19 @@
 package frc.robot.subsystems;
 
 import frc.lib.AftershockSubsystem;
-import frc.lib.PositionToVelocityProfiler;
 import frc.robot.LampController;
-import frc.robot.RobotContainer;
 import static frc.robot.Constants.ShooterConstants.*;
 // import frc.robot.enums.ControlState;
-import frc.robot.enums.IntakeState;
+
 import frc.robot.enums.ShooterAngleState;
 
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkBase.IdleMode;
+
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-
-import static frc.robot.Constants.ShooterConstants.*;
 
 public class ShooterSubsystem extends AftershockSubsystem {
 

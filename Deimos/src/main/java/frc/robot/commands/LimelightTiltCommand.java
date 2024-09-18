@@ -5,25 +5,18 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.LampController;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class LimelightTiltCommand extends Command {
     private DriveSubsystem mDrive;
-    private DriverStation mDriverStation;
     private ProfiledPIDController mPidTilt;
     private NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     private TrapezoidProfile.Constraints constraints;
     private double tiltEpsilon = 1.0;
     private LampController mLampController = LampController.getInstance();
-    private boolean mLampTriggered = false;
-    private Alliance AllianceColor = null;
-    private int LocationNumber = 0;
     private double mPIDGoal;
     private int mTag;
     private double mAngle;
