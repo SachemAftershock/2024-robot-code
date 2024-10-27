@@ -86,7 +86,7 @@ public class RobotContainer {
   
   private final AftershockXboxController mControllerTertiary = new AftershockXboxController(0);
   private final AftershockXboxController mControllerPrimary = new AftershockXboxController(1);
-  private final Joystick mControllerSecondary = new Joystick(2);
+  // private final Joystick mControllerSecondary = new Joystick(2);
   
   private Command sequenceDeployIngestRetractEject = new SequentialCommandGroup(
     (new DelayCommand(0.1)).andThen
@@ -237,25 +237,36 @@ public class RobotContainer {
     // Emergency Reinitialize. Note that this both reinitializes the drive gyroscope
     // AND intercepts ManualDriveCommand, so that pressing the joystick hat when the
     // bot is facing right will reorient it correctly.
-    Trigger fieldOrientTrigger = new Trigger(() -> mControllerPrimary.getPOV() != -1); // reorient by pov
+    // Trigger fieldOrientTrigger = new Trigger(() -> mControllerPrimary.getPOV() != -1); // reorient by pov
+    // fieldOrientTrigger.onTrue(new InstantCommand(() -> {
+    //   // Must be cardinal direction {0,90,180,270}, not an ordinal direction.
+    //   // When the driver hits right hat while the bot is facing right, the
+    //   // code should know where "field forward" is. We add to gyroscope instead of
+    //   // setting mNavx's reinitial yaw manually because no mNavx.setYaw() exists in DriveSubsystem
+    //   int val = 0;
+    //   if ((val = mControllerPrimary.getPOV()) % 90 == 0) {
+    //     mDriveSubsystem.initialize();
+    //     ManualDriveCommand.setHackyNavXYawOffset(val); // TODO ensure left/right isn't swapped;
+    //   }
+    // }));
+    Trigger fieldOrientTrigger = new Trigger(() -> mControllerPrimary.getPOV() == 0); // reorient by pov
     fieldOrientTrigger.onTrue(new InstantCommand(() -> {
       // Must be cardinal direction {0,90,180,270}, not an ordinal direction.
       // When the driver hits right hat while the bot is facing right, the
       // code should know where "field forward" is. We add to gyroscope instead of
       // setting mNavx's reinitial yaw manually because no mNavx.setYaw() exists in DriveSubsystem
-      if (mControllerPrimary.getPOV() % 90 == 0) {
         mDriveSubsystem.initialize();
-        ManualDriveCommand.setHackyNavXYawOffset(mControllerPrimary.getPOV()); // TODO ensure left/right isn't swapped;
-      }
+       // TODO ensure left/right isn't swapped;
+      
     }));
 
     // Multiply manual drive by a Large Number (blame Enzo)
-    Trigger turboButton = new Trigger(()-> mControllerSecondary.getRawButton(1)); // guntrigger button
-    turboButton.onTrue(new InstantCommand(()->{
-      turboEnabled = true;
-    })).onFalse(new InstantCommand(()->{
-      turboEnabled = false;
-    }));
+    // Trigger turboButton = new Trigger(()-> mControllerSecondary.getRawButton(1)); // guntrigger button
+    // turboButton.onTrue(new InstantCommand(()->{
+    //   turboEnabled = true;
+    // })).onFalse(new InstantCommand(()->{
+    //   turboEnabled = false;
+    // }));
   	//INTAKE ROLLERS (Manual)
     // Trigger something = new Trigger(()-> mControllerPrimary.getRawButton(7));
     // something.onTrue((new LimelightTiltCommand(mDriveSubsystem)).andThen(new LimelightTiltCommand(mDriveSubsystem)));
@@ -945,7 +956,9 @@ public class RobotContainer {
     (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
     (new EjectNoteCommand(mIntakeSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
-    (new InstantCommand(() -> { mArmedToFire = false; }))
+    (new InstantCommand(() -> { mArmedToFire = false; })).andThen
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.0, 1.5, CardinalDirection.eX)).andThen
+    ((new RotateDriveCommand(mDriveSubsystem, 179)))
     );
 
     private Command sequenceScoreCenterSide3xtoLEFT = new SequentialCommandGroup(
