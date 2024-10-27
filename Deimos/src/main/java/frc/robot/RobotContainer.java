@@ -184,7 +184,7 @@ public class RobotContainer {
             () -> -modifyAxis(mControllerPrimary.getLeftDeadbandY()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * (kCompetitionMode ? 1.0 : 0.05), //* turboMultIfTrue(),
             () -> -modifyAxis(mControllerPrimary.getLeftDeadbandX()) * DriveConstants.kMaxVelocityMetersPerSecond * 10.0 * (kCompetitionMode ? 1.0 : 0.05), //* turboMultIfTrue(),//() -> -modifyAxis(mControllerPrimary.getLeftX()) * DriveConstants.kMaxVelocityMetersPerSecond * 0.7,
 
-            () ->-modifyAxis(mControllerPrimary.getRightDeadbandX()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.45 * (kCompetitionMode ? 1.0 : 0.2)  //() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
+            () ->-modifyAxis(mControllerPrimary.getRightDeadbandX()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 2.0 * (kCompetitionMode ? 1.0 : 0.2)  //() -> -modifyAxis(mControllerSecondary.getTwist()) * DriveConstants.kMaxAngularVelocityRadiansPerSecond * 0.3
     ));
     // mIntakeSubsystem.setDefaultCommand(new ManualIntakeArm(
     //         mIntakeSubsystem,
@@ -906,6 +906,48 @@ public class RobotContainer {
     /* 3x note
      * Starts in center, shoots in place, shoots the close middle piece, shoots the close left side piece
      */
+    private Command sequenceScoreCenterSide2x = new SequentialCommandGroup(
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    (new DelayCommand(0.1)).andThen
+    // (new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.5); } )).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    // (new InstantCommand(() -> { mIntakeSubsystem.setRollerMotorSpeed(0.0); } )).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = false; })).andThen
+    //Driving back to shoot into speaker after driving out to get a piece
+    
+    (new DeployIntakeCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.5)).andThen
+    (
+      ((new IngestNoteCommand(mIntakeSubsystem)).andThen
+      ((new RetractIntakeCommand(mIntakeSubsystem))).alongWith
+    (new TimedLinearDriveCommand(mDriveSubsystem, -1.7, 1.5, CardinalDirection.eX)))
+    ).andThen
+    //(new TimedLinearDriveCommand(mDriveSubsystem, 0, 0.1, 0)).andThen
+     ((new TimedLinearDriveCommand(mDriveSubsystem, 1.55, 1.5, CardinalDirection.eX)).alongWith
+
+    (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem))).andThen
+    (new DelayCommand(0.2)).andThen
+    (new ShooterStageToSpeakerAngleCommand(mShooterSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = true; })).andThen
+    (new DelayCommand(0.1)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.1)).andThen
+    (new ShooterMotorsOffCommand(mShooterSubsystem)).andThen
+    (new EjectNoteCommand(mIntakeSubsystem)).andThen
+    (new DelayCommand(0.2)).andThen
+    (new InstantCommand(() -> { mArmedToFire = false; }))
+    );
+
     private Command sequenceScoreCenterSide3xtoLEFT = new SequentialCommandGroup(
     (new ShooterMotorsToSpeakerSpeedCommand(mShooterSubsystem)).andThen
     (new DelayCommand(0.2)).andThen
@@ -1014,7 +1056,7 @@ public class RobotContainer {
  
   //return sequenceScoreSpeakerAmpSideForRed2;
 
-   return sequenceScoreSpeakerSourceSideForRed;
+   //return sequenceScoreSpeakerSourceSideForRed;
 
     //return sequenceScoreSpeakerHumanSideForRed;
    
@@ -1026,7 +1068,7 @@ public class RobotContainer {
       
     //return sequenceHPSideShootOnceReorientateRED;
    
-    //return sequenceScoreCenterSideSINGLE;
+    return sequenceScoreCenterSide2x;
     
     //return ScoreAmpAndTaxi;
     // -------------------------------------------------------------------------

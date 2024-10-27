@@ -18,7 +18,7 @@ public class ShooterMotorsOffCommand extends Command {
 
     public void initialize() {
         if (showPrints) System.out.println("ShooterMotorsOffCommand INIT");
-        mShooter.setShooterMotorSpeed(0,0);
+        mShooter.setShooterMotorSpeed(0.2,0.2);
     }
 
     public void execute() {
@@ -27,7 +27,7 @@ public class ShooterMotorsOffCommand extends Command {
     }
 
     public boolean isFinished() {
-        if (showPrints) System.out.println("ShooterMotorsOffCommand FIN");
+        if (showPrints) System.out.println("ShooterMotorsOffCommand FIN"); 
         return true;
     }
 

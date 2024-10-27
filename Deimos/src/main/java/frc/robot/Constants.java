@@ -61,7 +61,7 @@ public final class Constants {
         public static final int kIntakeLimitSwitchID = 4;
 
         public static final double kIngestNoteSpeed = -0.4;
-        public static final double kEjectNoteSpeed = 0.5;
+        public static final double kEjectNoteSpeed = 0.7;
 
         public static double[] kIntakeArmGains = { 0.4, 0, 0 };
 
